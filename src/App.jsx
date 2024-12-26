@@ -16,6 +16,7 @@ import {
   Cities,
   Regions,
   ChangePassword,
+  Docs,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 
@@ -60,6 +61,10 @@ function App() {
         {
           path: "/changepassword",
           element: <ChangePassword />,
+        },
+        {
+          path: "/docs",
+          element: <Docs />,
         },
       ],
     },
