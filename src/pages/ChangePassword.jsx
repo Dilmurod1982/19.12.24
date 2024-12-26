@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/toast"; // Используем для уведомлений
+import { Toast } from "../components/ui/toast"; // Используем для уведомлений
 
 function ChangePassword() {
   const user = useAppStore((state) => state.user);
@@ -23,7 +23,7 @@ function ChangePassword() {
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     if (!newPassword) {
-      toast({
+      Toast({
         title: "Ошибка",
         description: "Введите новый пароль",
         variant: "error",
@@ -45,14 +45,14 @@ function ChangePassword() {
 
       const data = await response.json();
       if (response.ok) {
-        toast({
+        Toast({
           title: "Успех",
           description: "Пароль успешно изменён",
           variant: "success",
         });
         setNewPassword("");
       } else {
-        toast({
+        Toast({
           title: "Ошибка",
           description: data.message || "Не удалось изменить пароль",
           variant: "error",
@@ -60,7 +60,7 @@ function ChangePassword() {
       }
     } catch (error) {
       console.error(error);
-      toast({
+      Toast({
         title: "Ошибка",
         description: "Произошла ошибка",
         variant: "error",
