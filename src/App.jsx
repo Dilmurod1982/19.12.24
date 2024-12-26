@@ -7,7 +7,16 @@ import {
 
 import ProtectedRoutes from "./layouts/ProtectedRoutes";
 import RootLayouts from "./layouts/RootLayouts";
-import { Home, Login, Ltd, Stations, Users } from "./pages";
+import {
+  Home,
+  Login,
+  Ltd,
+  Stations,
+  Users,
+  Cities,
+  Regions,
+  ChangePassword,
+} from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 
 function App() {
@@ -39,6 +48,18 @@ function App() {
         {
           path: "/ltd",
           element: <Ltd />,
+        },
+        {
+          path: "/regions",
+          element: <Regions />,
+        },
+        {
+          path: "/cities",
+          element: <Cities />,
+        },
+        {
+          path: "/changepassword",
+          element: <ChangePassword />,
         },
       ],
     },

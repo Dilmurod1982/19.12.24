@@ -1,51 +1,52 @@
 import { useEffect, useState } from "react";
 import { useAppStore } from "../lib/zustand";
-import { getLtd, refreshToken } from "../request";
+import { getRegions, refreshToken } from "../request";
 import { Button } from "../components/ui/button";
 import { PulseLoader } from "react-spinners";
 import { Link } from "react-router-dom";
-import AddNewLtd from "../components/AddNewLtd";
-import LtdList from "../components/LtdList";
 
-function Ltd() {
+import RegionsList from "../components/RegionsList";
+import AddNewRegion from "../components/AddNewRegion";
+
+function Regions() {
   const [sendingData, setSendingData] = useState(null);
-  const ltd = useAppStore((state) => state.ltd);
-  console.log(ltd);
-  const setLtd = useAppStore((state) => state.setLtd);
+  const regions = useAppStore((state) => state.regions);
+  console.log(regions);
+  const setRegions = useAppStore((state) => state.setRegions);
   const user = useAppStore((state) => state.user);
   const setUser = useAppStore((state) => state.setUser);
   const setAddItemModal = useAppStore((state) => state.setAddItemModal);
 
   useEffect(() => {
-    getLtd(user?.access_token)
+    getRegions(user?.access_token)
       .then(({ data }) => {
-        setLtd(data);
+        setRegions(data);
       })
       .catch(({ message }) => {
         if (message === "403") {
           refreshToken(user?.refreshToken)
             .then(({ access_token }) => {
               setUser({ ...user, access_token });
-              return getLtd(access_token);
+              return getRegions(access_token);
             })
-            .then(({ data }) => setLtd(data))
+            .then(({ data }) => setRegions(data))
             .catch((error) => console.error("Error fetching users:", error));
         }
       });
-  }, [user, setLtd, setUser, sendingData]);
+  }, [user, setRegions, setUser, sendingData]);
 
   return (
     <>
       <div className="overflow-x-auto">
         <div className="flex justify-between mx-5 mb-8">
-          <h1 className="text-3xl font-bold">МЧЖлар рўйхати</h1>
+          <h1 className="text-3xl font-bold">Вилоятлар рўйхати</h1>
           {user.type === "admin" ? (
             <Button
               onClick={setAddItemModal}
-              disabled={ltd ? false : true}
-              className={ltd ? "cursor-pointer" : "cursor-not-allowed"}
+              disabled={regions ? false : true}
+              className={regions ? "cursor-pointer" : "cursor-not-allowed"}
             >
-              МЧЖ қўшиш
+              Вилоят қўшиш
             </Button>
           ) : (
             ""
@@ -56,27 +57,13 @@ function Ltd() {
           <thead>
             <tr>
               <th>#</th>
-              <th>МЧЖ номи</th>
-              <th>Директор Ф.И.Ш.</th>
-              <th>телефони</th>
-              <th>Банк номи</th>
-              <th>Банк МФОси</th>
-              <th>МЧЖ СТИР</th>
+              <th>Вилоят номи</th>
             </tr>
           </thead>
           <tbody>
-            {ltd ? (
-              ltd.map(({ id, ltd_name, direktor, bank, mfo, stir, tel }) => (
-                <LtdList
-                  key={id}
-                  id={id}
-                  ltd_name={ltd_name}
-                  direktor={direktor}
-                  bank={bank}
-                  mfo={mfo}
-                  stir={stir}
-                  tel={tel}
-                />
+            {regions ? (
+              regions.map(({ id, region_name }) => (
+                <RegionsList key={id} id={id} region_name={region_name} />
               ))
             ) : (
               <tr>
@@ -90,7 +77,7 @@ function Ltd() {
           </tbody>
         </table>
       </div>
-      <AddNewLtd sendingData={sendingData} setSendingData={setSendingData} />
+      <AddNewRegion sendingData={sendingData} setSendingData={setSendingData} />
       <div className="flex w-full h-screen justify-center mt-5">
         <Button>
           <Link to="/">Орқага</Link>
@@ -100,4 +87,4 @@ function Ltd() {
   );
 }
 
-export default Ltd;
+export default Regions;

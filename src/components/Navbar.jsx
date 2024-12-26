@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAppStore } from "../lib/zustand";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
@@ -6,10 +6,19 @@ import { Button } from "./ui/button";
 export default function Navbar() {
   const user = useAppStore((state) => state.user);
   const setUser = useAppStore((state) => state.setUser);
+  const [menuOpen, setMenuOpen] = useState(false); // Состояние для управления меню
 
   function logOut() {
     const checker = confirm("Ҳақиқатдан тизимдан чиқмочимисиз?");
     checker && setUser(null);
+  }
+
+  function toggleMenu() {
+    setMenuOpen((prev) => !prev);
+  }
+
+  function closeMenu() {
+    setMenuOpen(false);
   }
 
   return (
@@ -19,6 +28,47 @@ export default function Navbar() {
           АГТКШ
         </Link>
       </div>
+      <ul className="menu menu-horizontal px-1">
+        <li className="relative">
+          <summary onClick={toggleMenu} className="btn btn-ghost">
+            Маълумот
+          </summary>
+          {menuOpen && (
+            <ul className="absolute left-0 top-full bg-white p-2 shadow z-40">
+              {user.type === "admin" ? (
+                <li>
+                  <Link to="/users" onClick={closeMenu}>
+                    Фойдаланувчилар
+                  </Link>
+                </li>
+              ) : (
+                ""
+              )}
+
+              <li>
+                <Link to="/regions" onClick={closeMenu}>
+                  Вилоятлар
+                </Link>
+              </li>
+              <li>
+                <Link to="/cities" onClick={closeMenu}>
+                  Туманлар
+                </Link>
+              </li>
+              <li>
+                <Link to="/ltd" onClick={closeMenu}>
+                  МЧЖлар
+                </Link>
+              </li>
+              <li>
+                <Link to="/stations" onClick={closeMenu}>
+                  Шахобчалар
+                </Link>
+              </li>
+            </ul>
+          )}
+        </li>
+      </ul>
       <div className="flex-none">
         <div className="dropdown dropdown-end">
           <h1>{user.username}</h1>
@@ -35,13 +85,14 @@ export default function Navbar() {
             </div>
           </div>
         </div>
+
         <div className="dropdown dropdown-end">
           <div
             tabIndex={0}
             role="button"
             className="btn btn-ghost btn-circle avatar"
           >
-            <div className="w-10 rounded-full  ">
+            <div className="w-10 rounded-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -69,7 +120,7 @@ export default function Navbar() {
               </a>
             </li>
             <li>
-              <a>Settings</a>
+              <Link to="/changepassword">Settings</Link>
             </li>
             <li>
               <Button onClick={logOut}>Чиқиш</Button>

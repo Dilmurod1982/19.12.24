@@ -6,6 +6,8 @@ export const useAppStore = create((set) => ({
   stations: null,
   ltd: null,
   addItemModal: false,
+  regions: null,
+  cities: null,
   setUser: (user) => {
     set(() => {
       if (user) {
@@ -17,6 +19,8 @@ export const useAppStore = create((set) => ({
   setUsers: (users) => set((state) => ({ users })),
   setStations: (stations) => set((state) => ({ stations })),
   setLtd: (ltd) => set((state) => ({ ltd })),
+  setRegions: (regions) => set((state) => ({ regions })),
+  setCities: (cities) => set((state) => ({ cities })),
   setAddItemModal: () =>
     set((state) => ({ addItemModal: !state.addItemModal })),
 }));

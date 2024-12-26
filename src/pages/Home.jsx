@@ -10,11 +10,6 @@ export default function AdminHome() {
         {user.type === "admin" && (
           <>
             <Button className="w-full">
-              <Link className="text-2xl" to="/users">
-                Фойдаланувчилар
-              </Link>
-            </Button>
-            <Button className="w-full">
               <Link className="text-2xl" to="/ltd">
                 МЧЖлар
               </Link>

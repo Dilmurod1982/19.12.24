@@ -51,6 +51,44 @@ export async function getLtd(token) {
   else throw new Error("Нимадур хатолик бўлди");
 }
 
+export async function getRegions(token) {
+  const res = await fetch("https://json-api.uz/api/project/agnks/regions", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`, // Добавьте токен авторизации
+    },
+  });
+
+  if (res.status === 405) {
+    throw new Error("Method Not Allowed");
+  }
+  if (res.ok) {
+    return await res.json();
+  } else {
+    throw new Error(`Ошибка: ${res.status}`);
+  }
+}
+
+export async function getCities(token) {
+  const res = await fetch("https://json-api.uz/api/project/agnks/cities", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (res.status === 405) {
+    throw new Error("Method Not Allowed");
+  }
+  if (res.ok) {
+    return await res.json();
+  } else {
+    throw new Error(`Ошибка: ${res.status}`);
+  }
+}
+
 export async function getStations(token) {
   const res = await fetch(BASE_URL + "/stations", {
     headers: {
@@ -81,6 +119,41 @@ export async function registerUser(token, data) {
   console.log(res.status, res, await res.json());
 }
 
+export async function registerRegion(token, data) {
+  const res = await fetch(BASE_URL + "/regions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
+  if (res.status === 400 || res.status === 401)
+    throw new Error("Хатолик 400 401");
+  if (res.status === 403 || res.status === 402)
+    throw new Error("Хатолик 403 402");
+  else throw new Error("Нимадур хатолик бўлди");
+  console.log(res.status, res, await res.json());
+}
+
+export async function registerCity(token, data) {
+  const res = await fetch(BASE_URL + "/cities", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
+  if (res.status === 400 || res.status === 401)
+    throw new Error("Хатолик 400 401");
+  if (res.status === 403 || res.status === 402)
+    throw new Error("Хатолик 403 402");
+  else throw new Error("Нимадур хатолик бўлди");
+  console.log(res.status, res, await res.json());
+}
 export async function registerltd(token, data) {
   const res = await fetch(BASE_URL + "/ltd", {
     method: "POST",

@@ -19,16 +19,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ClipLoader } from "react-spinners";
 import { getFormData } from "../my-utils";
-import { refreshToken, getLtd, getUsers, registerStation } from "../request";
+import {
+  refreshToken,
+  getLtd,
+  getUsers,
+  registerStation,
+  getRegions,
+  getCities,
+} from "../request";
 import { toast } from "sonner";
+
+const initialFormState = {
+  moljal: "",
+  ltd_id: "",
+  station_number: "",
+  boshqaruvchi: "",
+  region_id: "",
+  city_id: "",
+  kocha: "",
+  uy: "",
+  b_mexanik: "",
+  b_mexanik_tel: "",
+  gasLtd_id: "",
+  operators: [],
+};
 
 export default function AddNewStation({ setSendingData, sendingData }) {
   const [loading, setLoading] = useState(false);
   const [selectedOperator, setSelectedOperator] = useState("");
   const [userOptions, setUserOptions] = useState([]);
+
   const addItemModal = useAppStore((state) => state.addItemModal);
   const setAddItemModal = useAppStore((state) => state.setAddItemModal);
   const users = useAppStore((state) => state.users);
@@ -37,37 +60,31 @@ export default function AddNewStation({ setSendingData, sendingData }) {
   const setUser = useAppStore((state) => state.setUser);
   const ltd = useAppStore((state) => state.ltd);
   const setLtd = useAppStore((state) => state.setLtd);
+  const regions = useAppStore((state) => state.regions);
+  const setRegions = useAppStore((state) => state.setRegions);
+  const cities = useAppStore((state) => state.cities);
+  const setCities = useAppStore((state) => state.setCities);
 
-  const [formState, setFormState] = useState({
-    moljal: "",
-    ltd_id: null,
-    station_number: "",
-    boshqaruvchi: "",
-    viloyat: "",
-    tuman: "",
-    kocha: "",
-    uy: "",
-    b_mexanik: "",
-    b_mexanik_tel: "",
-    gaz_taminot: "",
-    operators: [], // Инициализировано как массив
-  });
+  const [formState, setFormState] = useState(initialFormState);
 
   const handleAddOperator = () => {
     if (selectedOperator && !formState.operators.includes(selectedOperator)) {
       setFormState((prev) => ({
         ...prev,
-        operators: [...prev.operators, selectedOperator], // Добавление оператора
+        operators: [...prev.operators, selectedOperator],
       }));
-      setSelectedOperator(""); // Очистка выбранного оператора
+      setSelectedOperator("");
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const result = getFormData(e.target);
-    result.ltd_id = Number(formState.ltd_id); // Преобразуем в число
-    result.operators = formState.operators; // Убедитесь, что передаете массив операторов
+    result.ltd_id = Number(formState.ltd_id);
+    result.region_id = Number(formState.region_id);
+    result.city_id = Number(formState.city_id);
+    result.gasLtd_id = Number(formState.gasLtd_id);
+    result.operators = formState.operators;
     setSendingData(result);
   };
 
@@ -79,13 +96,13 @@ export default function AddNewStation({ setSendingData, sendingData }) {
           toast.dismiss();
           toast.success("Янги шахобча мувафақиятли қўшилди!");
           setSendingData(null);
-          setAddItemModal;
+          setAddItemModal(false); // Закрытие модального окна
         })
         .catch(({ message }) => {
           if (message === "403") {
             refreshToken(user?.refresh_token)
               .then(({ access_token }) => {
-                setUser(...user, access_token);
+                setUser({ ...user, access_token });
               })
               .catch(() => {
                 toast.info("Тизимга қайта киринг!");
@@ -119,6 +136,42 @@ export default function AddNewStation({ setSendingData, sendingData }) {
   }, [user, setLtd, setUser]);
 
   useEffect(() => {
+    getRegions(user?.access_token)
+      .then(({ data }) => {
+        setRegions(data);
+      })
+      .catch(({ message }) => {
+        if (message === "403") {
+          refreshToken(user?.refreshToken)
+            .then(({ access_token }) => {
+              setUser({ ...user, access_token });
+              return getRegions(access_token);
+            })
+            .then(({ data }) => setRegions(data))
+            .catch((error) => console.error("Error fetching users:", error));
+        }
+      });
+  }, [user, setRegions, setUser]);
+
+  useEffect(() => {
+    getCities(user?.access_token)
+      .then(({ data }) => {
+        setCities(data);
+      })
+      .catch(({ message }) => {
+        if (message === "403") {
+          refreshToken(user?.refreshToken)
+            .then(({ access_token }) => {
+              setUser({ ...user, access_token });
+              return getCities(access_token);
+            })
+            .then(({ data }) => setCities(data))
+            .catch((error) => console.error("Error fetching users:", error));
+        }
+      });
+  }, [user, setCities, setUser]);
+
+  useEffect(() => {
     getUsers(user?.access_token)
       .then(({ data }) => {
         setUsers(data);
@@ -128,8 +181,8 @@ export default function AddNewStation({ setSendingData, sendingData }) {
         if (message === "403") {
           refreshToken(user?.refreshToken)
             .then(({ access_token }) => {
-              setUser({ ...user, access_token }); // Обновляем токен
-              return getUsers(access_token); // Повторный запрос
+              setUser({ ...user, access_token });
+              return getUsers(access_token);
             })
             .then(({ data }) => {
               setUsers(data);
@@ -148,25 +201,24 @@ export default function AddNewStation({ setSendingData, sendingData }) {
     }));
   };
 
-  const isFormValid = () => {
+  const isFormValid = useMemo(() => {
     const requiredFields = [
       formState.moljal,
       formState.ltd_id,
       formState.station_number,
       formState.boshqaruvchi,
-      formState.viloyat,
-      formState.tuman,
+      formState.region_id,
+      formState.city_id,
       formState.kocha,
       formState.uy,
       formState.b_mexanik,
       formState.b_mexanik_tel,
-      formState.gaz_taminot,
+      formState.gasLtd_id,
     ];
 
     const isOperatorsValid = formState.operators.length > 0;
-
     return requiredFields.every(Boolean) && isOperatorsValid;
-  };
+  }, [formState]);
 
   return (
     <div>
@@ -184,7 +236,7 @@ export default function AddNewStation({ setSendingData, sendingData }) {
             onSubmit={handleSubmit}
             className="flex flex-col items-center gap-6 "
           >
-            <div className="w-full flex flex-col gap-2 max-h-96 overflow-y-auto">
+            <div className="w-[450px] p-2 flex flex-col gap-2 max-h-96 overflow-y-auto">
               <div className="flex flex-col gap-2 ">
                 <Label htmlFor="moljal">Шахобча номи</Label>
                 <Input
@@ -246,26 +298,56 @@ export default function AddNewStation({ setSendingData, sendingData }) {
                 />
               </div>
               <div className="w-full flex flex-col gap-2">
-                <Label htmlFor="viloyat">Вилоят</Label>
-                <Input
-                  type="text"
-                  id="viloyat"
-                  name="viloyat"
-                  placeholder="Жойлашган вилоят номини киритинг"
+                <Label htmlFor="region_id">Вилоят номи</Label>
+                <select
+                  name="region_id"
+                  value={formState.region_id}
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    setFormState((prev) => ({
+                      ...prev,
+                      region_id: value,
+                      city_id: "", // Сбрасываем выбранный город при смене региона
+                    }));
+                  }}
                   required
-                />
+                >
+                  <option value="" disabled>
+                    вилоятни танланг
+                  </option>
+                  {Array.isArray(regions) &&
+                    regions.map((region) => (
+                      <option key={region.id} value={region.id}>
+                        {region.region_name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div className="w-full flex flex-col gap-2">
+                <Label htmlFor="city_id">Туман/шаҳар номи</Label>
+                <select
+                  name="city_id"
+                  value={formState.city_id}
+                  onChange={handleChange}
+                  disabled={!formState.region_id} // Заблокировано, если region_id не выбран
+                  required
+                >
+                  <option value="" disabled>
+                    туман/шаҳарни танланг
+                  </option>
+                  {Array.isArray(cities) &&
+                    cities
+                      .filter(
+                        (city) => city.region_id === Number(formState.region_id)
+                      ) // Фильтрация городов
+                      .map((city) => (
+                        <option key={city.id} value={city.id}>
+                          {city.city_name}
+                        </option>
+                      ))}
+                </select>
               </div>
 
-              <div className="w-full flex flex-col gap-2">
-                <Label htmlFor="tuman">Шаҳар/туман</Label>
-                <Input
-                  type="text"
-                  id="tuman"
-                  name="tuman"
-                  placeholder="Жойлашган шаҳар/туманни номини киритинг"
-                  required
-                />
-              </div>
               <div className="w-full flex flex-col gap-2">
                 <Label htmlFor="kocha">Кўча</Label>
                 <Input
@@ -307,14 +389,23 @@ export default function AddNewStation({ setSendingData, sendingData }) {
                 />
               </div>
               <div className="w-full flex flex-col gap-2">
-                <Label htmlFor="gaz_taminot">Газ таъминот ташкилоти</Label>
-                <Input
-                  type="text"
-                  id="gaz_taminot"
-                  name="gaz_taminot"
-                  placeholder="Газ таъминот ташкилоти киритинг"
+                <Label htmlFor="gasLtd_id">Газ таъминоти корхонаси</Label>
+                <select
+                  name="gasLtd_id"
+                  value={formState.gasLtd_id}
+                  onChange={handleChange}
                   required
-                />
+                >
+                  <option value="" disabled>
+                    Газ корхонасини танланг
+                  </option>
+                  {Array.isArray(cities) &&
+                    cities.map((city) => (
+                      <option key={city.id} value={city.id}>
+                        {city.city_name} газ
+                      </option>
+                    ))}
+                </select>
               </div>
               <div className="w-full flex flex-col gap-2">
                 <Label htmlFor="operators">Операторлар</Label>
@@ -329,7 +420,7 @@ export default function AddNewStation({ setSendingData, sendingData }) {
                     </option>
                     {userOptions.map((user) => (
                       <option key={user.id} value={user.id}>
-                        {user.username}{" "}
+                        {user.username}
                       </option>
                     ))}
                   </select>
@@ -341,6 +432,24 @@ export default function AddNewStation({ setSendingData, sendingData }) {
                     +
                   </button>
                 </div>
+                {/* Список выбранных операторов */}
+                {formState.operators.length > 0 && (
+                  <div className="mt-4">
+                    <Label>Танланган операторлар:</Label>
+                    <ul className="list-disc pl-6">
+                      {formState.operators.map((operatorId, index) => {
+                        const operator = userOptions.find(
+                          (user) => user.id === operatorId
+                        );
+                        return (
+                          <li key={index} className="text-sm">
+                            {operator?.username}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -355,10 +464,7 @@ export default function AddNewStation({ setSendingData, sendingData }) {
               >
                 Бекор қилиш
               </Button>
-              <Button
-                className="w-[160px]"
-                disabled={!isFormValid() || loading} // Кнопка неактивна, если форма невалидна
-              >
+              <Button className="w-[160px]">
                 {loading ? <ClipLoader color="#ffffff" size={15} /> : "Қўшиш"}
               </Button>
             </div>
