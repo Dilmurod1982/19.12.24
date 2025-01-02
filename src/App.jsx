@@ -17,8 +17,10 @@ import {
   Regions,
   ChangePassword,
   Docs,
+  Licenses,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
+import LicenseDetail from "./components/LicenseDetail";
 
 function App() {
   const user = useAppStore((state) => state.user);
@@ -65,6 +67,14 @@ function App() {
         {
           path: "/docs",
           element: <Docs />,
+        },
+        {
+          path: "/licenses",
+          element: <Licenses />,
+        },
+        {
+          path: "/licensedetail",
+          element: <LicenseDetail />,
         },
       ],
     },

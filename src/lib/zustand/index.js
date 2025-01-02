@@ -8,6 +8,7 @@ export const useAppStore = create((set) => ({
   addItemModal: false,
   regions: null,
   cities: null,
+  licenses: null,
   setUser: (user) => {
     set(() => {
       if (user) {
@@ -21,6 +22,7 @@ export const useAppStore = create((set) => ({
   setLtd: (ltd) => set((state) => ({ ltd })),
   setRegions: (regions) => set((state) => ({ regions })),
   setCities: (cities) => set((state) => ({ cities })),
+  setLicenses: (licenses) => set((state) => ({ licenses })),
   setAddItemModal: () =>
     set((state) => ({ addItemModal: !state.addItemModal })),
 }));

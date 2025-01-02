@@ -7,3 +7,4 @@ export { default as Regions } from "./Regions";
 export { default as Cities } from "./Cities";
 export { default as ChangePassword } from "./ChangePassword";
 export { default as Docs } from "./Docs";
+export { default as Licenses } from "./Licenses";

@@ -46,19 +46,31 @@ export default function Navbar() {
               )}
 
               <li>
-                <Link to="/regions" onClick={closeMenu}>
-                  Вилоятлар
-                </Link>
+                {user.type === "admin" ? (
+                  <Link to="/regions" onClick={closeMenu}>
+                    Вилоятлар
+                  </Link>
+                ) : (
+                  ""
+                )}
               </li>
               <li>
-                <Link to="/cities" onClick={closeMenu}>
-                  Туманлар
-                </Link>
+                {user.type === "admin" ? (
+                  <Link to="/cities" onClick={closeMenu}>
+                    Туманлар
+                  </Link>
+                ) : (
+                  ""
+                )}
               </li>
               <li>
-                <Link to="/ltd" onClick={closeMenu}>
-                  МЧЖлар
-                </Link>
+                {user.type === "admin" ? (
+                  <Link to="/ltd" onClick={closeMenu}>
+                    МЧЖлар
+                  </Link>
+                ) : (
+                  ""
+                )}
               </li>
               <li>
                 <Link to="/stations" onClick={closeMenu}>

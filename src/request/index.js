@@ -101,6 +101,18 @@ export async function getStations(token) {
   else throw new Error("Нимадур хатолик бўлди");
 }
 
+export async function getLicenses(token) {
+  const res = await fetch(BASE_URL + "/licenses", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (res.status === 403) throw new Error(403);
+  if (res.status === 200 || res.status === 201) return await res.json();
+  else throw new Error("Нимадур хатолик бўлди");
+}
+
 export async function registerUser(token, data) {
   const res = await fetch(BASE_URL + "/auth/register", {
     method: "POST",
@@ -188,4 +200,37 @@ export async function registerStation(token, data) {
     throw new Error("Хатолик 403 402");
   else throw new Error("Нимадур хатолик бўлди");
   console.log(res.status, res, await res.json());
+}
+
+export async function registerLicense(token, data) {
+  console.log(token, data);
+  const res = await fetch(BASE_URL + "/licenses", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
+  if (res.status === 400 || res.status === 401)
+    throw new Error("Хатолик 400 401");
+  if (res.status === 403 || res.status === 402)
+    throw new Error("Хатолик 403 402");
+  else throw new Error("Нимадур хатолик бўлди");
+  console.log(res.status, res, await res.json());
+}
+
+export async function uploadImage(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(BASE_URL + "/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (res.status === 400)
+    throw new Error("pdf файл хажми 0,5 Mb ортиқ бўлиши мумкин эмас!");
+  if (res.status === 200 || res.status === 201) return res.text();
+  else throw new Error("Нимадур хатолик бўлди");
 }
