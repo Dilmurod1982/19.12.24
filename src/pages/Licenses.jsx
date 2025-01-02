@@ -121,7 +121,7 @@ function Licenses() {
       "Шахобча номи": getStationNameByNumber(license.station_id),
       "МЧЖ номи ва рақами": `${getLtdNameById(
         license.ltd_id
-      )} (${getStationNumberByNumber(license.station_number)})`,
+      )} АГТКШ № (${getStationNumberByNumber(license.station_number)})`,
       "Лицензия рақами": license.license_number,
       "Берилган сана": license.issue,
       "Амал қилиш санаси": license.expiration,
