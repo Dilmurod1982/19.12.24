@@ -9,3 +9,5 @@ export { default as ChangePassword } from "./ChangePassword";
 export { default as Docs } from "./Docs";
 export { default as Licenses } from "./Licenses";
 export { default as Profile } from "./Profile";
+export { default as NGSertificates } from "./NGSertificates";
+export { default as Humidity } from "./Humidity";

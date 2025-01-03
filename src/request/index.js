@@ -113,6 +113,30 @@ export async function getLicenses(token) {
   else throw new Error("Нимадур хатолик бўлди");
 }
 
+export async function getNgsertificates(token) {
+  const res = await fetch(BASE_URL + "/ngsertificates", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (res.status === 403) throw new Error(403);
+  if (res.status === 200 || res.status === 201) return await res.json();
+  else throw new Error("Нимадур хатолик бўлди");
+}
+
+export async function getHumidityes(token) {
+  const res = await fetch(BASE_URL + "/humidityes", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (res.status === 403) throw new Error(403);
+  if (res.status === 200 || res.status === 201) return await res.json();
+  else throw new Error("Нимадур хатолик бўлди");
+}
+
 export async function registerUser(token, data) {
   const res = await fetch(BASE_URL + "/auth/register", {
     method: "POST",
@@ -220,6 +244,44 @@ export async function registerLicense(token, data) {
   else throw new Error("Нимадур хатолик бўлди");
   console.log(res.status, res, await res.json());
 }
+
+export async function registerNGSertificate(token, data) {
+  console.log(token, data);
+  const res = await fetch(BASE_URL + "/ngsertificates", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
+  if (res.status === 400 || res.status === 401)
+    throw new Error("Хатолик 400 401");
+  if (res.status === 403 || res.status === 402)
+    throw new Error("Хатолик 403 402");
+  else throw new Error("Нимадур хатолик бўлди");
+  console.log(res.status, res, await res.json());
+}
+
+export async function registerHumidity(token, data) {
+  const res = await fetch(BASE_URL + "/humidityes", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
+  if (res.status === 400 || res.status === 401)
+    throw new Error("Хатолик 400 401");
+  if (res.status === 403 || res.status === 402)
+    throw new Error("Хатолик 403 402");
+  else throw new Error("Нимадур хатолик бўлди");
+  console.log(res.status, res, await res.json());
+}
+
 export async function updateLicense(token, data) {
   console.log(token, data);
   const res = await fetch(BASE_URL + "/licenses", {
@@ -251,4 +313,28 @@ export async function uploadImage(file) {
     throw new Error("pdf файл хажми 0,5 Mb ортиқ бўлиши мумкин эмас!");
   if (res.status === 200 || res.status === 201) return res.text();
   else throw new Error("Нимадур хатолик бўлди");
+}
+
+export async function fetchDataWithTokenRefresh(
+  fetchFunction,
+  setFunction,
+  user
+) {
+  try {
+    const { data } = await fetchFunction(user?.access_token);
+    setFunction(data);
+  } catch (error) {
+    if (error.message === "403") {
+      try {
+        const { access_token } = await refreshToken(user?.refreshToken);
+        setUser({ ...user, access_token });
+        const { data } = await fetchFunction(access_token);
+        setFunction(data);
+      } catch (err) {
+        console.error("Ошибка при обновлении токена или загрузке данных:", err);
+      }
+    } else {
+      console.error("Ошибка при загрузке данных:", error);
+    }
+  }
 }

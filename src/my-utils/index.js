@@ -18,3 +18,4 @@ export function collectItem(array, item) {
 
 export const BASE_URL = "https://json-api.uz/api/project/agnks";
 export const allowPdfSizeLicense = 1_048_576;
+export const allowPdfSizeDoc = 1_048_576;

@@ -8,7 +8,9 @@ export const useAppStore = create((set) => ({
   addItemModal: false,
   regions: null,
   cities: null,
-  licenses: null,
+  licenses: [],
+  ngsertificates: [],
+  humidity: [],
   setUser: (user) => {
     set(() => {
       if (user) {
@@ -25,6 +27,8 @@ export const useAppStore = create((set) => ({
   setRegions: (regions) => set((state) => ({ regions })),
   setCities: (cities) => set((state) => ({ cities })),
   setLicenses: (licenses) => set((state) => ({ licenses })),
+  setNgsertificates: (ngsertificates) => set((state) => ({ ngsertificates })),
+  setHumidity: (humidity) => set((state) => ({ humidity })),
   setAddItemModal: () =>
     set((state) => ({ addItemModal: !state.addItemModal })),
 }));

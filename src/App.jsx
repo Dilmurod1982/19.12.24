@@ -19,9 +19,12 @@ import {
   Docs,
   Licenses,
   Profile,
+  NGSertificates,
+  Humidity,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
+import { HumidityDetail, NGSertificateDetail } from "./components";
 
 function App() {
   const user = useAppStore((state) => state.user);
@@ -66,6 +69,10 @@ function App() {
           element: <ChangePassword />,
         },
         {
+          path: "/profile",
+          element: <Profile />,
+        },
+        {
           path: "/docs",
           element: <Docs />,
         },
@@ -78,8 +85,20 @@ function App() {
           element: <LicenseDetail />,
         },
         {
-          path: "/profile",
-          element: <Profile />,
+          path: "/ngsertificates",
+          element: <NGSertificates />,
+        },
+        {
+          path: "/ngsertificatedetail",
+          element: <NGSertificateDetail />,
+        },
+        {
+          path: "/humidity",
+          element: <Humidity />,
+        },
+        {
+          path: "/humiditydetail",
+          element: <HumidityDetail />,
         },
       ],
     },
