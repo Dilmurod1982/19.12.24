@@ -93,23 +93,20 @@ function Licenses() {
   };
 
   const filterLicenses = () => {
-    let filtered = licenses;
+    let filtered = [...licenses];
 
     if (!showAllLicenses) {
-      const latestLicenses = licenses.reduce((acc, license) => {
+      // Оставляем только последние лицензии для каждой станции
+      const latestLicenses = filtered.reduce((acc, license) => {
         const { station_id, expiration } = license;
-        const parsedExpiration = new Date(
-          expiration.split(".").reverse().join("-")
-        );
+        const parsedExpiration = new Date(parseDate(expiration));
 
         if (
           !acc[station_id] ||
-          new Date(acc[station_id].expiration.split(".").reverse().join("-")) <
-            parsedExpiration
+          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
         ) {
           acc[station_id] = license;
         }
-
         return acc;
       }, {});
       filtered = Object.values(latestLicenses);
@@ -138,6 +135,25 @@ function Licenses() {
       </div>
     );
   }
+
+  const licenseCounts = filterLicenses().reduce(
+    (acc, license) => {
+      const expirationDate = new Date(parseDate(license.expiration));
+      const currentDate = new Date();
+
+      if (expirationDate < currentDate) {
+        acc.expired += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
+        acc.expiringSoon5 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
+        acc.expiringSoon15 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
+        acc.active += 1;
+      }
+      return acc;
+    },
+    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
+  );
 
   const exportToExcel = () => {
     const filteredLicenses = filterLicenses();
@@ -184,9 +200,9 @@ function Licenses() {
           </div>
           <div></div>
 
-          <div className="flex flex-col items-center font-bold">
+          <div className="flex flex-col items-center font-bold mb-4">
             <div className="flex items-end gap-10 justify-between w-full">
-              <div className="flex items-center">
+              <div className="flex items-center mb-1">
                 <label className="mr-2"></label>
                 <input
                   type="checkbox"
@@ -196,7 +212,7 @@ function Licenses() {
                 />
               </div>
               <div className="flex flex-col justify-center items-center">
-                <h1>Филтрлаш</h1>
+                <h1>Саралаш</h1>
                 <div className="flex gap-5">
                   <Select
                     onValueChange={(value) => setSelectedStation(value)}
@@ -229,7 +245,25 @@ function Licenses() {
                   />
                 </div>
               </div>
-              <div className="flex justify-between w-full px-4">
+              <div className="flex gap-2">
+                <h1 className="border-[1px] border-slate-950 rounded-sm p-2">
+                  Жами: {filterLicenses().length} та
+                </h1>
+                <h1 className="border-[1px] border-slate-950 rounded-sm p-2 bg-green-200">
+                  1 ой: {licenseCounts.active} та
+                </h1>
+                <h1 className="border-[1px] border-slate-950 rounded-sm p-2 bg-yellow-200">
+                  15 кун: {licenseCounts.expiringSoon15} та
+                </h1>
+                <h1 className="border-[1px] border-slate-950 rounded-sm p-2 bg-orange-200">
+                  5 кун: {licenseCounts.expiringSoon5} та
+                </h1>
+                <h1 className="border-[1px] border-slate-950 rounded-sm p-2 bg-red-200">
+                  Муддати ўтган: {licenseCounts.expired} та
+                </h1>
+              </div>
+
+              <div className="flex justify-between px-4">
                 <Button
                   onClick={exportToExcel}
                   className="ml-2"

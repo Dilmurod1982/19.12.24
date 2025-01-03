@@ -150,7 +150,7 @@ export default function LicenseDetail() {
 
       <div className="flex justify-between w-96 mt-10">
         {isEditing ? (
-          <>
+          <div className="flex justify-between w-full">
             <button onClick={handleSave} className="btn btn-success">
               Сақлаш
             </button>
@@ -160,14 +160,14 @@ export default function LicenseDetail() {
             >
               Бекор қилиш
             </button>
-          </>
+          </div>
         ) : (
-          <div>
+          <div className="flex justify-between w-full">
             <Link to="/licenses">
               <button className="btn btn-outline">Орқага</button>
             </Link>
             <button onClick={() => setIsEditing(true)} className="btn btn-info">
-              Редактировать
+              Тахрирлаш
             </button>
           </div>
         )}
