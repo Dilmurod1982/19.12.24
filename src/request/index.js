@@ -220,6 +220,24 @@ export async function registerLicense(token, data) {
   else throw new Error("Нимадур хатолик бўлди");
   console.log(res.status, res, await res.json());
 }
+export async function updateLicense(token, data) {
+  console.log(token, data);
+  const res = await fetch(BASE_URL + "/licenses", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (res.status === 200 || res.status === 201) return "Malumot ўзгартирилди";
+  if (res.status === 400 || res.status === 401)
+    throw new Error("Хатолик 400 401");
+  if (res.status === 403 || res.status === 402)
+    throw new Error("Хатолик 403 402");
+  else throw new Error("Нимадур хатолик бўлди");
+  console.log(res.status, res, await res.json());
+}
 
 export async function uploadImage(file) {
   const formData = new FormData();

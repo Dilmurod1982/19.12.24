@@ -75,6 +75,7 @@ function LicensesList({
         <Link
           to="/licensedetail"
           state={{
+            id,
             moljal,
             ltd_name,
             station_number,

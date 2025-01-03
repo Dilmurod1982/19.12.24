@@ -198,9 +198,9 @@ export default function AddNewLicense({ setSendingData, sendingData }) {
     setIsFormValid(requiredFields.every(Boolean));
   }, [formState]);
 
-  useEffect(() => {
-    console.log(isFormValid);
-  }, [isFormValid]);
+  // useEffect(() => {
+  //   console.log(isFormValid);
+  // }, [isFormValid]);
 
   function handleUploadImage(file) {
     if (file.size >= allowPdfSizeLicense) {

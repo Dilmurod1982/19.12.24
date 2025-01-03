@@ -13,8 +13,10 @@ export const useAppStore = create((set) => ({
     set(() => {
       if (user) {
         localStorage.setItem("user", JSON.stringify(user));
-      } else localStorage.removeItem("user");
-      return { user, users: null };
+      } else {
+        localStorage.removeItem("user");
+      }
+      return { user };
     });
   },
   setUsers: (users) => set((state) => ({ users })),

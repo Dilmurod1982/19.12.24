@@ -123,17 +123,17 @@ export default function Navbar() {
           </div>
           <ul
             tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow gap-5"
           >
             <li>
-              <a className="justify-between">
-                Profile
-                <span className="badge">New</span>
-              </a>
+              <Link
+                className="flex justify-center text-slate-50 m-0 p-0 bg-slate-500 h-7"
+                to="/profile"
+              >
+                Фойдаланувчи кабинети
+              </Link>
             </li>
-            <li>
-              <Link to="/changepassword">Settings</Link>
-            </li>
+
             <li>
               <Button onClick={logOut}>Чиқиш</Button>
             </li>

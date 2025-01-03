@@ -18,6 +18,7 @@ import {
   ChangePassword,
   Docs,
   Licenses,
+  Profile,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -75,6 +76,10 @@ function App() {
         {
           path: "/licensedetail",
           element: <LicenseDetail />,
+        },
+        {
+          path: "/profile",
+          element: <Profile />,
         },
       ],
     },
