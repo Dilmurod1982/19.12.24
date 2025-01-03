@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { useAppStore } from "../lib/zustand";
 import { getDocumentStatus } from "../my-utils/documentStatus";
 import { Link } from "react-router-dom";
+import LicenseDetail from "./LicenseDetail";
 
 function LicensesList({
   id,
@@ -28,7 +29,7 @@ function LicensesList({
       <td className="text-center">{license_number}</td>
       <td className="text-center">{issue}</td>
       <td className="text-center">{expiration}</td>
-      <td className="flex justify-center items-center">
+      <td className="flex flex-col items-center ">
         <Link
           className="flex justify-center items-center"
           to="#"
@@ -71,8 +72,21 @@ function LicensesList({
 
       <td className="text-center">{text}</td>
       <td className="text-center h-[25px]">
-        <Link to="/licensedetail" className="btn btn-outline h-[25px]">
-          Подробно
+        <Link
+          to="/licensedetail"
+          state={{
+            moljal,
+            ltd_name,
+            station_number,
+            license_number,
+            issue,
+            expiration,
+            value,
+            text,
+            bgColorClass,
+          }}
+        >
+          <Button variant="secondary">Батафсил</Button>
         </Link>
       </td>
     </tr>
