@@ -11,12 +11,16 @@ import { Button } from "../components/ui/button";
 import { useAppStore } from "../lib/zustand";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ClipLoader } from "react-spinners";
-import { allowPdfSizeLicense, getFormData } from "../my-utils";
+import { allowPdfSizeDoc, getFormData } from "../my-utils";
 import {
-  refreshToken,  
+  refreshToken,
+  getLtd,
+  getStations,
   uploadImage,
-  getDocs,
+  registerNGSertificate,
+  getNgsertificates,
   registerDoc,
+  getDocs,
 } from "../request";
 import { toast } from "sonner";
 import { Calendar } from "../components/ui/calendar";
@@ -30,13 +34,13 @@ const initialFormState = {
   station_id: "",
   ltd_name: "",
   station_number: "",
-  license_number: "",
+  prodinsurance_number: "",
   issue: "",
   expiration: "",
   file_image_url: "",
 };
 
-export default function AddNewLicense({ setSendingData, sendingData }) {
+export default function AddNewProdInsurance({ setSendingData, sendingData }) {
   const [value, setValue] = useState(null);
   const [loading, setLoading] = useState(false);
   const [formState, setFormState] = useState(initialFormState);
@@ -48,8 +52,9 @@ export default function AddNewLicense({ setSendingData, sendingData }) {
   const setStations = useAppStore((state) => state.setStations);
   const ltd = useAppStore((state) => state.ltd);
   const setLtd = useAppStore((state) => state.setLtd);
-  const licenses = useAppStore((state) => state.licenses);
-  const setLicenses = useAppStore((state) => state.setLicenses);
+  const prodinsurance = useAppStore((state) => state.prodinsurance);
+  const setProdinsurance = useAppStore((state) => state.setProdinsurance);
+  const base = "prodinsurances";
 
   const fileInputRef = useRef(null);
 
@@ -63,7 +68,7 @@ export default function AddNewLicense({ setSendingData, sendingData }) {
           refreshToken(user?.refreshToken)
             .then(({ access_token }) => {
               setUser({ ...user, access_token });
-              return getDocs(access_token, "licenses");
+              return getDocs(access_token, "stations");
             })
             .then(({ data }) => setStations(data))
             .catch((error) => console.error("Error fetching stations:", error));
@@ -150,18 +155,20 @@ export default function AddNewLicense({ setSendingData, sendingData }) {
   useEffect(() => {
     if (sendingData) {
       setLoading(true);
-      registerDoc(user?.access_token, sendingData, "licenses")
+      registerDoc(user?.access_token, sendingData, base)
         .then((res) => {
           toast.dismiss();
-          toast.success("Янги лицензия мувафақиятли қўшилди!");
+          toast.success("Янги полис мувафақиятли қўшилди!");
           setSendingData(null);
           // Только здесь закрываем модальное окно
           setAddItemModal;
-          getDocs(user?.access_token, "licenses")
+          getDocs(user?.access_token, base)
             .then(({ data }) => {
-              setLicenses(data);
+              setProdinsurance(data);
             })
-            .catch((error) => console.error("Error fetching licenses:", error));
+            .catch((error) =>
+              console.error("Error fetching sertificate:", error)
+            );
         })
         .catch(({ message }) => {
           if (message === "403") {
@@ -180,14 +187,14 @@ export default function AddNewLicense({ setSendingData, sendingData }) {
           setLoading(false);
         });
     }
-  }, [sendingData, licenses, user, setAddItemModal, setLicenses]);
+  }, [sendingData, prodinsurance, user, setAddItemModal, setProdinsurance]);
 
   useEffect(() => {
     const requiredFields = [
       formState.station_id,
       formState.ltd_name,
       formState.station_number,
-      formState.license_number,
+      formState.prodinsurance_number,
       formState.issue,
       formState.expiration,
       formState.file_image_url,
@@ -197,7 +204,7 @@ export default function AddNewLicense({ setSendingData, sendingData }) {
   }, [formState]);
 
   function handleUploadImage(file) {
-    if (file.size >= allowPdfSizeLicense) {
+    if (file.size >= allowPdfSizeDoc) {
       toast.error("pdf файл 1.0 Mb кичик бўлиши керак!");
     } else {
       toast.promise(uploadImage(file), {
@@ -232,10 +239,10 @@ export default function AddNewLicense({ setSendingData, sendingData }) {
         <DialogContent className="h-screen">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
-              Янги лицензия қўшиш:
+              Янги хавфли ишлаб чиқариш полиси қўшиш:
             </DialogTitle>
             <DialogDescription>
-              Формани тўлдириб, янги лицензия қўшинг.
+              Формани тўлдириб, янги полисни қўшинг.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="relative">
@@ -291,14 +298,14 @@ export default function AddNewLicense({ setSendingData, sendingData }) {
                 </h1>
               </div>
               <div className="w-full flex flex-col gap-2">
-                <Label htmlFor="license_number">Лицензия рақами</Label>
+                <Label htmlFor="prodinsurance_number">Полис рақами</Label>
                 <Input
                   type="text"
-                  id="license_number"
-                  name="license_number"
-                  value={formState.license_number} // Привязка значения
+                  id="prodinsurance_number"
+                  name="prodinsurance_number"
+                  value={formState.prodinsurance_number} // Привязка значения
                   onChange={handleChange} // Обработчик изменения
-                  placeholder="Лицензия рақамини киритинг"
+                  placeholder="Сертификат рақамини киритинг"
                   required
                 />
               </div>

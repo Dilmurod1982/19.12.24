@@ -21,10 +21,17 @@ import {
   Profile,
   NGSertificates,
   Humidity,
+  GasAnalyzers,
+  ProdInsurance,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
-import { HumidityDetail, NGSertificateDetail } from "./components";
+import {
+  GasAnalyzerDetail,
+  HumidityDetail,
+  NGSertificateDetail,
+  ProdInsuranceDetail,
+} from "./components";
 
 function App() {
   const user = useAppStore((state) => state.user);
@@ -99,6 +106,22 @@ function App() {
         {
           path: "/humiditydetail",
           element: <HumidityDetail />,
+        },
+        {
+          path: "/gasanalyzers",
+          element: <GasAnalyzers />,
+        },
+        {
+          path: "/gasanalyzerdetail",
+          element: <GasAnalyzerDetail />,
+        },
+        {
+          path: "/prodinsurance",
+          element: <ProdInsurance />,
+        },
+        {
+          path: "/prodinsurancedetail",
+          element: <ProdInsuranceDetail />,
         },
       ],
     },

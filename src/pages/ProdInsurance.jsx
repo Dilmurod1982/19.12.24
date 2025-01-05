@@ -4,7 +4,7 @@ import { fetchDataWithTokenRefresh, getDocs } from "../request";
 import { Button } from "../components/ui/button";
 import { PulseLoader } from "react-spinners";
 import { Link } from "react-router-dom";
-import { AddNewLicense, LicensesList } from "../components";
+import { AddNewProdInsurance, ProdInsuranceList } from "../components";
 import * as XLSX from "xlsx";
 import {
   Select,
@@ -17,9 +17,9 @@ import {
 } from "@/components/ui/select";
 import { Input } from "../components/ui/input";
 
-function Licenses() {
+function ProdInsurance() {
   const [sendingData, setSendingData] = useState(null);
-  const [showAllLicenses, setShowAllLicenses] = useState(true); // Новое состояние для галочки
+  const [showAllDocs, setShowAllDocs] = useState(true); // Новое состояние для галочки
   const [selectedStation, setSelectedStation] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedExpirationFilter, setSelectedExpirationFilter] =
@@ -31,31 +31,8 @@ function Licenses() {
   const setAddItemModal = useAppStore((state) => state.setAddItemModal);
   const ltd = useAppStore((state) => state.ltd);
   const setLtd = useAppStore((state) => state.setLtd);
-  const licenses = useAppStore((state) => state.licenses);
-  const setLicenses = useAppStore((state) => state.setLicenses);
-
-  // const fetchDataWithTokenRefresh = async (fetchFunction, setFunction) => {
-  //   try {
-  //     const { data } = await fetchFunction(user?.access_token);
-  //     setFunction(data);
-  //   } catch (error) {
-  //     if (error.message === "403") {
-  //       try {
-  //         const { access_token } = await refreshToken(user?.refreshToken);
-  //         setUser({ ...user, access_token });
-  //         const { data } = await fetchFunction(access_token);
-  //         setFunction(data);
-  //       } catch (err) {
-  //         console.error(
-  //           "Ошибка при обновлении токена или загрузке данных:",
-  //           err
-  //         );
-  //       }
-  //     } else {
-  //       console.error("Ошибка при загрузке данных:", error);
-  //     }
-  //   }
-  // };
+  const prodinsurance = useAppStore((state) => state.prodinsurance);
+  const setProdinsurance = useAppStore((state) => state.setProdinsurance);
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
@@ -75,11 +52,11 @@ function Licenses() {
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "licenses"),
-      setLicenses,
+      () => getDocs(user?.access_token, "prodinsurances"),
+      setProdinsurance,
       user
     );
-  }, [user, setLicenses]);
+  }, [user, setProdinsurance]);
 
   const getLtdNameById = (id) => {
     if (!ltd || ltd.length === 0) return "Номаълум";
@@ -106,41 +83,42 @@ function Licenses() {
     return `${year}-${month}-${day}`;
   };
 
-  const filterLicenses = () => {
-    let filtered = [...licenses];
+  const filteredDocs = () => {
+    let filtered = [...prodinsurance];
 
-    if (!showAllLicenses) {
-      const latestLicenses = filtered.reduce((acc, license) => {
-        const { station_id, expiration } = license;
+    if (!showAllDocs) {
+      const latestDocs = filtered.reduce((acc, doc) => {
+        const { station_id, expiration } = doc;
         const parsedExpiration = new Date(parseDate(expiration));
         if (
           !acc[station_id] ||
           new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
         ) {
-          acc[station_id] = license;
+          acc[station_id] = doc;
         }
         return acc;
       }, {});
-      filtered = Object.values(latestLicenses);
+      filtered = Object.values(latestDocs);
     }
 
     if (selectedStation && selectedStation !== "all") {
       filtered = filtered.filter(
-        (license) =>
-          getStationNameByNumber(license.station_id) === selectedStation
+        (doc) => getStationNameByNumber(doc.station_id) === selectedStation
       );
     }
 
     if (searchTerm) {
-      filtered = filtered.filter((license) =>
-        license.license_number.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter((doc) =>
+        doc.prodinsurance_number
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
       );
     }
 
     if (selectedExpirationFilter !== "all") {
       const currentDate = new Date();
-      filtered = filtered.filter((license) => {
-        const expirationDate = new Date(parseDate(license.expiration));
+      filtered = filtered.filter((doc) => {
+        const expirationDate = new Date(parseDate(doc.expiration));
         const daysLeft = (expirationDate - currentDate) / (1000 * 60 * 60 * 24);
 
         if (selectedExpirationFilter === "5" && daysLeft <= 5 && daysLeft > 0) {
@@ -171,7 +149,7 @@ function Licenses() {
     return filtered;
   };
 
-  if (!stations || !licenses || !ltd) {
+  if (!stations || !prodinsurance || !ltd) {
     return (
       <div className="flex items-center justify-center h-screen">
         <PulseLoader speedMultiplier={0.5} />
@@ -180,20 +158,20 @@ function Licenses() {
   }
 
   const exportToExcel = () => {
-    const filteredLicenses = filterLicenses();
+    const filteredDocs = filteredDocs();
 
     // Подготовка данных для Excel
-    const data = filteredLicenses.map((license, index) => ({
+    const data = filteredDocs.map((doc, index) => ({
       "#": index + 1,
-      "Шахобча номи": getStationNameByNumber(license.station_id),
+      "Шахобча номи": getStationNameByNumber(doc.station_id),
       "МЧЖ номи ва рақами": `${getLtdNameById(
-        license.ltd_id
-      )} АГТКШ № ${getStationNumberByNumber(license.station_number)}`,
-      "Лицензия рақами": license.license_number,
-      "Берилган сана": license.issue,
-      "Амал қилиш санаси": license.expiration,
+        doc.ltd_id
+      )} АГТКШ № ${getStationNumberByNumber(doc.station_number)}`,
+      "Полис рақами": doc.prodinsurance_number,
+      "Берилган сана": doc.issue,
+      "Амал қилиш санаси": doc.expiration,
       Холати:
-        new Date(parseDate(license.expiration)) > new Date()
+        new Date(parseDate(doc.expiration)) > new Date()
           ? "Амалда"
           : "Муддати тугаган",
     }));
@@ -201,24 +179,28 @@ function Licenses() {
     // Создание книги Excel
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Licenses");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "ProdInsurance");
 
     // Скачивание файла
-    XLSX.writeFile(workbook, "licenses.xlsx");
+    XLSX.writeFile(workbook, "Prodinsurance.xlsx");
   };
   return (
     <>
       <div className="overflow-x-auto">
         <div className="flex flex-col items-center justify-between gap-1">
           <div className="flex justify-between w-full px-4">
-            <h1 className="text-3xl font-bold">Лицензиялар рўйхати</h1>
+            <h1 className="text-3xl font-bold">
+              Хавфли ишлаб чиқариш полислари рўйхати
+            </h1>
             {user.type === "admin" ? (
               <Button
                 onClick={setAddItemModal}
-                disabled={licenses ? false : true}
-                className={licenses ? "cursor-pointer" : "cursor-not-allowed"}
+                disabled={prodinsurance ? false : true}
+                className={
+                  prodinsurance ? "cursor-pointer" : "cursor-not-allowed"
+                }
               >
-                Янги лицензия қўшиш
+                Янги полис қўшиш
               </Button>
             ) : null}
           </div>
@@ -231,8 +213,8 @@ function Licenses() {
                 <input
                   type="checkbox"
                   className="checkbox"
-                  checked={showAllLicenses}
-                  onChange={(e) => setShowAllLicenses(e.target.checked)}
+                  checked={showAllDocs}
+                  onChange={(e) => setShowAllDocs(e.target.checked)}
                 />
               </div>
               <div className="flex flex-col justify-center items-center">
@@ -286,7 +268,7 @@ function Licenses() {
                   </Select>
                   <Input
                     type="text"
-                    placeholder="Лицензия рақами билан"
+                    placeholder="Полис рақами билан"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="input input-bordered w-[200px]"
@@ -323,7 +305,7 @@ function Licenses() {
               <th className="text-center">#</th>
               <th className="text-center">Шахобча номи</th>
               <th className="text-center">МЧЖ номи ва рақами</th>
-              <th className="text-center">Лицензия рақами</th>
+              <th className="text-center">Полис рақами</th>
               <th className="text-center">Берилган сана</th>
               <th className="text-center">Амал қилиш санаси</th>
               <th className="text-center">Файл</th>
@@ -332,25 +314,25 @@ function Licenses() {
             </tr>
           </thead>
           <tbody>
-            {filterLicenses().length > 0 ? (
-              filterLicenses().map(
+            {filteredDocs().length > 0 ? (
+              filteredDocs().map(
                 ({
                   id,
                   station_id,
                   ltd_id,
                   station_number,
-                  license_number,
+                  prodinsurance_number,
                   issue,
                   expiration,
                   value,
                 }) => (
-                  <LicensesList
+                  <ProdInsuranceList
                     key={id}
                     id={id}
                     moljal={getStationNameByNumber(station_id)}
                     ltd_name={getLtdNameById(ltd_id)}
                     station_number={getStationNumberByNumber(station_number)}
-                    license_number={license_number}
+                    prodinsurance_number={prodinsurance_number}
                     issue={issue}
                     expiration={expiration}
                     value={value}
@@ -361,7 +343,7 @@ function Licenses() {
               <tr>
                 <td colSpan="7" className="text-center">
                   <h1 className="my-5 btn-link text-2xl italic">
-                    Лицензиялар мавжуд эмас
+                    Полислар мавжуд эмас
                   </h1>
                 </td>
               </tr>
@@ -369,7 +351,7 @@ function Licenses() {
           </tbody>
         </table>
       </div>
-      <AddNewLicense
+      <AddNewProdInsurance
         sendingData={sendingData}
         setSendingData={setSendingData}
       />
@@ -382,4 +364,4 @@ function Licenses() {
   );
 }
 
-export default Licenses;
+export default ProdInsurance;

@@ -11,3 +11,5 @@ export { default as Licenses } from "./Licenses";
 export { default as Profile } from "./Profile";
 export { default as NGSertificates } from "./NGSertificates";
 export { default as Humidity } from "./Humidity";
+export { default as GasAnalyzers } from "./GasAnalyzers";
+export { default as ProdInsurance } from "./ProdInsurance";

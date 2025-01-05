@@ -137,6 +137,18 @@ export async function getHumidityes(token) {
   else throw new Error("Нимадур хатолик бўлди");
 }
 
+export async function getDocs(token, base) {
+  const res = await fetch(BASE_URL + `/${base}`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (res.status === 403) throw new Error(403);
+  if (res.status === 200 || res.status === 201) return await res.json();
+  else throw new Error("Нимадур хатолик бўлди");
+}
+
 export async function registerUser(token, data) {
   const res = await fetch(BASE_URL + "/auth/register", {
     method: "POST",
@@ -266,6 +278,24 @@ export async function registerNGSertificate(token, data) {
 
 export async function registerHumidity(token, data) {
   const res = await fetch(BASE_URL + "/humidityes", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
+  if (res.status === 400 || res.status === 401)
+    throw new Error("Хатолик 400 401");
+  if (res.status === 403 || res.status === 402)
+    throw new Error("Хатолик 403 402");
+  else throw new Error("Нимадур хатолик бўлди");
+  console.log(res.status, res, await res.json());
+}
+
+export async function registerDoc(token, data, base) {
+  const res = await fetch(BASE_URL + `/${base}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

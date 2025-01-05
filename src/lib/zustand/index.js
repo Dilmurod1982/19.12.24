@@ -11,6 +11,8 @@ export const useAppStore = create((set) => ({
   licenses: [],
   ngsertificates: [],
   humidity: [],
+  gasanalyzers: [],
+  prodinsurance: [],
   setUser: (user) => {
     set(() => {
       if (user) {
@@ -29,6 +31,8 @@ export const useAppStore = create((set) => ({
   setLicenses: (licenses) => set((state) => ({ licenses })),
   setNgsertificates: (ngsertificates) => set((state) => ({ ngsertificates })),
   setHumidity: (humidity) => set((state) => ({ humidity })),
+  setGasanalyzers: (gasanalyzers) => set((state) => ({ gasanalyzers })),
+  setProdinsurance: (prodinsurance) => set((state) => ({ prodinsurance })),
   setAddItemModal: () =>
     set((state) => ({ addItemModal: !state.addItemModal })),
 }));
