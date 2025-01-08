@@ -25,6 +25,7 @@ import {
   ProdInsurance,
   LifeInsurance,
   Ecology,
+  Ik,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -36,6 +37,7 @@ import {
 } from "./components";
 import LifeInsuranceDetail from "./components/lifeinsurance/LifeInsuranceDetail";
 import EcologyDetail from "./components/Ecology/EcologyDetail";
+import IkDetail from "./components/ik/IkDetail";
 
 function App() {
   const user = useAppStore((state) => state.user);
@@ -142,6 +144,14 @@ function App() {
         {
           path: "/ecologydetail",
           element: <EcologyDetail />,
+        },
+        {
+          path: "/ik",
+          element: <Ik />,
+        },
+        {
+          path: "/ikdetail",
+          element: <IkDetail />,
         },
       ],
     },

@@ -526,6 +526,88 @@ function Docs() {
     { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
   );
 
+  // IK
+
+  const ik = useAppStore((state) => state.ik); // zamena zamena
+  const setIk = useAppStore((state) => state.setIk); //zamena zamena
+  const [showAllIk, setShowAllIk] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "ik"), //zamena
+      setIk, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setIk]); //zamena
+
+  const filterIk = () => {
+    //zamena
+    let filtered = [...ik]; //zamena
+
+    if (!showAllIk) {
+      //zamena
+      const latestIk = filtered.reduce((acc, ik) => {
+        //zamena zamena
+        const { station_id, expiration } = ik; //zamena
+        const parsedExpiration = new Date(parseDate(expiration));
+
+        if (
+          !acc[station_id] ||
+          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
+        ) {
+          acc[station_id] = ik; //zamena
+        }
+        return acc;
+      }, {});
+      filtered = Object.values(latestIk); //zamena
+    }
+
+    if (selectedStation && selectedStation !== "all") {
+      filtered = filtered.filter(
+        (
+          ik //zamena
+        ) => getStationNameByNumber(ik.station_id) === selectedStation //zamena
+      );
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (
+          ik //zamena
+        ) =>
+          ik.ik_number //zamena zamena
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return filtered;
+  };
+
+  const ikCounts = filterIk().reduce(
+    //zamena
+    (acc, ik) => {
+      //zamena
+      const expirationDate = new Date(parseDate(ik.expiration)); //zamena
+      const currentDate = new Date();
+
+      if (expirationDate < currentDate) {
+        acc.expired += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
+        acc.expiringSoon5 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
+        acc.expiringSoon15 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
+        acc.active += 1;
+      }
+      return acc;
+    },
+    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
+  );
+
   return (
     <div className="flex flex-col justify-center items-center gap-5 w-full">
       <div className="flex flex-col justify-center items-center">
@@ -533,41 +615,44 @@ function Docs() {
       </div>
       <ul className="flex flex-col justify-center items-center gap-3 w-[600px]">
         <li className="flex justify-center w-full">
-          <Button className="flex justify-between items-center gap-5 w-full">
-            <Link className="text-xl " to="/licenses">
+          <Link
+            className="flex justify-between items-center gap-5 w-full text-xl "
+            to="/licenses"
+          >
+            <Button className="flex justify-between items-center gap-5 w-full text-xl">
               Лицензиялар
-            </Link>
-            <div className="flex gap-8">
-              {licenseCounts.active > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-500">
-                    {licenseCounts.active}
-                  </span>
-                </div>
-              )}
-              {licenseCounts.expiringSoon15 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-500 ">
-                    {licenseCounts.expiringSoon15}
-                  </span>
-                </div>
-              )}
-              {licenseCounts.expiringSoon5 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-500">
-                    {licenseCounts.expiringSoon5}
-                  </span>
-                </div>
-              )}
-              {licenseCounts.expired > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                    {licenseCounts.expired}
-                  </span>
-                </div>
-              )}
-            </div>
-          </Button>
+              <div className="flex gap-8">
+                {licenseCounts.active > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-green-500">
+                      {licenseCounts.active}
+                    </span>
+                  </div>
+                )}
+                {licenseCounts.expiringSoon15 > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-yellow-500 ">
+                      {licenseCounts.expiringSoon15}
+                    </span>
+                  </div>
+                )}
+                {licenseCounts.expiringSoon5 > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-orange-500">
+                      {licenseCounts.expiringSoon5}
+                    </span>
+                  </div>
+                )}
+                {licenseCounts.expired > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-red-700 text-white">
+                      {licenseCounts.expired}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </Button>
+          </Link>
         </li>
 
         <li className="flex justify-center w-full">
@@ -791,6 +876,44 @@ function Docs() {
                 <div className="indicator ">
                   <span className="badge badge-sm indicator-item bg-red-700 text-white">
                     {ecologyCounts.expired}
+                  </span>
+                </div>
+              )}
+            </div>
+          </Button>
+        </li>
+
+        <li className="flex justify-center w-full">
+          <Button className="flex justify-between items-center gap-5 w-full">
+            <Link className="text-xl" to="/ik">
+              Ўлов комплекслари ИК сертификатлари
+            </Link>
+            <div className="flex gap-8">
+              {ikCounts.active > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-green-500">
+                    {ikCounts.active}
+                  </span>
+                </div>
+              )}
+              {ikCounts.expiringSoon15 > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-yellow-500">
+                    {ikCounts.expiringSoon15}
+                  </span>
+                </div>
+              )}
+              {ikCounts.expiringSoon5 > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-orange-500">
+                    {ikCounts.expiringSoon5}
+                  </span>
+                </div>
+              )}
+              {ikCounts.expired > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
+                    {ikCounts.expired}
                   </span>
                 </div>
               )}
