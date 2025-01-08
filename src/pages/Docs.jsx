@@ -1,18 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import {
-  fetchDataWithTokenRefresh,
-  getDocs,
-  getHumidityes,
-  getLicenses,
-  getNgsertificates,
-} from "../request";
+import { fetchDataWithTokenRefresh, getDocs } from "../request";
 import { useAppStore } from "../lib/zustand";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 function Docs() {
   const user = useAppStore((state) => state.user);
-
+  const setUser = useAppStore((state) => state.setUser);
+  const navigate = useNavigate();
   const ngsertificates = useAppStore((state) => state.ngsertificates);
   const setNgsertificates = useAppStore((state) => state.setNgsertificates);
   const licenses = useAppStore((state) => state.licenses);
@@ -27,7 +23,10 @@ function Docs() {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "licenses"),
       setLicenses,
-      user
+      user,
+      setUser,
+      navigate,
+      toast
     );
   }, [user, setLicenses]);
 
@@ -35,7 +34,10 @@ function Docs() {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "ngsertificates"),
       setNgsertificates,
-      user
+      user,
+      setUser,
+      navigate,
+      toast
     );
   }, [user, setNgsertificates]);
 
@@ -159,7 +161,7 @@ function Docs() {
     { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
   );
 
-  // Humidity
+  // // Humidity
   const humidity = useAppStore((state) => state.humidity);
   const setHumidity = useAppStore((state) => state.setHumidity);
   const [showAllHumidity, setShowAllHumidity] = useState(false);
@@ -168,7 +170,10 @@ function Docs() {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "humidityes"),
       setHumidity,
-      user
+      user,
+      setUser,
+      navigate,
+      toast
     );
   }, [user, setHumidity]);
 
@@ -229,7 +234,7 @@ function Docs() {
     { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
   );
 
-  // gasAnalyzers
+  // // gasAnalyzers
   const gasanalyzers = useAppStore((state) => state.gasanalyzers);
   const setGasanalyzers = useAppStore((state) => state.setGasanalyzers);
   const [showAllGasAnalyzers, setShowAllGasAnalyzers] = useState(false);
@@ -239,7 +244,10 @@ function Docs() {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "gasanalyzers"),
       setGasanalyzers,
-      user
+      user,
+      setUser,
+      navigate,
+      toast
     );
   }, [user, setGasanalyzers]);
 
@@ -310,7 +318,10 @@ function Docs() {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "prodinsurances"),
       setProdinsurance,
-      user
+      user,
+      setUser,
+      navigate,
+      toast
     );
   }, [user, setProdinsurance]);
 
@@ -371,25 +382,28 @@ function Docs() {
   );
 
   // lifeinsurance
+
   const lifeinsurance = useAppStore((state) => state.lifeinsurance);
   const setLifeinsurance = useAppStore((state) => state.setLifeinsurance);
   const [showAllLifeinsurance, setShowAllLifeinsurance] = useState(false);
-  const baseLifeinsurance = "lifeinsurances";
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "lifeinsurances"),
-      setProdinsurance,
-      user
+      setLifeinsurance,
+      user,
+      setUser,
+      navigate,
+      toast
     );
-  }, [user, setProdinsurance]);
+  }, [user, setLifeinsurance]);
 
-  const filterLifeinsurance = () => {
+  const filterLifeinsurances = () => {
     let filtered = [...lifeinsurance];
 
     if (!showAllLifeinsurance) {
       // Оставляем только последние лицензии для каждой станции
-      const latestDocs = filtered.reduce((acc, doc) => {
+      const latestLifeinsurance = filtered.reduce((acc, lifeinsurance) => {
         const { station_id, expiration } = lifeinsurance;
         const parsedExpiration = new Date(parseDate(expiration));
 
@@ -401,18 +415,19 @@ function Docs() {
         }
         return acc;
       }, {});
-      filtered = Object.values(latestDocs);
+      filtered = Object.values(latestLifeinsurance);
     }
 
     if (selectedStation && selectedStation !== "all") {
       filtered = filtered.filter(
-        (doc) => getStationNameByNumber(doc.station_id) === selectedStation
+        (lifeinsurance) =>
+          getStationNameByNumber(lifeinsurance.station_id) === selectedStation
       );
     }
 
     if (searchTerm) {
-      filtered = filtered.filter((doc) =>
-        doc.lifeinsurance_number
+      filtered = filtered.filter((gasanalyzer) =>
+        lifeinsurance.lifeinsurance_number
           .toLowerCase()
           .includes(searchTerm.toLowerCase())
       );
@@ -421,9 +436,80 @@ function Docs() {
     return filtered;
   };
 
-  const lifeinsuranceCounts = filterLifeinsurance().reduce(
-    (acc, doc) => {
-      const expirationDate = new Date(parseDate(doc.expiration));
+  const lifeinsuranceCounts = filterLifeinsurances().reduce(
+    (acc, lifeinsurance) => {
+      const expirationDate = new Date(parseDate(lifeinsurance.expiration));
+      const currentDate = new Date();
+
+      if (expirationDate < currentDate) {
+        acc.expired += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
+        acc.expiringSoon5 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
+        acc.expiringSoon15 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
+        acc.active += 1;
+      }
+      return acc;
+    },
+    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
+  );
+
+  // Ecology
+
+  const ecology = useAppStore((state) => state.ecology);
+  const setEcology = useAppStore((state) => state.setEcology);
+  const [showAllEcology, setShowAllEcology] = useState(false);
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "ecology"),
+      setEcology,
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setEcology]);
+
+  const filterEcology = () => {
+    let filtered = [...ecology];
+
+    if (!showAllEcology) {
+      const latestEcology = filtered.reduce((acc, ecology) => {
+        const { station_id, expiration } = ecology;
+        const parsedExpiration = new Date(parseDate(expiration));
+
+        if (
+          !acc[station_id] ||
+          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
+        ) {
+          acc[station_id] = ecology;
+        }
+        return acc;
+      }, {});
+      filtered = Object.values(latestEcology);
+    }
+
+    if (selectedStation && selectedStation !== "all") {
+      filtered = filtered.filter(
+        (ecology) =>
+          getStationNameByNumber(ecology.station_id) === selectedStation
+      );
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter((ecology) =>
+        ecology.ecology_number.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return filtered;
+  };
+
+  const ecologyCounts = filterEcology().reduce(
+    (acc, ecology) => {
+      const expirationDate = new Date(parseDate(ecology.expiration));
       const currentDate = new Date();
 
       if (expirationDate < currentDate) {
@@ -454,28 +540,28 @@ function Docs() {
             <div className="flex gap-8">
               {licenseCounts.active > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-300">
+                  <span className="badge badge-sm indicator-item bg-green-500">
                     {licenseCounts.active}
                   </span>
                 </div>
               )}
               {licenseCounts.expiringSoon15 > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-500 text-white">
+                  <span className="badge badge-sm indicator-item bg-yellow-500 ">
                     {licenseCounts.expiringSoon15}
                   </span>
                 </div>
               )}
               {licenseCounts.expiringSoon5 > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-300">
+                  <span className="badge badge-sm indicator-item bg-orange-500">
                     {licenseCounts.expiringSoon5}
                   </span>
                 </div>
               )}
               {licenseCounts.expired > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-300">
+                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
                     {licenseCounts.expired}
                   </span>
                 </div>
@@ -530,28 +616,28 @@ function Docs() {
             <div className="flex gap-8">
               {humidityCounts.active > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-300">
+                  <span className="badge badge-sm indicator-item bg-green-500">
                     {humidityCounts.active}
                   </span>
                 </div>
               )}
               {humidityCounts.expiringSoon15 > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-300">
+                  <span className="badge badge-sm indicator-item bg-yellow-500">
                     {humidityCounts.expiringSoon15}
                   </span>
                 </div>
               )}
               {humidityCounts.expiringSoon5 > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-300">
+                  <span className="badge badge-sm indicator-item bg-orange-500">
                     {humidityCounts.expiringSoon5}
                   </span>
                 </div>
               )}
               {humidityCounts.expired > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-300">
+                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
                     {humidityCounts.expired}
                   </span>
                 </div>
@@ -568,28 +654,28 @@ function Docs() {
             <div className="flex gap-8">
               {gasanalyzerCounts.active > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-300">
+                  <span className="badge badge-sm indicator-item bg-green-500">
                     {gasanalyzerCounts.active}
                   </span>
                 </div>
               )}
               {gasanalyzerCounts.expiringSoon15 > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-300">
+                  <span className="badge badge-sm indicator-item bg-yellow-500">
                     {gasanalyzerCounts.expiringSoon15}
                   </span>
                 </div>
               )}
               {gasanalyzerCounts.expiringSoon5 > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-300">
+                  <span className="badge badge-sm indicator-item bg-orange-500">
                     {gasanalyzerCounts.expiringSoon5}
                   </span>
                 </div>
               )}
               {gasanalyzerCounts.expired > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-300">
+                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
                     {gasanalyzerCounts.expired}
                   </span>
                 </div>
@@ -606,28 +692,28 @@ function Docs() {
             <div className="flex gap-8">
               {prodinsuranceCounts.active > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-300">
+                  <span className="badge badge-sm indicator-item bg-green-500">
                     {prodinsuranceCounts.active}
                   </span>
                 </div>
               )}
               {prodinsuranceCounts.expiringSoon15 > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-300">
+                  <span className="badge badge-sm indicator-item bg-yellow-500">
                     {prodinsuranceCounts.expiringSoon15}
                   </span>
                 </div>
               )}
               {prodinsuranceCounts.expiringSoon5 > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-300">
+                  <span className="badge badge-sm indicator-item bg-orange-500">
                     {prodinsuranceCounts.expiringSoon5}
                   </span>
                 </div>
               )}
               {prodinsuranceCounts.expired > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-300">
+                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
                     {prodinsuranceCounts.expired}
                   </span>
                 </div>
@@ -644,29 +730,67 @@ function Docs() {
             <div className="flex gap-8">
               {lifeinsuranceCounts.active > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-300">
+                  <span className="badge badge-sm indicator-item bg-green-500">
                     {lifeinsuranceCounts.active}
                   </span>
                 </div>
               )}
               {lifeinsuranceCounts.expiringSoon15 > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-300">
+                  <span className="badge badge-sm indicator-item bg-yellow-500">
                     {lifeinsuranceCounts.expiringSoon15}
                   </span>
                 </div>
               )}
               {lifeinsuranceCounts.expiringSoon5 > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-300">
+                  <span className="badge badge-sm indicator-item bg-orange-500">
                     {lifeinsuranceCounts.expiringSoon5}
                   </span>
                 </div>
               )}
               {lifeinsuranceCounts.expired > 0 && (
                 <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-300">
+                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
                     {lifeinsuranceCounts.expired}
+                  </span>
+                </div>
+              )}
+            </div>
+          </Button>
+        </li>
+
+        <li className="flex justify-center w-full">
+          <Button className="flex justify-between items-center gap-5 w-full">
+            <Link className="text-xl" to="/ecology">
+              Экология хулосалари
+            </Link>
+            <div className="flex gap-8">
+              {ecologyCounts.active > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-green-500">
+                    {ecologyCounts.active}
+                  </span>
+                </div>
+              )}
+              {ecologyCounts.expiringSoon15 > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-yellow-500">
+                    {ecologyCounts.expiringSoon15}
+                  </span>
+                </div>
+              )}
+              {ecologyCounts.expiringSoon5 > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-orange-500">
+                    {ecologyCounts.expiringSoon5}
+                  </span>
+                </div>
+              )}
+              {ecologyCounts.expired > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
+                    {ecologyCounts.expired}
                   </span>
                 </div>
               )}

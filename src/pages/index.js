@@ -14,3 +14,4 @@ export { default as Humidity } from "./Humidity";
 export { default as GasAnalyzers } from "./GasAnalyzers";
 export { default as ProdInsurance } from "./ProdInsurance";
 export { default as LifeInsurance } from "./LifeInsurance";
+export { default as Ecology } from "./Ecology";

@@ -1,16 +1,32 @@
 import { BASE_URL } from "../my-utils/index";
 
-export async function refreshToken(token) {
-  const res = await fetch(BASE_URL + "/auth/refresh-token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ refreshToken: token }),
-  });
-  if (res.status === 200 || res.status === 201) return await res.json();
-  if (res.status === 400 || res.status === 401) throw new Error("Хатолик");
-  else throw new Error("Нимадур хатолик бўлди");
+export async function refreshToken(token, navigate, setUser) {
+  try {
+    const res = await fetch(BASE_URL + "/auth/refresh-token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refreshToken: token }),
+    });
+
+    if (res.status === 200 || res.status === 201) {
+      return await res.json();
+    }
+
+    if (res.status === 400 || res.status === 401) {
+      setUser(null);
+      navigate("/login");
+      throw new Error("Сеансга ажратилган вақт тугади. Тизимга қайта киринг!");
+    }
+
+    throw new Error("Нимадур хатолик кетди");
+  } catch (error) {
+    console.error("Токенни янгилашда хатолик:", error);
+    setUser(null);
+    navigate("/login");
+    throw error;
+  }
 }
 
 export async function login(data) {
@@ -345,10 +361,37 @@ export async function uploadImage(file) {
   else throw new Error("Нимадур хатолик бўлди");
 }
 
+// export async function fetchDataWithTokenRefresh(
+//   fetchFunction,
+//   setFunction,
+//   user
+// ) {
+//   try {
+//     const { data } = await fetchFunction(user?.access_token);
+//     setFunction(data);
+//   } catch (error) {
+//     if (error.message === "403") {
+//       try {
+//         const { access_token } = await refreshToken(user?.refreshToken);
+//         setUser({ ...user, access_token });
+//         const { data } = await fetchFunction(access_token);
+//         setFunction(data);
+//       } catch (err) {
+//         console.error("Ошибка при обновлении токена или загрузке данных:", err);
+//       }
+//     } else {
+//       console.error("Ошибка при загрузке данных:", error);
+//     }
+//   }
+// }
+
 export async function fetchDataWithTokenRefresh(
   fetchFunction,
   setFunction,
-  user
+  user,
+  setUser,
+  navigate,
+  toast
 ) {
   try {
     const { data } = await fetchFunction(user?.access_token);
@@ -356,12 +399,19 @@ export async function fetchDataWithTokenRefresh(
   } catch (error) {
     if (error.message === "403") {
       try {
+        // Попытка обновить токен
         const { access_token } = await refreshToken(user?.refreshToken);
         setUser({ ...user, access_token });
+
+        // Повторная попытка получить данные
         const { data } = await fetchFunction(access_token);
         setFunction(data);
       } catch (err) {
         console.error("Ошибка при обновлении токена или загрузке данных:", err);
+
+        toast.info("Тизимга қайта киринг!");
+        setUser(null);
+        navigate("/login");
       }
     } else {
       console.error("Ошибка при загрузке данных:", error);

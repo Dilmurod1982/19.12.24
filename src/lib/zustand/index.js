@@ -14,6 +14,7 @@ export const useAppStore = create((set) => ({
   gasanalyzers: [],
   prodinsurance: [],
   lifeinsurance: [],
+  ecology: [],
   setUser: (user) => {
     set(() => {
       if (user) {
@@ -35,6 +36,7 @@ export const useAppStore = create((set) => ({
   setGasanalyzers: (gasanalyzers) => set((state) => ({ gasanalyzers })),
   setProdinsurance: (prodinsurance) => set((state) => ({ prodinsurance })),
   setLifeinsurance: (lifeinsurance) => set((state) => ({ lifeinsurance })),
+  setEcology: (ecology) => set((state) => ({ ecology })),
   setAddItemModal: () =>
     set((state) => ({ addItemModal: !state.addItemModal })),
 }));

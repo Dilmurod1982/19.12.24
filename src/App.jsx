@@ -24,6 +24,7 @@ import {
   GasAnalyzers,
   ProdInsurance,
   LifeInsurance,
+  Ecology,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -34,6 +35,7 @@ import {
   ProdInsuranceDetail,
 } from "./components";
 import LifeInsuranceDetail from "./components/lifeinsurance/LifeInsuranceDetail";
+import EcologyDetail from "./components/Ecology/EcologyDetail";
 
 function App() {
   const user = useAppStore((state) => state.user);
@@ -132,6 +134,14 @@ function App() {
         {
           path: "/lifeinsurancedetail",
           element: <LifeInsuranceDetail />,
+        },
+        {
+          path: "/ecology",
+          element: <Ecology />,
+        },
+        {
+          path: "/ecologydetail",
+          element: <EcologyDetail />,
         },
       ],
     },

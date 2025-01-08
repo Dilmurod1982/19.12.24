@@ -3,7 +3,7 @@ import { useState } from "react";
 import { BASE_URL } from "../../my-utils";
 import { useAppStore } from "../../lib/zustand";
 
-export default function LifeInsuranceDetail() {
+export default function EcologyDetail() {
   const user = useAppStore((state) => state.user);
 
   const location = useLocation();
@@ -19,7 +19,7 @@ export default function LifeInsuranceDetail() {
     moljal,
     ltd_name,
     station_number,
-    lifeinsurance_number,
+    ecology_number,
     issue,
     expiration,
     text,
@@ -29,7 +29,7 @@ export default function LifeInsuranceDetail() {
 
   // Состояние для редактируемых полей
   const [isEditing, setIsEditing] = useState(false);
-  const [editedDocNumber, setEditedDocNumber] = useState(lifeinsurance_number);
+  const [editedDocNumber, setEditedDocNumber] = useState(ecology_number);
   const [editedIssueDate, setEditedIssueDate] = useState(issue);
   const [editedExpirationDate, setEditedExpirationDate] = useState(expiration);
 
@@ -38,12 +38,12 @@ export default function LifeInsuranceDetail() {
     try {
       const token = user.access_token;
       const data = {
-        lifeinsurance_number: editedDocNumber,
+        ecology_number: editedDocNumber,
         issue: formatDate(editedIssueDate),
         expiration: formatDate(editedExpirationDate),
       };
 
-      const res = await fetch(`${BASE_URL}/lifeinsurances/${id}`, {
+      const res = await fetch(`${BASE_URL}/ecology/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -55,7 +55,7 @@ export default function LifeInsuranceDetail() {
       if (res.ok) {
         alert("Маълумотлар сақланди!");
         setIsEditing(false);
-        navigate("/lifeinsurance");
+        navigate("/ecology");
       } else {
         throw new Error("Маълумотларни сақлашда хатолик юз берди!");
       }
@@ -69,9 +69,7 @@ export default function LifeInsuranceDetail() {
       className={`flex flex-col pt-5 items-center gap-3 h-screen ${bgColorClass}`}
     >
       <div className="flex justify-center">
-        <h1 className="font-bold text-3xl">
-          Ходимларни хаётини суғурталаш полиси
-        </h1>
+        <h1 className="font-bold text-3xl">Экология хулосаси</h1>
       </div>
       <div className="pl-10 flex flex-col gap-4">
         <h1>
@@ -82,7 +80,7 @@ export default function LifeInsuranceDetail() {
           <span className="font-bold">Шахобча номи:</span> {moljal}
         </h1>
         <h1>
-          <span className="font-bold">Полис рақами:</span>{" "}
+          <span className="font-bold">Экология хулосаси рақами:</span>{" "}
           {isEditing ? (
             <input
               type="text"
@@ -91,11 +89,11 @@ export default function LifeInsuranceDetail() {
               className="input input-bordered"
             />
           ) : (
-            lifeinsurance_number
+            ecology_number
           )}
         </h1>
         <h1>
-          <span className="font-bold">Полис берилган сана:</span>{" "}
+          <span className="font-bold">Хулоса сана:</span>{" "}
           {isEditing ? (
             <input
               type="date"
@@ -108,7 +106,7 @@ export default function LifeInsuranceDetail() {
           )}
         </h1>
         <h1>
-          <span className="font-bold">Полис муддати тугаш санаси:</span>{" "}
+          <span className="font-bold">Хулоса санаси:</span>{" "}
           {isEditing ? (
             <input
               type="date"
@@ -121,7 +119,7 @@ export default function LifeInsuranceDetail() {
           )}
         </h1>
         <h1>
-          <span className="font-bold">Полис холати:</span>{" "}
+          <span className="font-bold">Хулоса холати:</span>{" "}
           <span className="text-2xl">{text}</span>
         </h1>
         <h1 className="flex gap-4">
@@ -162,7 +160,7 @@ export default function LifeInsuranceDetail() {
           </div>
         ) : (
           <div className="flex justify-between w-full">
-            <Link to="/lifeinsurance">
+            <Link to="/ecology">
               <button className="btn btn-outline">Орқага</button>
             </Link>
             <button onClick={() => setIsEditing(true)} className="btn btn-info">
