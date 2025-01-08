@@ -23,6 +23,7 @@ import {
   Humidity,
   GasAnalyzers,
   ProdInsurance,
+  LifeInsurance,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -32,6 +33,7 @@ import {
   NGSertificateDetail,
   ProdInsuranceDetail,
 } from "./components";
+import LifeInsuranceDetail from "./components/lifeinsurance/LifeInsuranceDetail";
 
 function App() {
   const user = useAppStore((state) => state.user);
@@ -122,6 +124,14 @@ function App() {
         {
           path: "/prodinsurancedetail",
           element: <ProdInsuranceDetail />,
+        },
+        {
+          path: "/lifeinsurance",
+          element: <LifeInsurance />,
+        },
+        {
+          path: "/lifeinsurancedetail",
+          element: <LifeInsuranceDetail />,
         },
       ],
     },

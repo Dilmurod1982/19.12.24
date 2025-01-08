@@ -370,6 +370,76 @@ function Docs() {
     { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
   );
 
+  // lifeinsurance
+  const lifeinsurance = useAppStore((state) => state.lifeinsurance);
+  const setLifeinsurance = useAppStore((state) => state.setLifeinsurance);
+  const [showAllLifeinsurance, setShowAllLifeinsurance] = useState(false);
+  const baseLifeinsurance = "lifeinsurances";
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "lifeinsurances"),
+      setProdinsurance,
+      user
+    );
+  }, [user, setProdinsurance]);
+
+  const filterLifeinsurance = () => {
+    let filtered = [...lifeinsurance];
+
+    if (!showAllLifeinsurance) {
+      // Оставляем только последние лицензии для каждой станции
+      const latestDocs = filtered.reduce((acc, doc) => {
+        const { station_id, expiration } = lifeinsurance;
+        const parsedExpiration = new Date(parseDate(expiration));
+
+        if (
+          !acc[station_id] ||
+          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
+        ) {
+          acc[station_id] = lifeinsurance;
+        }
+        return acc;
+      }, {});
+      filtered = Object.values(latestDocs);
+    }
+
+    if (selectedStation && selectedStation !== "all") {
+      filtered = filtered.filter(
+        (doc) => getStationNameByNumber(doc.station_id) === selectedStation
+      );
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter((doc) =>
+        doc.lifeinsurance_number
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return filtered;
+  };
+
+  const lifeinsuranceCounts = filterLifeinsurance().reduce(
+    (acc, doc) => {
+      const expirationDate = new Date(parseDate(doc.expiration));
+      const currentDate = new Date();
+
+      if (expirationDate < currentDate) {
+        acc.expired += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
+        acc.expiringSoon5 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
+        acc.expiringSoon15 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
+        acc.active += 1;
+      }
+      return acc;
+    },
+    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
+  );
+
   return (
     <div className="flex flex-col justify-center items-center gap-5 w-full">
       <div className="flex flex-col justify-center items-center">
@@ -559,6 +629,44 @@ function Docs() {
                 <div className="indicator ">
                   <span className="badge badge-sm indicator-item bg-red-300">
                     {prodinsuranceCounts.expired}
+                  </span>
+                </div>
+              )}
+            </div>
+          </Button>
+        </li>
+
+        <li className="flex justify-center w-full">
+          <Button className="flex justify-between items-center gap-5 w-full">
+            <Link className="text-xl" to="/lifeinsurance">
+              Ходимларни хаётини суғурталаш полисилари
+            </Link>
+            <div className="flex gap-8">
+              {lifeinsuranceCounts.active > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-green-300">
+                    {lifeinsuranceCounts.active}
+                  </span>
+                </div>
+              )}
+              {lifeinsuranceCounts.expiringSoon15 > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-yellow-300">
+                    {lifeinsuranceCounts.expiringSoon15}
+                  </span>
+                </div>
+              )}
+              {lifeinsuranceCounts.expiringSoon5 > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-orange-300">
+                    {lifeinsuranceCounts.expiringSoon5}
+                  </span>
+                </div>
+              )}
+              {lifeinsuranceCounts.expired > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-red-300">
+                    {lifeinsuranceCounts.expired}
                   </span>
                 </div>
               )}
