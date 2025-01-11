@@ -3,7 +3,7 @@ import { create } from "zustand";
 export const useAppStore = create((set) => ({
   user: JSON.parse(localStorage.getItem("user")) || null,
   users: null,
-  stations: null,
+  stations: [],
   ltd: null,
   addItemModal: false,
   regions: null,

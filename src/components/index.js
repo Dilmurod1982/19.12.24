@@ -14,3 +14,4 @@ export { default as AddNewGasAnalyzer } from "./AddNewGasAnalyzer";
 export { default as AddNewProdInsurance } from "./AddNewProdInsurance";
 export { default as ProdInsuranceDetail } from "./ProdInsuranceDetail";
 export { default as ProdInsuranceList } from "./ProdInsuranceList";
+export { default as UserStationsList } from "./UserStationsList";

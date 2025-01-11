@@ -26,6 +26,8 @@ import {
   LifeInsurance,
   Ecology,
   Ik,
+  UserHome,
+  UserStations,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -43,6 +45,7 @@ function App() {
   const user = useAppStore((state) => state.user);
 
   const role = user?.type || null;
+  console.log(role);
 
   const routes = createBrowserRouter([
     {
@@ -55,7 +58,35 @@ function App() {
       children: [
         {
           index: true,
-          element: <Home />,
+          element: role ? (
+            role === "admin" ? (
+              <Home />
+            ) : (
+              <Navigate to="/userhome" />
+            )
+          ) : null,
+        },
+        {
+          path: "/userhome",
+          // element: role ? (
+          //   role === "user" ? (
+          //     <UserHome />
+          //   ) : (
+          //     <Navigate to="/" />
+          //   )
+          // ) : null,
+          element: <UserHome />,
+        },
+        {
+          path: "/userstations",
+          // element: role ? (
+          //   role === "user" ? (
+          //     <UserStations />
+          //   ) : (
+          //     <Navigate to="/" />
+          //   )
+          // ) : null,
+          element: <UserStations />,
         },
         {
           path: "/users",
