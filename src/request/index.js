@@ -164,6 +164,24 @@ export async function getDocs(token, base) {
   if (res.status === 200 || res.status === 201) return await res.json();
   else throw new Error("Нимадур хатолик бўлди");
 }
+export async function getDocs1(token, base) {
+  const res = await fetch(BASE_URL + `/${base}`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (res.status === 403) throw new Error(403);
+
+  if (res.status === 200 || res.status === 201) {
+    const data = await res.json();
+    // Проверяем, что API возвращает массив
+    return Array.isArray(data) ? data : data.data || [];
+  }
+
+  throw new Error("Нимадур хатолик бўлди");
+}
 
 export async function registerUser(token, data) {
   const res = await fetch(BASE_URL + "/auth/register", {

@@ -34,30 +34,7 @@ function Licenses() {
   const licenses = useAppStore((state) => state.licenses);
   const setLicenses = useAppStore((state) => state.setLicenses);
 
-  // const fetchDataWithTokenRefresh = async (fetchFunction, setFunction) => {
-  //   try {
-  //     const { data } = await fetchFunction(user?.access_token);
-  //     setFunction(data);
-  //   } catch (error) {
-  //     if (error.message === "403") {
-  //       try {
-  //         const { access_token } = await refreshToken(user?.refreshToken);
-  //         setUser({ ...user, access_token });
-  //         const { data } = await fetchFunction(access_token);
-  //         setFunction(data);
-  //       } catch (err) {
-  //         console.error(
-  //           "Ошибка при обновлении токена или загрузке данных:",
-  //           err
-  //         );
-  //       }
-  //     } else {
-  //       console.error("Ошибка при загрузке данных:", error);
-  //     }
-  //   }
-  // };
-
-  useEffect(() => {
+   useEffect(() => {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "stations"),
       setStations,

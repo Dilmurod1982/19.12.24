@@ -28,6 +28,7 @@ import {
   Ik,
   UserHome,
   UserStations,
+  UserStationDocs,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -36,6 +37,7 @@ import {
   HumidityDetail,
   NGSertificateDetail,
   ProdInsuranceDetail,
+  UserStationPage,
 } from "./components";
 import LifeInsuranceDetail from "./components/lifeinsurance/LifeInsuranceDetail";
 import EcologyDetail from "./components/Ecology/EcologyDetail";
@@ -68,26 +70,35 @@ function App() {
         },
         {
           path: "/userhome",
-          // element: role ? (
-          //   role === "user" ? (
-          //     <UserHome />
-          //   ) : (
-          //     <Navigate to="/" />
-          //   )
-          // ) : null,
-          element: <UserHome />,
+          element: role ? (
+            role === "user" ? (
+              <UserHome />
+            ) : (
+              <Navigate to="/" />
+            )
+          ) : null,
         },
         {
           path: "/userstations",
-          // element: role ? (
-          //   role === "user" ? (
-          //     <UserStations />
-          //   ) : (
-          //     <Navigate to="/" />
-          //   )
-          // ) : null,
-          element: <UserStations />,
+          element: role ? (
+            role === "user" ? (
+              <UserStations />
+            ) : (
+              <Navigate to="/" />
+            )
+          ) : null,
         },
+        {
+          path: "/userstationspage",
+          element: role ? (
+            role === "user" ? (
+              <UserStationPage />
+            ) : (
+              <Navigate to="/" />
+            )
+          ) : null,
+        },
+
         {
           path: "/users",
           element: <Users />,
@@ -183,6 +194,10 @@ function App() {
         {
           path: "/ikdetail",
           element: <IkDetail />,
+        },
+        {
+          path: "/userstationdocs/:stationId",
+          element: <UserStationDocs />,
         },
       ],
     },
