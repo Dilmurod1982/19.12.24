@@ -29,6 +29,7 @@ import {
   UserHome,
   UserStations,
   UserStationDocs,
+  UserNewDocs,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -47,7 +48,6 @@ function App() {
   const user = useAppStore((state) => state.user);
 
   const role = user?.type || null;
-  console.log(role);
 
   const routes = createBrowserRouter([
     {
@@ -198,6 +198,10 @@ function App() {
         {
           path: "/userstationdocs/:stationId",
           element: <UserStationDocs />,
+        },
+        {
+          path: "/usernewdocs/:stationId",
+          element: <UserNewDocs />,
         },
       ],
     },

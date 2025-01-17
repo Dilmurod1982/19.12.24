@@ -94,37 +94,6 @@ function UserHome() {
     );
   }, []);
 
-  //   console.log(
-  //     "Лицензия",
-  //     licenses,
-  //     "сертификат соответвия:",
-  //     ngsertificates,
-  //     "Влагомер:",
-  //     humidity,
-  //     "Газ анализатор:",
-  //     gasanalyzers,
-  //     "Хавфли ишлаб чиыариш полиси:",
-  //     prodinsurance,
-  //     "Ходимлар полиси:",
-  //     lifeinsurance,
-  //     "Экология хулосаси:",
-  //     ecology,
-  //     "ИК:",
-  //     ik
-  //   );
-  //   useEffect(() => {}, []);
-
-  //   useEffect(() => {}, []);
-
-  //   useEffect(() => {}, []);
-
-  //   useEffect(() => {}, []);
-
-  //   useEffect(() => {}, []);
-
-  //   useEffect(() => {}, []);
-
-  //   useEffect(() => {}, []);
 
   return (
     <div className="flex flex-col gap-3">

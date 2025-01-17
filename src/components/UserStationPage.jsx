@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { useAppStore } from "../lib/zustand";
 import { useEffect, useState } from "react";
-import { fetchDataWithTokenRefresh, getDocs, getDocs1 } from "../request";
+import { fetchDataWithTokenRefresh, getDocs } from "../request";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 
 export default function UserStationPage({
   station,
@@ -53,30 +56,22 @@ export default function UserStationPage({
       user,
       setUser
     );
-  }, [user, setStations]);
-
-  useEffect(() => {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "ltd"),
       setLtd,
       user
     );
-  }, [user, setLtd]);
-  useEffect(() => {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "regions"),
       setRegions,
       user
     );
-  }, [user, setRegions]);
-
-  useEffect(() => {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "cities"),
       setCities,
       user
     );
-  }, [user, setCities]);
+  }, [user]);
 
   const getLtdNameById = (id) => {
     if (!ltd || ltd.length === 0) return "Номаълум";
@@ -110,7 +105,7 @@ export default function UserStationPage({
 
   // Фильтруем документы по station_id
   const stationDocuments = allDocuments
-    .filter((doc) => String(doc.station_id) === String(station.id))
+    .filter((doc) => Number(doc.station_id) === Number(station.id))
     .reduce((acc, doc) => {
       const key = `${doc.station_id}_${doc.document_type}`;
       if (
@@ -124,33 +119,38 @@ export default function UserStationPage({
 
   const uniqueStationDocuments = Object.values(stationDocuments);
 
-  // Получаем текущую дату
   const currentDate = dayjs();
 
-  // Категории документов по срокам действия
   const totalDocuments = uniqueStationDocuments.length;
 
-  const expiringIn30Days = uniqueStationDocuments.filter(
-    (doc) =>
-      dayjs(doc.expiration).isBefore(currentDate.add(30, "day")) &&
-      dayjs(doc.expiration).isAfter(currentDate)
-  ).length;
+  const expiringIn30Days = uniqueStationDocuments.filter((doc) => {
+    const expirationDate = dayjs(doc.expiration, "DD.MM.YYYY");
+    return (
+      expirationDate.isAfter(currentDate.add(15, "day")) &&
+      expirationDate.isBefore(currentDate.add(30, "day"))
+    );
+  }).length;
 
-  const expiringIn15Days = uniqueStationDocuments.filter(
-    (doc) =>
-      dayjs(doc.expiration).isBefore(currentDate.add(15, "day")) &&
-      dayjs(doc.expiration).isAfter(currentDate)
-  ).length;
+  const expiringIn15Days = uniqueStationDocuments.filter((doc) => {
+    const expirationDate = dayjs(doc.expiration, "DD.MM.YYYY");
+    return (
+      expirationDate.isAfter(currentDate.add(5, "day")) &&
+      expirationDate.isBefore(currentDate.add(15, "day"))
+    );
+  }).length;
 
-  const expiringIn5Days = uniqueStationDocuments.filter(
-    (doc) =>
-      dayjs(doc.expiration).isBefore(currentDate.add(5, "day")) &&
-      dayjs(doc.expiration).isAfter(currentDate)
-  ).length;
+  const expiringIn5Days = uniqueStationDocuments.filter((doc) => {
+    const expirationDate = dayjs(doc.expiration, "DD.MM.YYYY");
+    return (
+      expirationDate.isAfter(currentDate) &&
+      expirationDate.isBefore(currentDate.add(5, "day"))
+    );
+  }).length;
 
-  const expiredDocuments = uniqueStationDocuments.filter((doc) =>
-    dayjs(doc.expiration).isBefore(currentDate)
-  ).length;
+  const expiredDocuments = uniqueStationDocuments.filter((doc) => {
+    const expirationDate = dayjs(doc.expiration, "DD.MM.YYYY");
+    return expirationDate.isBefore(currentDate);
+  }).length;
 
   return (
     <Link
