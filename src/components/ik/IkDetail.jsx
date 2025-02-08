@@ -19,7 +19,7 @@ export default function IkDetail() {
     moljal,
     ltd_name,
     station_number,
-    ik_number, //zamena
+    docNumber,
     issue,
     expiration,
     text,
@@ -28,7 +28,7 @@ export default function IkDetail() {
   } = location.state;
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editedDocNumber, setEditedDocNumber] = useState(ik_number); //zamena
+  const [editedDocNumber, setEditedDocNumber] = useState(docNumber); //zamena
   const [editedIssueDate, setEditedIssueDate] = useState(issue);
   const [editedExpirationDate, setEditedExpirationDate] = useState(expiration);
 
@@ -36,7 +36,7 @@ export default function IkDetail() {
     try {
       const token = user.access_token;
       const data = {
-        ik_number: editedDocNumber, //zamena
+        docNumber: editedDocNumber, //zamena
         issue: formatDate(editedIssueDate),
         expiration: formatDate(editedExpirationDate),
       };
@@ -88,7 +88,7 @@ export default function IkDetail() {
               className="input input-bordered"
             />
           ) : (
-            ik_number //zamena
+            docNumber
           )}
         </h1>
         <h1>

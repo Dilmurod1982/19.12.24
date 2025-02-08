@@ -19,7 +19,7 @@ export default function EcologyDetail() {
     moljal,
     ltd_name,
     station_number,
-    ecology_number,
+    docNumber,
     issue,
     expiration,
     text,
@@ -29,7 +29,7 @@ export default function EcologyDetail() {
 
   // Состояние для редактируемых полей
   const [isEditing, setIsEditing] = useState(false);
-  const [editedDocNumber, setEditedDocNumber] = useState(ecology_number);
+  const [editedDocNumber, setEditedDocNumber] = useState(docNumber);
   const [editedIssueDate, setEditedIssueDate] = useState(issue);
   const [editedExpirationDate, setEditedExpirationDate] = useState(expiration);
 
@@ -38,7 +38,7 @@ export default function EcologyDetail() {
     try {
       const token = user.access_token;
       const data = {
-        ecology_number: editedDocNumber,
+        docNumber: editedDocNumber,
         issue: formatDate(editedIssueDate),
         expiration: formatDate(editedExpirationDate),
       };
@@ -89,7 +89,7 @@ export default function EcologyDetail() {
               className="input input-bordered"
             />
           ) : (
-            ecology_number
+            docNumber
           )}
         </h1>
         <h1>

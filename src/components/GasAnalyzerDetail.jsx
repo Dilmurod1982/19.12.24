@@ -19,7 +19,7 @@ export default function GasAnalyzerDetail() {
     moljal,
     ltd_name,
     station_number,
-    gasanalyzer_number,
+    docNumber,
     issue,
     expiration,
     text,
@@ -29,7 +29,7 @@ export default function GasAnalyzerDetail() {
 
   // Состояние для редактируемых полей
   const [isEditing, setIsEditing] = useState(false);
-  const [editedDocNumber, setEditedDocNumber] = useState(gasanalyzer_number);
+  const [editedDocNumber, setEditedDocNumber] = useState(docNumber);
   const [editedIssueDate, setEditedIssueDate] = useState(issue);
   const [editedExpirationDate, setEditedExpirationDate] = useState(expiration);
 
@@ -89,7 +89,7 @@ export default function GasAnalyzerDetail() {
               className="input input-bordered"
             />
           ) : (
-            gasanalyzer_number
+            docNumber
           )}
         </h1>
         <h1>

@@ -110,9 +110,7 @@ function LifeInsurance() {
 
     if (searchTerm) {
       filtered = filtered.filter((doc) =>
-        doc.lifeinsurance_number
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+        doc.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -168,7 +166,7 @@ function LifeInsurance() {
       "МЧЖ номи ва рақами": `${getLtdNameById(
         doc.ltd_id
       )} АГТКШ № ${getStationNumberByNumber(doc.station_number)}`,
-      "Полис рақами": doc.lifeinsurance_number,
+      "Полис рақами": doc.docNumber,
       "Берилган сана": doc.issue,
       "Амал қилиш санаси": doc.expiration,
       Холати:
@@ -322,7 +320,7 @@ function LifeInsurance() {
                   station_id,
                   ltd_id,
                   station_number,
-                  lifeinsurance_number,
+                  docNumber,
                   issue,
                   expiration,
                   value,
@@ -333,7 +331,7 @@ function LifeInsurance() {
                     moljal={getStationNameByNumber(station_id)}
                     ltd_name={getLtdNameById(ltd_id)}
                     station_number={getStationNumberByNumber(station_number)}
-                    lifeinsurance_number={lifeinsurance_number}
+                    docNumber={docNumber}
                     issue={issue}
                     expiration={expiration}
                     value={value}

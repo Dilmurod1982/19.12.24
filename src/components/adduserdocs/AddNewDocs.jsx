@@ -14,20 +14,14 @@ import { ClipLoader } from "react-spinners";
 import { allowPdfSizeLicense, getFormData } from "../../my-utils";
 import { refreshToken, uploadImage, getDocs, registerDoc } from "../../request";
 import { toast } from "sonner";
-import { Calendar } from "../../components/ui/calendar";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "../../components/ui/popover";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const initialFormState = {
   station_id: "",
   ltd_name: "",
+  docNumber: "",
   station_number: "",
-  doc_number: "",
   issue: null,
   expiration: null,
   file_image_url: "",
@@ -37,9 +31,8 @@ export default function AddNewDocs({
   setSendingData,
   sendingData,
   stationId,
-  nameBase,
-  base,
-  base1,
+  baseName,
+  docName,
 }) {
   const [value, setValue] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -49,14 +42,24 @@ export default function AddNewDocs({
   const addItemModal = useAppStore((state) => state.addItemModal);
   const setAddItemModal = useAppStore((state) => state.setAddItemModal);
   const user = useAppStore((state) => state.user);
+  const setUser = useAppStore((state) => state.setUser);
   const stations = useAppStore((state) => state.stations);
   const setStations = useAppStore((state) => state.setStations);
   const ltd = useAppStore((state) => state.ltd);
   const setLtd = useAppStore((state) => state.setLtd);
-  const base = useAppStore((state) => state.base);
-  const setLicenses = useAppStore((state) => state.base1);
+  const base = useAppStore((state) => state[baseName]);
+  const setBase = useAppStore((state) => state[`set${baseName}`]);
 
   const fileInputRef = useRef(null);
+
+  // useEffect(() => {
+  //   if (docNumber) {
+  //     setFormState((prevState) => ({
+  //       ...prevState,
+  //       [docNumber]: "", // Динамически создается ключ с названием, переданным через пропс
+  //     }));
+  //   }
+  // }, [docNumber]);
 
   // Fetch stations and ltd on mount
   useEffect(() => {
@@ -89,6 +92,7 @@ export default function AddNewDocs({
       });
   }, [user, setStations, setLtd]);
 
+  console.log(ltd);
   useEffect(() => {
     if (stationId && stations.length > 0) {
       const selectedStation = stations.find(
@@ -111,7 +115,6 @@ export default function AddNewDocs({
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
   };
-  console.log(handleChange);
 
   const handleDateChange = (field, date) => {
     const dateObj = new Date(date); // Преобразуем в объект Date
@@ -124,7 +127,7 @@ export default function AddNewDocs({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!isFormValid) {
-      toast.error("Пожалуйста, заполните все обязательные поля!");
+      toast.error("Илтимосб барча қаторларни тўлдиринг!");
       return;
     }
     const result = getFormData(e.target);
@@ -146,16 +149,16 @@ export default function AddNewDocs({
   useEffect(() => {
     if (sendingData) {
       setLoading(true);
-      registerDoc(user?.access_token, sendingData, `${nameBase}`)
+      registerDoc(user?.access_token, sendingData, baseName)
         .then((res) => {
           toast.dismiss();
-          toast.success("Янги лицензия мувафақиятли қўшилди!");
+          toast.success(`Янги ${docName} мувафақиятли қўшилди!`);
           setSendingData(null);
           // Только здесь закрываем модальное окно
-          setAddItemModal;
-          getDocs(user?.access_token, `${nameBase}`)
+          setAddItemModal(false);
+          getDocs(user?.access_token, `${baseName}`)
             .then(({ data }) => {
-              setLicenses(data);
+              setBase(data);
             })
             .catch((error) => console.error("Error fetching licenses:", error));
         })
@@ -176,7 +179,7 @@ export default function AddNewDocs({
           setLoading(false);
         });
     }
-  }, [sendingData, licenses, user, setAddItemModal, setLicenses]);
+  }, [sendingData, base, user, setAddItemModal, setBase]);
 
   function handleUploadImage(file) {
     if (file.size >= allowPdfSizeLicense) {
@@ -203,7 +206,7 @@ export default function AddNewDocs({
       formState.station_id,
       formState.ltd_name,
       formState.station_number,
-      formState.doc_number,
+      formState.docNumber,
       formState.issue,
       formState.expiration,
       formState.file_image_url,
@@ -223,15 +226,16 @@ export default function AddNewDocs({
     return new Date(`${year}-${month}-${day}`); // Преобразуем в формат YYYY-MM-DD
   };
 
+  console.log("Modal state:", addItemModal);
   return (
     <Dialog open={addItemModal} onOpenChange={setAddItemModal}>
       <DialogContent className="h-screen">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
-            Янги лицензия қўшиш:
+            Янги {docName} қўшиш:
           </DialogTitle>
           <DialogDescription>
-            Формани тўлдириб, янги лицензия қўшинг.
+            Формани тўлдириб, янги {docName} қўшинг.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="relative">
@@ -258,14 +262,14 @@ export default function AddNewDocs({
 
             {/* License number */}
             <div className="w-full flex flex-col gap-2">
-              <Label htmlFor="doc_number">Лицензия рақами</Label>
+              <Label htmlFor="docNumber">Лицензия рақами</Label>
               <Input
                 type="text"
-                id="doc_number"
-                name="doc_number"
-                value={formState.doc_number}
+                id="docNumber"
+                name="docNumber"
+                value={formState.docNumber}
                 onChange={handleChange}
-                placeholder="Лицензия рақамини киритинг"
+                placeholder={`${docName} рақамини киритинг`}
                 required
               />
             </div>

@@ -11,7 +11,7 @@ function ProdInsuranceList({
   moljal,
   ltd_name,
   station_number,
-  prodinsurance_number,
+  docNumber,
   issue,
   expiration,
   value,
@@ -27,7 +27,7 @@ function ProdInsuranceList({
       <td className="text-center">
         {ltd_name} АГТКШ № {station_number}
       </td>
-      <td className="text-center">{prodinsurance_number}</td>
+      <td className="text-center">{docNumber}</td>
       <td className="text-center">{issue}</td>
       <td className="text-center">{expiration}</td>
       <td className="flex flex-col items-center ">
@@ -80,7 +80,7 @@ function ProdInsuranceList({
             moljal,
             ltd_name,
             station_number,
-            prodinsurance_number,
+            docNumber,
             issue,
             expiration,
             value,

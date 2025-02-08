@@ -102,9 +102,7 @@ function NGSertificates() {
 
     if (searchTerm) {
       filtered = filtered.filter((doc) =>
-        doc.ngsertificate_number
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+        doc.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -160,7 +158,7 @@ function NGSertificates() {
       "МЧЖ номи ва рақами": `${getLtdNameById(
         doc.ltd_id
       )} АГТКШ № ${getStationNumberByNumber(doc.station_number)}`,
-      "Табиий газ сертификати рақами": doc.ngsertificate_number,
+      "Табиий газ сертификати рақами": doc.docNumber,
       "Берилган сана": doc.issue,
       "Амал қилиш санаси": doc.expiration,
       Холати:
@@ -314,7 +312,7 @@ function NGSertificates() {
                   station_id,
                   ltd_id,
                   station_number,
-                  ngsertificate_number,
+                  docNumber,
                   issue,
                   expiration,
                   value,
@@ -325,7 +323,7 @@ function NGSertificates() {
                     moljal={getStationNameByNumber(station_id)}
                     ltd_name={getLtdNameById(ltd_id)}
                     station_number={getStationNumberByNumber(station_number)}
-                    ngsertificate_number={ngsertificate_number}
+                    docNumber={docNumber}
                     issue={issue}
                     expiration={expiration}
                     value={value}

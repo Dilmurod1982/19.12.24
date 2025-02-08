@@ -102,7 +102,7 @@ function Humidity() {
 
     if (searchTerm) {
       filtered = filtered.filter((doc) =>
-        doc.humidity_number.toLowerCase().includes(searchTerm.toLowerCase())
+        doc.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -158,7 +158,7 @@ function Humidity() {
       "МЧЖ номи ва рақами": `${getLtdNameById(
         doc.ltd_id
       )} АГТКШ № ${getStationNumberByNumber(doc.station_number)}`,
-      "Влагомер сертификати рақами": doc.humidity_number,
+      "Влагомер сертификати рақами": doc.docNumber,
       "Берилган сана": doc.issue,
       "Амал қилиш санаси": doc.expiration,
       Холати:
@@ -310,7 +310,7 @@ function Humidity() {
                   station_id,
                   ltd_id,
                   station_number,
-                  humidity_number,
+                  docNumber,
                   issue,
                   expiration,
                   value,
@@ -321,7 +321,7 @@ function Humidity() {
                     moljal={getStationNameByNumber(station_id)}
                     ltd_name={getLtdNameById(ltd_id)}
                     station_number={getStationNumberByNumber(station_number)}
-                    humidity_number={humidity_number}
+                    docNumber={docNumber}
                     issue={issue}
                     expiration={expiration}
                     value={value}

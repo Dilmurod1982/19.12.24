@@ -30,7 +30,7 @@ const initialFormState = {
   station_id: "",
   ltd_name: "",
   station_number: "",
-  ecology_number: "",
+  docNumber: "",
   issue: "",
   expiration: "",
   file_image_url: "",
@@ -187,7 +187,7 @@ export default function AddNewEcology({ setSendingData, sendingData }) {
       formState.station_id,
       formState.ltd_name,
       formState.station_number,
-      formState.ecology_number,
+      formState.docNumber,
       formState.issue,
       formState.expiration,
       formState.file_image_url,
@@ -290,12 +290,12 @@ export default function AddNewEcology({ setSendingData, sendingData }) {
                 </h1>
               </div>
               <div className="w-full flex flex-col gap-2">
-                <Label htmlFor="ecology_number">Хулоса рақами</Label>
+                <Label htmlFor="docNumber">Хулоса рақами</Label>
                 <Input
                   type="text"
-                  id="ecology_number"
-                  name="ecology_number"
-                  value={formState.ecology_number}
+                  id="docNumber"
+                  name="docNumber"
+                  value={formState.docNumber}
                   onChange={handleChange}
                   placeholder="Хулоса рақамини киритинг"
                   required

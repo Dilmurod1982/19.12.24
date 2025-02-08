@@ -115,7 +115,7 @@ function GasAnalyzers() {
 
     if (searchTerm) {
       filtered = filtered.filter((doc) =>
-        doc.gasanalyzer_number.toLowerCase().includes(searchTerm.toLowerCase())
+        doc.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -171,7 +171,7 @@ function GasAnalyzers() {
       "МЧЖ номи ва рақами": `${getLtdNameById(
         doc.ltd_id
       )} АГТКШ № ${getStationNumberByNumber(doc.station_number)}`,
-      "Газ анализатор сертификати рақами": doc.gasanalyzer_number,
+      "Газ анализатор сертификати рақами": doc.docNumber,
       "Берилган сана": doc.issue,
       "Амал қилиш санаси": doc.expiration,
       Холати:
@@ -325,7 +325,7 @@ function GasAnalyzers() {
                   station_id,
                   ltd_id,
                   station_number,
-                  gasanalyzer_number,
+                  docNumber,
                   issue,
                   expiration,
                   value,
@@ -336,7 +336,7 @@ function GasAnalyzers() {
                     moljal={getStationNameByNumber(station_id)}
                     ltd_name={getLtdNameById(ltd_id)}
                     station_number={getStationNumberByNumber(station_number)}
-                    gasanalyzer_number={gasanalyzer_number}
+                    docNumber={docNumber}
                     issue={issue}
                     expiration={expiration}
                     value={value}

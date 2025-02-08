@@ -32,7 +32,7 @@ const initialFormState = {
   station_id: "",
   ltd_name: "",
   station_number: "",
-  ngsertificate_number: "",
+  docNumber: "",
   issue: "",
   expiration: "",
   file_image_url: "",
@@ -191,7 +191,7 @@ export default function AddNewNGSertificate({ setSendingData, sendingData }) {
       formState.station_id,
       formState.ltd_name,
       formState.station_number,
-      formState.ngsertificate_number,
+      formState.docNumber,
       formState.issue,
       formState.expiration,
       formState.file_image_url,
@@ -298,12 +298,12 @@ export default function AddNewNGSertificate({ setSendingData, sendingData }) {
                 </h1>
               </div>
               <div className="w-full flex flex-col gap-2">
-                <Label htmlFor="ngsertificate_number">Сертификат рақами</Label>
+                <Label htmlFor="docNumber">Сертификат рақами</Label>
                 <Input
                   type="text"
-                  id="ngsertificate_number"
-                  name="ngsertificate_number"
-                  value={formState.ngsertificate_number} // Привязка значения
+                  id="docNumber"
+                  name="docNumber"
+                  value={formState.docNumber} // Привязка значения
                   onChange={handleChange} // Обработчик изменения
                   placeholder="Сертификат рақамини киритинг"
                   required

@@ -30,7 +30,7 @@ const initialFormState = {
   station_id: "",
   ltd_name: "",
   station_number: "",
-  lifeinsurance_number: "",
+  docNumber: "",
   issue: "",
   expiration: "",
   file_image_url: "",
@@ -190,7 +190,7 @@ export default function AddNewLifeInsurance({ setSendingData, sendingData }) {
       formState.station_id,
       formState.ltd_name,
       formState.station_number,
-      formState.lifeinsurance_number,
+      formState.docNumber,
       formState.issue,
       formState.expiration,
       formState.file_image_url,
@@ -294,12 +294,12 @@ export default function AddNewLifeInsurance({ setSendingData, sendingData }) {
                 </h1>
               </div>
               <div className="w-full flex flex-col gap-2">
-                <Label htmlFor="lifeinsurance_number">Полис рақами</Label>
+                <Label htmlFor="docNumber">Полис рақами</Label>
                 <Input
                   type="text"
-                  id="lifeinsurance_number"
-                  name="lifeinsurance_number"
-                  value={formState.lifeinsurance_number} // Привязка значения
+                  id="docNumber"
+                  name="docNumber"
+                  value={formState.docNumber} // Привязка значения
                   onChange={handleChange} // Обработчик изменения
                   placeholder="Сертификат рақамини киритинг"
                   required

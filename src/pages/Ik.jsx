@@ -113,7 +113,7 @@ function Ik() {
 
     if (searchTerm) {
       filtered = filtered.filter(
-        (doc) => doc.ik_number.toLowerCase().includes(searchTerm.toLowerCase()) //zamena
+        (doc) => doc.docNumber.toLowerCase().includes(searchTerm.toLowerCase()) //zamena
       );
     }
 
@@ -169,7 +169,7 @@ function Ik() {
       "МЧЖ номи ва рақами": `${getLtdNameById(
         doc.ltd_id
       )} АГТКШ № ${getStationNumberByNumber(doc.station_number)}`,
-      "Полис рақами": doc.ik_number, //zamena
+      "Полис рақами": doc.docNumber, //zamena
       "Берилган сана": doc.issue,
       "Амал қилиш санаси": doc.expiration,
       Холати:
@@ -319,7 +319,7 @@ function Ik() {
                   station_id,
                   ltd_id,
                   station_number,
-                  ik_number, //zamena
+                  docNumber, //zamena
                   issue,
                   expiration,
                   value,
@@ -330,7 +330,7 @@ function Ik() {
                     moljal={getStationNameByNumber(station_id)}
                     ltd_name={getLtdNameById(ltd_id)}
                     station_number={getStationNumberByNumber(station_number)}
-                    ik_number={ik_number} //zamena
+                    docNumber={docNumber} //zamena
                     issue={issue}
                     expiration={expiration}
                     value={value}

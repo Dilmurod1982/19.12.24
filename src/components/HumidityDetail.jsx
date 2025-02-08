@@ -19,7 +19,7 @@ export default function HumidityDetail() {
     moljal,
     ltd_name,
     station_number,
-    humidity_number,
+    docNumber,
     issue,
     expiration,
     text,
@@ -29,7 +29,7 @@ export default function HumidityDetail() {
 
   // Состояние для редактируемых полей
   const [isEditing, setIsEditing] = useState(false);
-  const [editedDocNumber, setEditedDocNumber] = useState(humidity_number);
+  const [editedDocNumber, setEditedDocNumber] = useState(docNumber);
   const [editedIssueDate, setEditedIssueDate] = useState(issue);
   const [editedExpirationDate, setEditedExpirationDate] = useState(expiration);
 
@@ -38,7 +38,7 @@ export default function HumidityDetail() {
     try {
       const token = user.access_token;
       const data = {
-        humidity_number: editedDocNumber,
+        docNumber: editedDocNumber,
         issue: formatDate(editedIssueDate),
         expiration: formatDate(editedExpirationDate),
       };
@@ -89,7 +89,7 @@ export default function HumidityDetail() {
               className="input input-bordered"
             />
           ) : (
-            humidity_number
+            docNumber
           )}
         </h1>
         <h1>

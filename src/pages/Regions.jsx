@@ -11,7 +11,7 @@ import AddNewRegion from "../components/AddNewRegion";
 function Regions() {
   const [sendingData, setSendingData] = useState(null);
   const regions = useAppStore((state) => state.regions);
-  console.log(regions);
+
   const setRegions = useAppStore((state) => state.setRegions);
   const user = useAppStore((state) => state.user);
   const setUser = useAppStore((state) => state.setUser);

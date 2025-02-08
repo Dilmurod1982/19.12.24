@@ -9,7 +9,7 @@ function LifeInsuranceList({
   moljal,
   ltd_name,
   station_number,
-  lifeinsurance_number,
+  docNumber,
   issue,
   expiration,
   value,
@@ -25,7 +25,7 @@ function LifeInsuranceList({
       <td className="text-center">
         {ltd_name} АГТКШ № {station_number}
       </td>
-      <td className="text-center">{lifeinsurance_number}</td>
+      <td className="text-center">{docNumber}</td>
       <td className="text-center">{issue}</td>
       <td className="text-center">{expiration}</td>
       <td className="flex flex-col items-center ">
@@ -78,7 +78,7 @@ function LifeInsuranceList({
             moljal,
             ltd_name,
             station_number,
-            lifeinsurance_number,
+            docNumber,
             issue,
             expiration,
             value,

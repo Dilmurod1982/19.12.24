@@ -12,12 +12,7 @@ import { useAppStore } from "../lib/zustand";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ClipLoader } from "react-spinners";
 import { allowPdfSizeLicense, getFormData } from "../my-utils";
-import {
-  refreshToken,  
-  uploadImage,
-  getDocs,
-  registerDoc,
-} from "../request";
+import { refreshToken, uploadImage, getDocs, registerDoc } from "../request";
 import { toast } from "sonner";
 import { Calendar } from "../components/ui/calendar";
 import {
@@ -30,7 +25,7 @@ const initialFormState = {
   station_id: "",
   ltd_name: "",
   station_number: "",
-  license_number: "",
+  docNumber: "",
   issue: "",
   expiration: "",
   file_image_url: "",
@@ -187,7 +182,7 @@ export default function AddNewLicense({ setSendingData, sendingData }) {
       formState.station_id,
       formState.ltd_name,
       formState.station_number,
-      formState.license_number,
+      formState.docNumber,
       formState.issue,
       formState.expiration,
       formState.file_image_url,
@@ -291,12 +286,12 @@ export default function AddNewLicense({ setSendingData, sendingData }) {
                 </h1>
               </div>
               <div className="w-full flex flex-col gap-2">
-                <Label htmlFor="license_number">Лицензия рақами</Label>
+                <Label htmlFor="docNumber">Лицензия рақами</Label>
                 <Input
                   type="text"
-                  id="license_number"
-                  name="license_number"
-                  value={formState.license_number} // Привязка значения
+                  id="docNumber"
+                  name="docNumber"
+                  value={formState.docNumber} // Привязка значения
                   onChange={handleChange} // Обработчик изменения
                   placeholder="Лицензия рақамини киритинг"
                   required

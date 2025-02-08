@@ -10,7 +10,7 @@ function LicensesList({
   moljal,
   ltd_name,
   station_number,
-  license_number,
+  docNumber,
   issue,
   expiration,
   value,
@@ -26,7 +26,7 @@ function LicensesList({
       <td className="text-center">
         {ltd_name} АГТКШ № {station_number}
       </td>
-      <td className="text-center">{license_number}</td>
+      <td className="text-center">{docNumber}</td>
       <td className="text-center">{issue}</td>
       <td className="text-center">{expiration}</td>
       <td className="flex flex-col items-center ">
@@ -79,7 +79,7 @@ function LicensesList({
             moljal,
             ltd_name,
             station_number,
-            license_number,
+            docNumber,
             issue,
             expiration,
             value,

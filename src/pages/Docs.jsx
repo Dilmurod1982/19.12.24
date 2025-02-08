@@ -78,7 +78,7 @@ function Docs() {
 
     if (searchTerm) {
       filtered = filtered.filter((license) =>
-        license.license_number.toLowerCase().includes(searchTerm.toLowerCase())
+        license.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -133,9 +133,7 @@ function Docs() {
 
     if (searchTerm) {
       filtered = filtered.filter((ngsertificate) =>
-        ngsertificate.ngsertificate_number
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+        ngsertificate.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -206,9 +204,7 @@ function Docs() {
 
     if (searchTerm) {
       filtered = filtered.filter((humidity) =>
-        humidity.humidity_number
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+        humidity.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -280,9 +276,7 @@ function Docs() {
 
     if (searchTerm) {
       filtered = filtered.filter((gasanalyzer) =>
-        gasanalyzer.gasanalyzer_number
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+        gasanalyzer.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -353,9 +347,7 @@ function Docs() {
 
     if (searchTerm) {
       filtered = filtered.filter((doc) =>
-        doc.prodinsurance_number
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+        doc.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -427,9 +419,7 @@ function Docs() {
 
     if (searchTerm) {
       filtered = filtered.filter((gasanalyzer) =>
-        lifeinsurance.lifeinsurance_number
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+        lifeinsurance.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -500,7 +490,7 @@ function Docs() {
 
     if (searchTerm) {
       filtered = filtered.filter((ecology) =>
-        ecology.ecology_number.toLowerCase().includes(searchTerm.toLowerCase())
+        ecology.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -578,7 +568,7 @@ function Docs() {
         (
           ik //zamena
         ) =>
-          ik.ik_number //zamena zamena
+          ik.docNumber //zamena zamena
             .toLowerCase()
             .includes(searchTerm.toLowerCase())
       );
@@ -592,6 +582,404 @@ function Docs() {
     (acc, ik) => {
       //zamena
       const expirationDate = new Date(parseDate(ik.expiration)); //zamena
+      const currentDate = new Date();
+
+      if (expirationDate < currentDate) {
+        acc.expired += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
+        acc.expiringSoon5 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
+        acc.expiringSoon15 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
+        acc.active += 1;
+      }
+      return acc;
+    },
+    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
+  );
+
+  // pilot
+
+  const pilot = useAppStore((state) => state.pilot);
+  const setPilot = useAppStore((state) => state.setPilot);
+  const [showAllPilot, setShowAllPilot] = useState(false);
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "pilot"),
+      setPilot,
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setPilot]);
+
+  const filterPilot = () => {
+    let filtered = [...pilot];
+
+    if (!showAllPilot) {
+      const latestPilot = filtered.reduce((acc, pilot) => {
+        const { station_id, expiration } = pilot;
+        const parsedExpiration = new Date(parseDate(expiration));
+
+        if (
+          !acc[station_id] ||
+          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
+        ) {
+          acc[station_id] = pilot;
+        }
+        return acc;
+      }, {});
+      filtered = Object.values(latestPilot);
+    }
+
+    if (selectedStation && selectedStation !== "all") {
+      filtered = filtered.filter(
+        (pilot) => getStationNameByNumber(pilot.station_id) === selectedStation
+      );
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter((pilot) =>
+        pilot.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return filtered;
+  };
+
+  const pilotCounts = filterPilot().reduce(
+    (acc, pilot) => {
+      const expirationDate = new Date(parseDate(pilot.expiration));
+      const currentDate = new Date();
+
+      if (expirationDate < currentDate) {
+        acc.expired += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
+        acc.expiringSoon5 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
+        acc.expiringSoon15 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
+        acc.active += 1;
+      }
+      return acc;
+    },
+    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
+  );
+
+  // shayba
+
+  const shayba = useAppStore((state) => state.shayba); // zamena zamena
+  const setShayba = useAppStore((state) => state.setShayba); //zamena zamena
+  const [showAllShayba, setShowAllShayba] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "shayba"), //zamena
+      setShayba, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setShayba]); //zamena
+
+  const filterShayba = () => {
+    //zamena
+    let filtered = [...shayba]; //zamena
+
+    if (!showAllShayba) {
+      //zamena
+      const latestShayba = filtered.reduce((acc, shayba) => {
+        //zamena zamena
+        const { station_id, expiration } = shayba; //zamena
+        const parsedExpiration = new Date(parseDate(expiration));
+
+        if (
+          !acc[station_id] ||
+          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
+        ) {
+          acc[station_id] = shayba; //zamena
+        }
+        return acc;
+      }, {});
+      filtered = Object.values(latestShayba); //zamena
+    }
+
+    if (selectedStation && selectedStation !== "all") {
+      filtered = filtered.filter(
+        (
+          shayba //zamena
+        ) => getStationNameByNumber(shayba.station_id) === selectedStation //zamena
+      );
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (
+          shayba //zamena
+        ) =>
+          shayba.docNumber //zamena zamena
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return filtered;
+  };
+
+  const shaybaCounts = filterShayba().reduce(
+    //zamena
+    (acc, shayba) => {
+      //zamena
+      const expirationDate = new Date(parseDate(shayba.expiration)); //zamena
+      const currentDate = new Date();
+
+      if (expirationDate < currentDate) {
+        acc.expired += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
+        acc.expiringSoon5 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
+        acc.expiringSoon15 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
+        acc.active += 1;
+      }
+      return acc;
+    },
+    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
+  );
+
+  // water
+
+  const water = useAppStore((state) => state.water); // zamena zamena
+  const setWater = useAppStore((state) => state.setWater); //zamena zamena
+  const [showAllWater, setShowAllWater] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "water"), //zamena
+      setWater, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setWater]); //zamena
+
+  const filterWater = () => {
+    //zamena
+    let filtered = [...water]; //zamena
+
+    if (!showAllWater) {
+      //zamena
+      const latestWater = filtered.reduce((acc, water) => {
+        //zamena zamena
+        const { station_id, expiration } = water; //zamena
+        const parsedExpiration = new Date(parseDate(expiration));
+
+        if (
+          !acc[station_id] ||
+          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
+        ) {
+          acc[station_id] = water; //zamena
+        }
+        return acc;
+      }, {});
+      filtered = Object.values(latestWater); //zamena
+    }
+
+    if (selectedStation && selectedStation !== "all") {
+      filtered = filtered.filter(
+        (
+          water //zamena
+        ) => getStationNameByNumber(water.station_id) === selectedStation //zamena
+      );
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (
+          water //zamena
+        ) =>
+          water.docNumber //zamena zamena
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return filtered;
+  };
+
+  const waterCounts = filterWater().reduce(
+    //zamena
+    (acc, water) => {
+      //zamena
+      const expirationDate = new Date(parseDate(water.expiration)); //zamena
+      const currentDate = new Date();
+
+      if (expirationDate < currentDate) {
+        acc.expired += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
+        acc.expiringSoon5 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
+        acc.expiringSoon15 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
+        acc.active += 1;
+      }
+      return acc;
+    },
+    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
+  );
+
+  // electric
+
+  const electric = useAppStore((state) => state.electric); // zamena zamena
+  const setElectric = useAppStore((state) => state.setElectric); //zamena zamena
+  const [showAllElectric, setShowAllElectric] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "electric"), //zamena
+      setElectric, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setElectric]); //zamena
+
+  const filterElectric = () => {
+    //zamena
+    let filtered = [...electric]; //zamena
+
+    if (!showAllElectric) {
+      //zamena
+      const latestElectric = filtered.reduce((acc, electric) => {
+        //zamena zamena
+        const { station_id, expiration } = electric; //zamena
+        const parsedExpiration = new Date(parseDate(expiration));
+
+        if (
+          !acc[station_id] ||
+          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
+        ) {
+          acc[station_id] = electric; //zamena
+        }
+        return acc;
+      }, {});
+      filtered = Object.values(latestElectric); //zamena
+    }
+
+    if (selectedStation && selectedStation !== "all") {
+      filtered = filtered.filter(
+        (
+          electric //zamena
+        ) => getStationNameByNumber(electric.station_id) === selectedStation //zamena
+      );
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (
+          electric //zamena
+        ) =>
+          electric.docNumber //zamena zamena
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return filtered;
+  };
+
+  const electricCounts = filterElectric().reduce(
+    //zamena
+    (acc, electric) => {
+      //zamena
+      const expirationDate = new Date(parseDate(electric.expiration)); //zamena
+      const currentDate = new Date();
+
+      if (expirationDate < currentDate) {
+        acc.expired += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
+        acc.expiringSoon5 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
+        acc.expiringSoon15 += 1;
+      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
+        acc.active += 1;
+      }
+      return acc;
+    },
+    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
+  );
+
+  // kolonka
+
+  const kolonka = useAppStore((state) => state.kolonka); // zamena zamena
+  const setKolonka = useAppStore((state) => state.setKolonka); //zamena zamena
+  const [showAllKolonka, setShowAllKolonka] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "kolonka"), //zamena
+      setKolonka, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setKolonka]); //zamena
+
+  const filterKolonka = () => {
+    //zamena
+    let filtered = [...kolonka]; //zamena
+
+    if (!showAllKolonka) {
+      //zamena
+      const latestKolonka = filtered.reduce((acc, kolonka) => {
+        //zamena zamena
+        const { station_id, expiration } = kolonka; //zamena
+        const parsedExpiration = new Date(parseDate(expiration));
+
+        if (
+          !acc[station_id] ||
+          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
+        ) {
+          acc[station_id] = kolonka; //zamena
+        }
+        return acc;
+      }, {});
+      filtered = Object.values(latestKolonka); //zamena
+    }
+
+    if (selectedStation && selectedStation !== "all") {
+      filtered = filtered.filter(
+        (
+          kolonka //zamena
+        ) => getStationNameByNumber(kolonka.station_id) === selectedStation //zamena
+      );
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (
+          kolonka //zamena
+        ) =>
+          kolonka.docNumber //zamena zamena
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return filtered;
+  };
+
+  const kolonkaCounts = filterKolonka().reduce(
+    //zamena
+    (acc, kolonka) => {
+      //zamena
+      const expirationDate = new Date(parseDate(kolonka.expiration)); //zamena
       const currentDate = new Date();
 
       if (expirationDate < currentDate) {
@@ -656,41 +1044,44 @@ function Docs() {
         </li>
 
         <li className="flex justify-center w-full">
-          <Button className="flex justify-between items-center gap-5 w-full">
-            <Link className="text-xl" to="/ngsertificates">
+          <Link
+            className="flex justify-between items-center gap-5 w-full text-xl "
+            to="/ngsertificates"
+          >
+            <Button className="flex justify-between items-center gap-5 w-full text-xl">
               Табиий газ сертификатлари
-            </Link>
-            <div className="flex gap-8">
-              {ngsertificateCounts.active > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-500">
-                    {ngsertificateCounts.active}
-                  </span>
-                </div>
-              )}
-              {ngsertificateCounts.expiringSoon15 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-500 ">
-                    {ngsertificateCounts.expiringSoon15}
-                  </span>
-                </div>
-              )}
-              {ngsertificateCounts.expiringSoon5 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-500">
-                    {ngsertificateCounts.expiringSoon5}
-                  </span>
-                </div>
-              )}
-              {ngsertificateCounts.expired > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                    {ngsertificateCounts.expired}
-                  </span>
-                </div>
-              )}
-            </div>
-          </Button>
+              <div className="flex gap-8">
+                {ngsertificateCounts.active > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-green-500">
+                      {ngsertificateCounts.active}
+                    </span>
+                  </div>
+                )}
+                {ngsertificateCounts.expiringSoon15 > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-yellow-500 ">
+                      {ngsertificateCounts.expiringSoon15}
+                    </span>
+                  </div>
+                )}
+                {ngsertificateCounts.expiringSoon5 > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-orange-500">
+                      {ngsertificateCounts.expiringSoon5}
+                    </span>
+                  </div>
+                )}
+                {ngsertificateCounts.expired > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-red-700 text-white">
+                      {ngsertificateCounts.expired}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </Button>
+          </Link>
         </li>
 
         <li className="flex justify-center w-full">
@@ -919,6 +1310,205 @@ function Docs() {
               )}
             </div>
           </Button>
+        </li>
+
+        <li className="flex justify-center w-full">
+          <Button className="flex justify-between items-center gap-5 w-full">
+            <Link className="text-xl" to="/pilot">
+              Автопилот сертификатлари
+            </Link>
+            <div className="flex gap-8">
+              {pilotCounts.active > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-green-500">
+                    {pilotCounts.active}
+                  </span>
+                </div>
+              )}
+              {pilotCounts.expiringSoon15 > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-yellow-500">
+                    {pilotCounts.expiringSoon15}
+                  </span>
+                </div>
+              )}
+              {pilotCounts.expiringSoon5 > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-orange-500">
+                    {pilotCounts.expiringSoon5}
+                  </span>
+                </div>
+              )}
+              {pilotCounts.expired > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
+                    {pilotCounts.expired}
+                  </span>
+                </div>
+              )}
+            </div>
+          </Button>
+        </li>
+
+        <li className="flex justify-center w-full">
+          <Button className="flex justify-between items-center gap-5 w-full">
+            <Link className="text-xl" to="/shayba">
+              Шайба сертификатлари
+            </Link>
+            <div className="flex gap-8">
+              {shaybaCounts.active > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-green-500">
+                    {shaybaCounts.active}
+                  </span>
+                </div>
+              )}
+              {shaybaCounts.expiringSoon15 > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-yellow-500">
+                    {shaybaCounts.expiringSoon15}
+                  </span>
+                </div>
+              )}
+              {shaybaCounts.expiringSoon5 > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-orange-500">
+                    {shaybaCounts.expiringSoon5}
+                  </span>
+                </div>
+              )}
+              {shaybaCounts.expired > 0 && (
+                <div className="indicator ">
+                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
+                    {shaybaCounts.expired}
+                  </span>
+                </div>
+              )}
+            </div>
+          </Button>
+        </li>
+
+        <li className="flex justify-center w-full">
+          <Link
+            className="flex justify-between items-center gap-5 w-full text-xl "
+            to="/water"
+          >
+            <Button className="flex justify-between items-center gap-5 w-full text-xl">
+              Сув ҳисоблагич сертификатлари
+              <div className="flex gap-8">
+                {waterCounts.active > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-green-500">
+                      {waterCounts.active}
+                    </span>
+                  </div>
+                )}
+                {waterCounts.expiringSoon15 > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-yellow-500 ">
+                      {waterCounts.expiringSoon15}
+                    </span>
+                  </div>
+                )}
+                {waterCounts.expiringSoon5 > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-orange-500">
+                      {waterCounts.expiringSoon5}
+                    </span>
+                  </div>
+                )}
+                {waterCounts.expired > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-red-700 text-white">
+                      {waterCounts.expired}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </Button>
+          </Link>
+        </li>
+
+        <li className="flex justify-center w-full">
+          <Link
+            className="flex justify-between items-center gap-5 w-full text-xl "
+            to="/electric"
+          >
+            <Button className="flex justify-between items-center gap-5 w-full text-xl">
+              Электр ҳисоблагич сертификатлари
+              <div className="flex gap-8">
+                {electricCounts.active > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-green-500">
+                      {electricCounts.active}
+                    </span>
+                  </div>
+                )}
+                {electricCounts.expiringSoon15 > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-yellow-500 ">
+                      {electricCounts.expiringSoon15}
+                    </span>
+                  </div>
+                )}
+                {electricCounts.expiringSoon5 > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-orange-500">
+                      {electricCounts.expiringSoon5}
+                    </span>
+                  </div>
+                )}
+                {electricCounts.expired > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-red-700 text-white">
+                      {electricCounts.expired}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </Button>
+          </Link>
+        </li>
+
+        <li className="flex justify-center w-full">
+          <Link
+            className="flex justify-between items-center gap-5 w-full text-xl "
+            to="/kolonka"
+          >
+            <Button className="flex justify-between items-center gap-5 w-full text-xl">
+              Колонкалар сертификатлари
+              <div className="flex gap-8">
+                {kolonkaCounts.active > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-green-500">
+                      {kolonkaCounts.active}
+                    </span>
+                  </div>
+                )}
+                {kolonkaCounts.expiringSoon15 > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-yellow-500 ">
+                      {kolonkaCounts.expiringSoon15}
+                    </span>
+                  </div>
+                )}
+                {kolonkaCounts.expiringSoon5 > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-orange-500">
+                      {kolonkaCounts.expiringSoon5}
+                    </span>
+                  </div>
+                )}
+                {kolonkaCounts.expired > 0 && (
+                  <div className="indicator ">
+                    <span className="badge badge-sm indicator-item bg-red-700 text-white">
+                      {kolonkaCounts.expired}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </Button>
+          </Link>
         </li>
       </ul>
       <div>

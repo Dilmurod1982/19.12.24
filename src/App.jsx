@@ -30,6 +30,12 @@ import {
   UserStations,
   UserStationDocs,
   UserNewDocs,
+  Pilot,
+  Shayba,
+  Water,
+  Electric,
+  Kolonka,
+  KolonkaMarka,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -43,6 +49,11 @@ import {
 import LifeInsuranceDetail from "./components/lifeinsurance/LifeInsuranceDetail";
 import EcologyDetail from "./components/Ecology/EcologyDetail";
 import IkDetail from "./components/ik/IkDetail";
+import PilotDetail from "./components/pilot/PilotDetail";
+import ShaybaDetail from "./components/shayba/ShaybaDetail";
+import WaterDetail from "./components/water/WaterDetail";
+import ElectricDetail from "./components/electric/ElectricDetail";
+import KolonkaDetail from "./components/kolonka/KolonkaDetail";
 
 function App() {
   const user = useAppStore((state) => state.user);
@@ -196,12 +207,56 @@ function App() {
           element: <IkDetail />,
         },
         {
+          path: "/pilot",
+          element: <Pilot />,
+        },
+        {
+          path: "/pilotdetail",
+          element: <PilotDetail />,
+        },
+        {
+          path: "/shayba",
+          element: <Shayba />,
+        },
+        {
+          path: "/shaybadetail",
+          element: <ShaybaDetail />,
+        },
+        {
+          path: "/water",
+          element: <Water />,
+        },
+        {
+          path: "/waterdetail",
+          element: <WaterDetail />,
+        },
+        {
+          path: "/electric",
+          element: <Electric />,
+        },
+        {
+          path: "/electricdetail",
+          element: <ElectricDetail />,
+        },
+        {
+          path: "/kolonka",
+          element: <Kolonka />,
+        },
+        {
+          path: "/kolonkadetail",
+          element: <KolonkaDetail />,
+        },
+        {
           path: "/userstationdocs/:stationId",
           element: <UserStationDocs />,
         },
         {
           path: "/usernewdocs/:stationId",
           element: <UserNewDocs />,
+        },
+        {
+          path: "/kolonkamarka",
+          element: <KolonkaMarka />,
         },
       ],
     },

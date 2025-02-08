@@ -112,7 +112,7 @@ function Ecology() {
 
     if (searchTerm) {
       filtered = filtered.filter((doc) =>
-        doc.ecology_number.toLowerCase().includes(searchTerm.toLowerCase())
+        doc.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -167,7 +167,7 @@ function Ecology() {
       "МЧЖ номи ва рақами": `${getLtdNameById(
         doc.ltd_id
       )} АГТКШ № ${getStationNumberByNumber(doc.station_number)}`,
-      "Полис рақами": doc.ecology_number,
+      "Полис рақами": doc.docNumber,
       "Берилган сана": doc.issue,
       "Амал қилиш санаси": doc.expiration,
       Холати:
@@ -315,7 +315,7 @@ function Ecology() {
                   station_id,
                   ltd_id,
                   station_number,
-                  ecology_number,
+                  docNumber,
                   issue,
                   expiration,
                   value,
@@ -326,7 +326,7 @@ function Ecology() {
                     moljal={getStationNameByNumber(station_id)}
                     ltd_name={getLtdNameById(ltd_id)}
                     station_number={getStationNumberByNumber(station_number)}
-                    ecology_number={ecology_number}
+                    docNumber={docNumber}
                     issue={issue}
                     expiration={expiration}
                     value={value}

@@ -5,9 +5,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat"; // ✅ Доба�
 import { useState } from "react";
 import { Button } from "../components/ui/button";
 import * as XLSX from "xlsx";
-import AddUserDocumentModal from "../components/AddUserDocumentModal";
-import AddLicense from "../components/adduserdocs/AddLicense";
-import { AddNGSertificate } from "../components/adduserdocs";
 
 dayjs.extend(customParseFormat);
 
@@ -255,17 +252,7 @@ export default function UserStationDocs() {
             <tr key={doc.id || index} className={getRowClass(doc.expiration)}>
               <td>{index + 1}</td>
               <td>{docTypes[doc.document_type] || "Номаълум хужжат"}</td>
-              <td className="text-center">
-                {doc.ik_number ||
-                  doc.ecology_number ||
-                  doc.lifeinsurance_number ||
-                  doc.prodinsurance_number ||
-                  doc.gasanalyzer_number ||
-                  doc.humidity_number ||
-                  doc.ngsertificate_number ||
-                  doc.license_number ||
-                  "Номсиз"}
-              </td>
+              <td className="text-center">{doc.docNumber || "Номсиз"}</td>
               <td className="text-center">{doc.issue || "Маълумот йўқ"}</td>
               <td className="text-center">
                 {doc.expiration || "Маълумот йўқ"}

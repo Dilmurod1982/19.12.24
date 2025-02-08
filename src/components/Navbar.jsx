@@ -77,6 +77,11 @@ export default function Navbar() {
                   Шахобчалар
                 </Link>
               </li>
+              <li>
+                <Link to="/kolonkamarka" onClick={closeMenu}>
+                  Колонкалар тури
+                </Link>
+              </li>
             </ul>
           )}
         </li>

@@ -34,7 +34,7 @@ const initialFormState = {
   station_id: "",
   ltd_name: "",
   station_number: "",
-  gasanalyzer_number: "",
+  docNumber: "",
   issue: "",
   expiration: "",
   file_image_url: "",
@@ -194,7 +194,7 @@ export default function AddNewGasAnalyzer({ setSendingData, sendingData }) {
       formState.station_id,
       formState.ltd_name,
       formState.station_number,
-      formState.gasanalyzer_number,
+      formState.docNumber,
       formState.issue,
       formState.expiration,
       formState.file_image_url,
@@ -301,12 +301,12 @@ export default function AddNewGasAnalyzer({ setSendingData, sendingData }) {
                 </h1>
               </div>
               <div className="w-full flex flex-col gap-2">
-                <Label htmlFor="gasanalyzer_number">Сертификат рақами</Label>
+                <Label htmlFor="docNumber">Сертификат рақами</Label>
                 <Input
                   type="text"
-                  id="gasanalyzer_number"
-                  name="gasanalyzer_number"
-                  value={formState.gasanalyzer_number} // Привязка значения
+                  id="docNumber"
+                  name="docNumber"
+                  value={formState.docNumber} // Привязка значения
                   onChange={handleChange} // Обработчик изменения
                   placeholder="Сертификат рақамини киритинг"
                   required

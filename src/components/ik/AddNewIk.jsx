@@ -30,7 +30,7 @@ const initialFormState = {
   station_id: "",
   ltd_name: "",
   station_number: "",
-  ik_number: "", //zamena
+  docNumber: "",
   issue: "",
   expiration: "",
   file_image_url: "",
@@ -187,7 +187,7 @@ export default function AddNewIk({ setSendingData, sendingData }) {
       formState.station_id,
       formState.ltd_name,
       formState.station_number,
-      formState.ik_number, //zamena
+      formState.docNumber, //zamena
       formState.issue,
       formState.expiration,
       formState.file_image_url,
@@ -287,12 +287,12 @@ export default function AddNewIk({ setSendingData, sendingData }) {
                 </h1>
               </div>
               <div className="w-full flex flex-col gap-2">
-                <Label htmlFor="ik_number">Сертификат рақами</Label>
+                <Label htmlFor="docNumber">Сертификат рақами</Label>
                 <Input
                   type="text"
-                  id="ik_number" //zamena
-                  name="ik_number" //zamena
-                  value={formState.ik_number} //zamena
+                  id="docNumber" //zamena
+                  name="docNumber" //zamena
+                  value={formState.docNumber} //zamena
                   onChange={handleChange}
                   placeholder="Сертификат рақамини киритинг"
                   required

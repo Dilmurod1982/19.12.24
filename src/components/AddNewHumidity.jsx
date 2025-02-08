@@ -32,7 +32,7 @@ const initialFormState = {
   station_id: "",
   ltd_name: "",
   station_number: "",
-  humidity_number: "",
+  docNumber: "",
   issue: "",
   expiration: "",
   file_image_url: "",
@@ -191,7 +191,7 @@ export default function AddNewHumidity({ setSendingData, sendingData }) {
       formState.station_id,
       formState.ltd_name,
       formState.station_number,
-      formState.humidity_number,
+      formState.docNumber,
       formState.issue,
       formState.expiration,
       formState.file_image_url,
@@ -298,12 +298,12 @@ export default function AddNewHumidity({ setSendingData, sendingData }) {
                 </h1>
               </div>
               <div className="w-full flex flex-col gap-2">
-                <Label htmlFor="humidity_number">Сертификат рақами</Label>
+                <Label htmlFor="docNumber">Сертификат рақами</Label>
                 <Input
                   type="text"
-                  id="humidity_number"
-                  name="humidity_number"
-                  value={formState.humidity_number} // Привязка значения
+                  id="docNumber"
+                  name="docNumber"
+                  value={formState.docNumber} // Привязка значения
                   onChange={handleChange} // Обработчик изменения
                   placeholder="Сертификат рақамини киритинг"
                   required

@@ -109,9 +109,7 @@ function ProdInsurance() {
 
     if (searchTerm) {
       filtered = filtered.filter((doc) =>
-        doc.prodinsurance_number
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+        doc.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -167,7 +165,7 @@ function ProdInsurance() {
       "МЧЖ номи ва рақами": `${getLtdNameById(
         doc.ltd_id
       )} АГТКШ № ${getStationNumberByNumber(doc.station_number)}`,
-      "Полис рақами": doc.prodinsurance_number,
+      "Полис рақами": doc.docNumber,
       "Берилган сана": doc.issue,
       "Амал қилиш санаси": doc.expiration,
       Холати:
@@ -321,7 +319,7 @@ function ProdInsurance() {
                   station_id,
                   ltd_id,
                   station_number,
-                  prodinsurance_number,
+                  docNumber,
                   issue,
                   expiration,
                   value,
@@ -332,7 +330,7 @@ function ProdInsurance() {
                     moljal={getStationNameByNumber(station_id)}
                     ltd_name={getLtdNameById(ltd_id)}
                     station_number={getStationNumberByNumber(station_number)}
-                    prodinsurance_number={prodinsurance_number}
+                    docNumber={docNumber}
                     issue={issue}
                     expiration={expiration}
                     value={value}

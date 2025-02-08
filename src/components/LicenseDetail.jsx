@@ -19,7 +19,7 @@ export default function LicenseDetail() {
     moljal,
     ltd_name,
     station_number,
-    license_number,
+    docNumber,
     issue,
     expiration,
     text,
@@ -30,7 +30,7 @@ export default function LicenseDetail() {
   // Состояние для редактируемых полей
   const [isEditing, setIsEditing] = useState(false);
   const [editedLicenseNumber, setEditedLicenseNumber] =
-    useState(license_number);
+    useState(docNumber);
   const [editedIssueDate, setEditedIssueDate] = useState(issue);
   const [editedExpirationDate, setEditedExpirationDate] = useState(expiration);
 
@@ -39,7 +39,7 @@ export default function LicenseDetail() {
     try {
       const token = user.access_token;
       const data = {
-        license_number: editedLicenseNumber,
+        docNumber: editedLicenseNumber,
         issue: formatDate(editedIssueDate),
         expiration: formatDate(editedExpirationDate),
       };
@@ -90,7 +90,7 @@ export default function LicenseDetail() {
               className="input input-bordered"
             />
           ) : (
-            license_number
+            docNumber
           )}
         </h1>
         <h1>

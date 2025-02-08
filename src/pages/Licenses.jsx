@@ -34,7 +34,7 @@ function Licenses() {
   const licenses = useAppStore((state) => state.licenses);
   const setLicenses = useAppStore((state) => state.setLicenses);
 
-   useEffect(() => {
+  useEffect(() => {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "stations"),
       setStations,
@@ -110,7 +110,7 @@ function Licenses() {
 
     if (searchTerm) {
       filtered = filtered.filter((license) =>
-        license.license_number.toLowerCase().includes(searchTerm.toLowerCase())
+        license.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -166,7 +166,7 @@ function Licenses() {
       "МЧЖ номи ва рақами": `${getLtdNameById(
         license.ltd_id
       )} АГТКШ № ${getStationNumberByNumber(license.station_number)}`,
-      "Лицензия рақами": license.license_number,
+      "Лицензия рақами": license.docNumber,
       "Берилган сана": license.issue,
       "Амал қилиш санаси": license.expiration,
       Холати:
@@ -316,7 +316,7 @@ function Licenses() {
                   station_id,
                   ltd_id,
                   station_number,
-                  license_number,
+                  docNumber,
                   issue,
                   expiration,
                   value,
@@ -327,7 +327,7 @@ function Licenses() {
                     moljal={getStationNameByNumber(station_id)}
                     ltd_name={getLtdNameById(ltd_id)}
                     station_number={getStationNumberByNumber(station_number)}
-                    license_number={license_number}
+                    docNumber={docNumber}
                     issue={issue}
                     expiration={expiration}
                     value={value}

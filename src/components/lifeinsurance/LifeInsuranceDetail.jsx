@@ -19,7 +19,7 @@ export default function LifeInsuranceDetail() {
     moljal,
     ltd_name,
     station_number,
-    lifeinsurance_number,
+    docNumber,
     issue,
     expiration,
     text,
@@ -29,7 +29,7 @@ export default function LifeInsuranceDetail() {
 
   // Состояние для редактируемых полей
   const [isEditing, setIsEditing] = useState(false);
-  const [editedDocNumber, setEditedDocNumber] = useState(lifeinsurance_number);
+  const [editedDocNumber, setEditedDocNumber] = useState(docNumber);
   const [editedIssueDate, setEditedIssueDate] = useState(issue);
   const [editedExpirationDate, setEditedExpirationDate] = useState(expiration);
 
@@ -38,7 +38,7 @@ export default function LifeInsuranceDetail() {
     try {
       const token = user.access_token;
       const data = {
-        lifeinsurance_number: editedDocNumber,
+        docNumber: editedDocNumber,
         issue: formatDate(editedIssueDate),
         expiration: formatDate(editedExpirationDate),
       };
@@ -91,7 +91,7 @@ export default function LifeInsuranceDetail() {
               className="input input-bordered"
             />
           ) : (
-            lifeinsurance_number
+            docNumber
           )}
         </h1>
         <h1>
