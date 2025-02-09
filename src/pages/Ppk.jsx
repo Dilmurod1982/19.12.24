@@ -15,10 +15,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "../components/ui/input";
-import ShaybaList from "../components/shayba/ShaybaList";
-import AddNewShayba from "../components/shayba/AddNewShayba";
 
-function Shayba() {
+import PpkList from "../components/ppk/PpkList";
+import AddNewPpk from "../components/ppk/AddNewPpk";
+
+function Ppk() {
   // замена
   const [sendingData, setSendingData] = useState(null);
   const [showAllDocs, setShowAllDocs] = useState(true);
@@ -33,8 +34,8 @@ function Shayba() {
   const setAddItemModal = useAppStore((state) => state.setAddItemModal);
   const ltd = useAppStore((state) => state.ltd);
   const setLtd = useAppStore((state) => state.setLtd);
-  const shayba = useAppStore((state) => state.shayba); //zamena
-  const setShayba = useAppStore((state) => state.setShayba); //zamena
+  const ppk = useAppStore((state) => state.ppk); //zamena
+  const setPpk = useAppStore((state) => state.setPpk); //zamena
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
@@ -56,12 +57,12 @@ function Shayba() {
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "shayba"), // zamena
-      setShayba, // zamena
+      () => getDocs(user?.access_token, "ppk"), // zamena
+      setPpk, // zamena
       user,
       setUser
     );
-  }, [user, setShayba]); // zamena
+  }, [user, setPpk]); // zamena
 
   const getLtdNameById = (id) => {
     if (!ltd || ltd.length === 0) return "Номаълум";
@@ -88,7 +89,7 @@ function Shayba() {
   };
 
   const filteredDocs = () => {
-    let filtered = [...shayba]; //zamena
+    let filtered = [...ppk]; //zamena
 
     if (!showAllDocs) {
       const latestDocs = filtered.reduce((acc, doc) => {
@@ -151,7 +152,7 @@ function Shayba() {
     return filtered;
   };
 
-  if (!stations || !shayba || !ltd) {
+  if (!stations || !ppk || !ltd) {
     //zamena
     return (
       <div className="flex items-center justify-center h-screen">
@@ -180,9 +181,9 @@ function Shayba() {
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "SHAYBA"); //zamena
+    XLSX.utils.book_append_sheet(workbook, worksheet, "PPK"); //zamena
 
-    XLSX.writeFile(workbook, "shayba.xlsx"); //zamena
+    XLSX.writeFile(workbook, "ppk.xlsx"); //zamena
   };
   return (
     <>
@@ -190,15 +191,15 @@ function Shayba() {
         <div className="flex flex-col items-center justify-between gap-1">
           <div className="flex justify-between w-full px-4">
             <h1 className="text-3xl font-bold">
-              Автопилот торайтирувчи мосламаси ("Шайба") сертификатлари
+              Сақловчи клапанлар синов далолатномалари
             </h1>
             {user.type === "admin" ? (
               <Button
                 onClick={setAddItemModal}
-                disabled={shayba ? false : true} //zamena
-                className={shayba ? "cursor-pointer" : "cursor-not-allowed"} //zamena
+                disabled={ppk ? false : true} //zamena
+                className={ppk ? "cursor-pointer" : "cursor-not-allowed"} //zamena
               >
-                Янги сертификат қўшиш
+                Янги далолатнома қўшиш
               </Button> //zamena
             ) : null}
           </div>
@@ -266,7 +267,7 @@ function Shayba() {
                   </Select>
                   <Input
                     type="text"
-                    placeholder="сертификат рақами билан" //zamena
+                    placeholder="далолатнома рақами билан" //zamena
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="input input-bordered w-[200px]"
@@ -324,7 +325,7 @@ function Shayba() {
                   expiration,
                   value,
                 }) => (
-                  <ShaybaList
+                  <PpkList
                     key={id}
                     id={id}
                     moljal={getStationNameByNumber(station_id)}
@@ -341,7 +342,7 @@ function Shayba() {
               <tr>
                 <td colSpan="7" className="text-center">
                   <h1 className="my-5 btn-link text-2xl italic">
-                    Сертификатлар мавжуд эмас
+                    Далолатномалар мавжуд эмас
                   </h1>
                 </td>
               </tr>
@@ -349,7 +350,7 @@ function Shayba() {
           </tbody>
         </table>
       </div>
-      <AddNewShayba sendingData={sendingData} setSendingData={setSendingData} />
+      <AddNewPpk sendingData={sendingData} setSendingData={setSendingData} />
       <div className="flex w-full h-screen justify-center mt-5">
         <Button>
           <Link to="/docs">Орқага</Link>
@@ -359,4 +360,4 @@ function Shayba() {
   );
 }
 
-export default Shayba;
+export default Ppk;

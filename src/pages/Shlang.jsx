@@ -15,10 +15,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "../components/ui/input";
-import ShaybaList from "../components/shayba/ShaybaList";
-import AddNewShayba from "../components/shayba/AddNewShayba";
+import ShlangList from "../components/shlang/ShlangList";
+import AddNewShlang from "../components/shlang/AddNewShlang";
 
-function Shayba() {
+function Shlang() {
   // замена
   const [sendingData, setSendingData] = useState(null);
   const [showAllDocs, setShowAllDocs] = useState(true);
@@ -33,8 +33,8 @@ function Shayba() {
   const setAddItemModal = useAppStore((state) => state.setAddItemModal);
   const ltd = useAppStore((state) => state.ltd);
   const setLtd = useAppStore((state) => state.setLtd);
-  const shayba = useAppStore((state) => state.shayba); //zamena
-  const setShayba = useAppStore((state) => state.setShayba); //zamena
+  const shlang = useAppStore((state) => state.shlang); //zamena
+  const setShlang = useAppStore((state) => state.setShlang); //zamena
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
@@ -56,12 +56,12 @@ function Shayba() {
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "shayba"), // zamena
-      setShayba, // zamena
+      () => getDocs(user?.access_token, "shlang"), // zamena
+      setShlang, // zamena
       user,
       setUser
     );
-  }, [user, setShayba]); // zamena
+  }, [user, setShlang]); // zamena
 
   const getLtdNameById = (id) => {
     if (!ltd || ltd.length === 0) return "Номаълум";
@@ -88,7 +88,7 @@ function Shayba() {
   };
 
   const filteredDocs = () => {
-    let filtered = [...shayba]; //zamena
+    let filtered = [...shlang]; //zamena
 
     if (!showAllDocs) {
       const latestDocs = filtered.reduce((acc, doc) => {
@@ -151,7 +151,7 @@ function Shayba() {
     return filtered;
   };
 
-  if (!stations || !shayba || !ltd) {
+  if (!stations || !shlang || !ltd) {
     //zamena
     return (
       <div className="flex items-center justify-center h-screen">
@@ -180,9 +180,9 @@ function Shayba() {
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "SHAYBA"); //zamena
+    XLSX.utils.book_append_sheet(workbook, worksheet, "SHLANG"); //zamena
 
-    XLSX.writeFile(workbook, "shayba.xlsx"); //zamena
+    XLSX.writeFile(workbook, "shlang.xlsx"); //zamena
   };
   return (
     <>
@@ -190,15 +190,15 @@ function Shayba() {
         <div className="flex flex-col items-center justify-between gap-1">
           <div className="flex justify-between w-full px-4">
             <h1 className="text-3xl font-bold">
-              Автопилот торайтирувчи мосламаси ("Шайба") сертификатлари
+              Газ тўлдириш шлангларини синов далолатномалари
             </h1>
             {user.type === "admin" ? (
               <Button
                 onClick={setAddItemModal}
-                disabled={shayba ? false : true} //zamena
-                className={shayba ? "cursor-pointer" : "cursor-not-allowed"} //zamena
+                disabled={shlang ? false : true} //zamena
+                className={shlang ? "cursor-pointer" : "cursor-not-allowed"} //zamena
               >
-                Янги сертификат қўшиш
+                Янги далолатнома қўшиш
               </Button> //zamena
             ) : null}
           </div>
@@ -266,7 +266,7 @@ function Shayba() {
                   </Select>
                   <Input
                     type="text"
-                    placeholder="сертификат рақами билан" //zamena
+                    placeholder="далолатнома рақами билан" //zamena
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="input input-bordered w-[200px]"
@@ -324,7 +324,7 @@ function Shayba() {
                   expiration,
                   value,
                 }) => (
-                  <ShaybaList
+                  <ShlangList
                     key={id}
                     id={id}
                     moljal={getStationNameByNumber(station_id)}
@@ -349,7 +349,7 @@ function Shayba() {
           </tbody>
         </table>
       </div>
-      <AddNewShayba sendingData={sendingData} setSendingData={setSendingData} />
+      <AddNewShlang sendingData={sendingData} setSendingData={setSendingData} />
       <div className="flex w-full h-screen justify-center mt-5">
         <Button>
           <Link to="/docs">Орқага</Link>
@@ -359,4 +359,4 @@ function Shayba() {
   );
 }
 
-export default Shayba;
+export default Shlang;

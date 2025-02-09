@@ -22,6 +22,16 @@ export const useAppStore = create((set) => ({
   water: [],
   electric: [],
   kolonka: [],
+  manometr: [],
+  termometr: [],
+  voltmetr: [],
+  shlang: [],
+  ppk: [],
+  elprotec: [],
+  mol: [],
+  smazka: [],
+  ger: [],
+  aptek: [],
   setUser: (user) => {
     set(() => {
       if (user) {
@@ -51,6 +61,16 @@ export const useAppStore = create((set) => ({
   setWater: (water) => set((state) => ({ water })),
   setElectric: (electric) => set((state) => ({ electric })),
   setKolonka: (kolonka) => set((state) => ({ kolonka })),
+  setManometr: (manometr) => set((state) => ({ manometr })),
+  setTermometr: (termometr) => set((state) => ({ termometr })),
+  setVoltmetr: (voltmetr) => set((state) => ({ voltmetr })),
+  setShlang: (shlang) => set((state) => ({ shlang })),
+  setPpk: (ppk) => set((state) => ({ ppk })),
+  setElprotec: (elprotec) => set((state) => ({ elprotec })),
+  setMol: (mol) => set((state) => ({ mol })),
+  setSmazka: (smazka) => set((state) => ({ smazka })),
+  setGer: (ger) => set((state) => ({ ger })),
+  setAptek: (aptek) => set((state) => ({ aptek })),
   setAddItemModal: () =>
     set((state) => ({ addItemModal: !state.addItemModal })),
 }));

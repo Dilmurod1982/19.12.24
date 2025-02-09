@@ -15,10 +15,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "../components/ui/input";
-import ShaybaList from "../components/shayba/ShaybaList";
-import AddNewShayba from "../components/shayba/AddNewShayba";
 
-function Shayba() {
+import ManometrList from "../components/manometr/ManometrList";
+import AddNewManometr from "../components/manometr/AddNewManometr";
+
+function Manometr() {
   // замена
   const [sendingData, setSendingData] = useState(null);
   const [showAllDocs, setShowAllDocs] = useState(true);
@@ -33,8 +34,8 @@ function Shayba() {
   const setAddItemModal = useAppStore((state) => state.setAddItemModal);
   const ltd = useAppStore((state) => state.ltd);
   const setLtd = useAppStore((state) => state.setLtd);
-  const shayba = useAppStore((state) => state.shayba); //zamena
-  const setShayba = useAppStore((state) => state.setShayba); //zamena
+  const manometr = useAppStore((state) => state.manometr); //zamena
+  const setManometr = useAppStore((state) => state.setManometr); //zamena
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
@@ -56,12 +57,12 @@ function Shayba() {
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "shayba"), // zamena
-      setShayba, // zamena
+      () => getDocs(user?.access_token, "manometr"), // zamena
+      setManometr, // zamena
       user,
       setUser
     );
-  }, [user, setShayba]); // zamena
+  }, [user, setManometr]); // zamena
 
   const getLtdNameById = (id) => {
     if (!ltd || ltd.length === 0) return "Номаълум";
@@ -88,7 +89,7 @@ function Shayba() {
   };
 
   const filteredDocs = () => {
-    let filtered = [...shayba]; //zamena
+    let filtered = [...manometr]; //zamena
 
     if (!showAllDocs) {
       const latestDocs = filtered.reduce((acc, doc) => {
@@ -151,7 +152,7 @@ function Shayba() {
     return filtered;
   };
 
-  if (!stations || !shayba || !ltd) {
+  if (!stations || !manometr || !ltd) {
     //zamena
     return (
       <div className="flex items-center justify-center h-screen">
@@ -180,23 +181,21 @@ function Shayba() {
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "SHAYBA"); //zamena
+    XLSX.utils.book_append_sheet(workbook, worksheet, "MANOMETR"); //zamena
 
-    XLSX.writeFile(workbook, "shayba.xlsx"); //zamena
+    XLSX.writeFile(workbook, "manometr.xlsx"); //zamena
   };
   return (
     <>
       <div className="overflow-x-auto">
         <div className="flex flex-col items-center justify-between gap-1">
           <div className="flex justify-between w-full px-4">
-            <h1 className="text-3xl font-bold">
-              Автопилот торайтирувчи мосламаси ("Шайба") сертификатлари
-            </h1>
+            <h1 className="text-3xl font-bold">Манометрлар сертификатлари</h1>
             {user.type === "admin" ? (
               <Button
                 onClick={setAddItemModal}
-                disabled={shayba ? false : true} //zamena
-                className={shayba ? "cursor-pointer" : "cursor-not-allowed"} //zamena
+                disabled={manometr ? false : true} //zamena
+                className={manometr ? "cursor-pointer" : "cursor-not-allowed"} //zamena
               >
                 Янги сертификат қўшиш
               </Button> //zamena
@@ -324,7 +323,7 @@ function Shayba() {
                   expiration,
                   value,
                 }) => (
-                  <ShaybaList
+                  <ManometrList
                     key={id}
                     id={id}
                     moljal={getStationNameByNumber(station_id)}
@@ -349,7 +348,10 @@ function Shayba() {
           </tbody>
         </table>
       </div>
-      <AddNewShayba sendingData={sendingData} setSendingData={setSendingData} />
+      <AddNewManometr
+        sendingData={sendingData}
+        setSendingData={setSendingData}
+      />
       <div className="flex w-full h-screen justify-center mt-5">
         <Button>
           <Link to="/docs">Орқага</Link>
@@ -359,4 +361,4 @@ function Shayba() {
   );
 }
 
-export default Shayba;
+export default Manometr;

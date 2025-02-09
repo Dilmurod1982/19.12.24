@@ -36,6 +36,16 @@ import {
   Electric,
   Kolonka,
   KolonkaMarka,
+  Manometr,
+  Termometr,
+  Voltmetr,
+  Shlang,
+  Ppk,
+  Elprotec,
+  Mol,
+  Smazka,
+  Ger,
+  Aptek,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -54,6 +64,16 @@ import ShaybaDetail from "./components/shayba/ShaybaDetail";
 import WaterDetail from "./components/water/WaterDetail";
 import ElectricDetail from "./components/electric/ElectricDetail";
 import KolonkaDetail from "./components/kolonka/KolonkaDetail";
+import ManometrDetail from "./components/manometr/ManometrDetail";
+import TermometrDetail from "./components/termometr/TermometrDetail";
+import VoltmetrDetail from "./components/voltmetr/VoltmetrDetail";
+import ShlangDetail from "./components/shlang/ShlangDetail";
+import PpkDetail from "./components/ppk/PpkDetail";
+import ElprotecDetail from "./components/elprotec/ElprotecDetail";
+import MolDetail from "./components/mol/MolDetail";
+import SmazkaDetail from "./components/smazka/SmazkaDetail";
+import GerDetail from "./components/ger/GerDetail";
+import AptekDetail from "./components/aptek/AptekDetail";
 
 function App() {
   const user = useAppStore((state) => state.user);
@@ -245,6 +265,86 @@ function App() {
         {
           path: "/kolonkadetail",
           element: <KolonkaDetail />,
+        },
+        {
+          path: "/manometr",
+          element: <Manometr />,
+        },
+        {
+          path: "/manometrdetail",
+          element: <ManometrDetail />,
+        },
+        {
+          path: "/termometr",
+          element: <Termometr />,
+        },
+        {
+          path: "/termometrdetail",
+          element: <TermometrDetail />,
+        },
+        {
+          path: "/voltmetr",
+          element: <Voltmetr />,
+        },
+        {
+          path: "/voltmetrdetail",
+          element: <VoltmetrDetail />,
+        },
+        {
+          path: "/shlang",
+          element: <Shlang />,
+        },
+        {
+          path: "/shlangdetail",
+          element: <ShlangDetail />,
+        },
+        {
+          path: "/ppk",
+          element: <Ppk />,
+        },
+        {
+          path: "/ppkdetail",
+          element: <PpkDetail />,
+        },
+        {
+          path: "/elprotec",
+          element: <Elprotec />,
+        },
+        {
+          path: "/elprotecdetail",
+          element: <ElprotecDetail />,
+        },
+        {
+          path: "/mol",
+          element: <Mol />,
+        },
+        {
+          path: "/moldetail",
+          element: <MolDetail />,
+        },
+        {
+          path: "/smazka",
+          element: <Smazka />,
+        },
+        {
+          path: "/smazkadetail",
+          element: <SmazkaDetail />,
+        },
+        {
+          path: "/ger",
+          element: <Ger />,
+        },
+        {
+          path: "/gerdetail",
+          element: <GerDetail />,
+        },
+        {
+          path: "/aptek",
+          element: <Aptek />,
+        },
+        {
+          path: "/aptekdetail",
+          element: <AptekDetail />,
         },
         {
           path: "/userstationdocs/:stationId",

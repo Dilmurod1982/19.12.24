@@ -99,6 +99,7 @@ export default function UserNewDocs() {
         >
           Экология хулосаси
         </button>
+
         <button
           className="btn btn-neutral text-xl text-white"
           onClick={() => {
@@ -110,6 +111,19 @@ export default function UserNewDocs() {
           }}
         >
           Ўлчов комплекси (ИК) сертификати
+        </button>
+
+        <button
+          className="btn btn-neutral text-xl text-white"
+          onClick={() => {
+            setSelectedDoc({
+              baseName: "pilot",
+              docName: "Автопилот сертификати",
+            });
+            setAddItemModal(true);
+          }}
+        >
+          Автопилот сертификати
         </button>
       </div>
       <div className=" flex justify-center items-center mt-5">

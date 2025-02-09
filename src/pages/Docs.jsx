@@ -9,334 +9,34 @@ function Docs() {
   const user = useAppStore((state) => state.user);
   const setUser = useAppStore((state) => state.setUser);
   const navigate = useNavigate();
-  const ngsertificates = useAppStore((state) => state.ngsertificates);
-  const setNgsertificates = useAppStore((state) => state.setNgsertificates);
-  const licenses = useAppStore((state) => state.licenses);
-  const setLicenses = useAppStore((state) => state.setLicenses);
-  const [showAllLicenses, setShowAllLicenses] = useState(false); // Новое состояние для галочки
-  const [showAllNGSertificates, setShowAllNGSertificates] = useState(false); // Новое состояние для галочки
-  // Новое состояние для галочки
+  const [showAllLicenses, setShowAllLicenses] = useState(false);
+
   const [selectedStation, setSelectedStation] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "licenses"),
-      setLicenses,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-  }, [user, setLicenses]);
-
-  useEffect(() => {
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "ngsertificates"),
-      setNgsertificates,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-  }, [user, setNgsertificates]);
-
   const parseDate = (dateString) => {
-    if (!dateString) {
-      return null;
-    }
+    if (!dateString) return null;
     const [day, month, year] = dateString.split(".");
     return `${year}-${month}-${day}`;
   };
 
-  const filterLicenses = () => {
-    let filtered = [...licenses];
+  const filterDocuments = (documents, showAll, selectedStation, searchTerm) => {
+    let filtered = [...documents];
 
-    if (!showAllLicenses) {
-      // Оставляем только последние лицензии для каждой станции
-      const latestLicenses = filtered.reduce((acc, license) => {
-        const { station_id, expiration } = license;
+    if (!showAll) {
+      const latestDocuments = filtered.reduce((acc, doc) => {
+        const { station_id, expiration } = doc;
         const parsedExpiration = new Date(parseDate(expiration));
 
         if (
           !acc[station_id] ||
           new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
         ) {
-          acc[station_id] = license;
+          acc[station_id] = doc;
         }
         return acc;
       }, {});
-      filtered = Object.values(latestLicenses);
-    }
-
-    if (selectedStation && selectedStation !== "all") {
-      filtered = filtered.filter(
-        (license) =>
-          getStationNameByNumber(license.station_id) === selectedStation
-      );
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter((license) =>
-        license.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const licenseCounts = filterLicenses().reduce(
-    (acc, license) => {
-      const expirationDate = new Date(parseDate(license.expiration));
-      const currentDate = new Date();
-
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
-  );
-
-  const filterNGSertificates = () => {
-    let filtered = [...ngsertificates];
-
-    if (!showAllNGSertificates) {
-      // Оставляем только последние лицензии для каждой станции
-      const latestNGSertificates = filtered.reduce((acc, ngsertificate) => {
-        const { station_id, expiration } = ngsertificate;
-        const parsedExpiration = new Date(parseDate(expiration));
-
-        if (
-          !acc[station_id] ||
-          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
-        ) {
-          acc[station_id] = ngsertificate;
-        }
-        return acc;
-      }, {});
-      filtered = Object.values(latestNGSertificates);
-    }
-
-    if (selectedStation && selectedStation !== "all") {
-      filtered = filtered.filter(
-        (ngsertificate) =>
-          getStationNameByNumber(ngsertificate.station_id) === selectedStation
-      );
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter((ngsertificate) =>
-        ngsertificate.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const ngsertificateCounts = filterNGSertificates().reduce(
-    (acc, ngsertificate) => {
-      const expirationDate = new Date(parseDate(ngsertificate.expiration));
-      const currentDate = new Date();
-
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
-  );
-
-  // // Humidity
-  const humidity = useAppStore((state) => state.humidity);
-  const setHumidity = useAppStore((state) => state.setHumidity);
-  const [showAllHumidity, setShowAllHumidity] = useState(false);
-
-  useEffect(() => {
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "humidityes"),
-      setHumidity,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-  }, [user, setHumidity]);
-
-  const filterHumidity = () => {
-    let filtered = [...humidity];
-
-    if (!showAllHumidity) {
-      // Оставляем только последние лицензии для каждой станции
-      const latestHumidity = filtered.reduce((acc, humidity) => {
-        const { station_id, expiration } = humidity;
-        const parsedExpiration = new Date(parseDate(expiration));
-
-        if (
-          !acc[station_id] ||
-          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
-        ) {
-          acc[station_id] = humidity;
-        }
-        return acc;
-      }, {});
-      filtered = Object.values(latestHumidity);
-    }
-
-    if (selectedStation && selectedStation !== "all") {
-      filtered = filtered.filter(
-        (humidity) =>
-          getStationNameByNumber(humidity.station_id) === selectedStation
-      );
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter((humidity) =>
-        humidity.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const humidityCounts = filterHumidity().reduce(
-    (acc, humidity) => {
-      const expirationDate = new Date(parseDate(humidity.expiration));
-      const currentDate = new Date();
-
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
-  );
-
-  // // gasAnalyzers
-  const gasanalyzers = useAppStore((state) => state.gasanalyzers);
-  const setGasanalyzers = useAppStore((state) => state.setGasanalyzers);
-  const [showAllGasAnalyzers, setShowAllGasAnalyzers] = useState(false);
-  const baseGasAnalyzer = "gasanalyzers";
-
-  useEffect(() => {
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "gasanalyzers"),
-      setGasanalyzers,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-  }, [user, setGasanalyzers]);
-
-  const filterGasAnalyzers = () => {
-    let filtered = [...gasanalyzers];
-
-    if (!showAllGasAnalyzers) {
-      // Оставляем только последние лицензии для каждой станции
-      const latestGasAnalyzer = filtered.reduce((acc, gasanalyzer) => {
-        const { station_id, expiration } = gasanalyzer;
-        const parsedExpiration = new Date(parseDate(expiration));
-
-        if (
-          !acc[station_id] ||
-          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
-        ) {
-          acc[station_id] = gasanalyzer;
-        }
-        return acc;
-      }, {});
-      filtered = Object.values(latestGasAnalyzer);
-    }
-
-    if (selectedStation && selectedStation !== "all") {
-      filtered = filtered.filter(
-        (gasanalyzer) =>
-          getStationNameByNumber(gasanalyzer.station_id) === selectedStation
-      );
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter((gasanalyzer) =>
-        gasanalyzer.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const gasanalyzerCounts = filterGasAnalyzers().reduce(
-    (acc, gasanalyzer) => {
-      const expirationDate = new Date(parseDate(gasanalyzer.expiration));
-      const currentDate = new Date();
-
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
-  );
-
-  // prodinsurance
-  const prodinsurance = useAppStore((state) => state.prodinsurance);
-  const setProdinsurance = useAppStore((state) => state.setProdinsurance);
-  const [showAllProdinsurance, setShowAllProdinsurance] = useState(false);
-  const baseProdinsurance = "prodinsurances";
-
-  useEffect(() => {
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "prodinsurances"),
-      setProdinsurance,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-  }, [user, setProdinsurance]);
-
-  const filterProdinsurance = () => {
-    let filtered = [...prodinsurance];
-
-    if (!showAllProdinsurance) {
-      // Оставляем только последние лицензии для каждой станции
-      const latestDocs = filtered.reduce((acc, doc) => {
-        const { station_id, expiration } = prodinsurance;
-        const parsedExpiration = new Date(parseDate(expiration));
-
-        if (
-          !acc[station_id] ||
-          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
-        ) {
-          acc[station_id] = prodinsurance;
-        }
-        return acc;
-      }, {});
-      filtered = Object.values(latestDocs);
+      filtered = Object.values(latestDocuments);
     }
 
     if (selectedStation && selectedStation !== "all") {
@@ -354,26 +54,205 @@ function Docs() {
     return filtered;
   };
 
-  const prodinsuranceCounts = filterProdinsurance().reduce(
-    (acc, doc) => {
-      const expirationDate = new Date(parseDate(doc.expiration));
-      const currentDate = new Date();
+  const countDocuments = (documents) => {
+    return documents.reduce(
+      (acc, doc) => {
+        const expirationDate = new Date(parseDate(doc.expiration));
+        const currentDate = new Date();
 
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
+        if (expirationDate < currentDate) {
+          acc.expired += 1;
+        } else if (
+          (expirationDate - currentDate) / (1000 * 60 * 60 * 24) <=
+          5
+        ) {
+          acc.expiringSoon5 += 1;
+        } else if (
+          (expirationDate - currentDate) / (1000 * 60 * 60 * 24) <=
+          15
+        ) {
+          acc.expiringSoon15 += 1;
+        } else if (
+          (expirationDate - currentDate) / (1000 * 60 * 60 * 24) <=
+          30
+        ) {
+          acc.active += 1;
+        }
+        return acc;
+      },
+      { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
+    );
+  };
+
+  const DocumentLink = ({ to, title, counts }) => (
+    <li className="flex justify-center w-full">
+      <Link
+        className="flex justify-between items-center gap-5 w-full text-xl"
+        to={to}
+      >
+        <Button className="flex justify-between items-center gap-5 w-full text-xl">
+          {title}
+          <div className="flex gap-8">
+            {counts.active > 0 && (
+              <div className="indicator">
+                <span className="badge badge-sm indicator-item bg-green-500">
+                  {counts.active}
+                </span>
+              </div>
+            )}
+            {counts.expiringSoon15 > 0 && (
+              <div className="indicator">
+                <span className="badge badge-sm indicator-item bg-yellow-500">
+                  {counts.expiringSoon15}
+                </span>
+              </div>
+            )}
+            {counts.expiringSoon5 > 0 && (
+              <div className="indicator">
+                <span className="badge badge-sm indicator-item bg-orange-500">
+                  {counts.expiringSoon5}
+                </span>
+              </div>
+            )}
+            {counts.expired > 0 && (
+              <div className="indicator">
+                <span className="badge badge-sm indicator-item bg-red-700 text-white">
+                  {counts.expired}
+                </span>
+              </div>
+            )}
+          </div>
+        </Button>
+      </Link>
+    </li>
   );
 
-  // lifeinsurance
+  // licenses
+  const licenses = useAppStore((state) => state.licenses);
+  const setLicenses = useAppStore((state) => state.setLicenses);
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "licenses"),
+      setLicenses,
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setLicenses]);
+
+  const filterLicenses = () =>
+    filterDocuments(licenses, showAllLicenses, selectedStation, searchTerm);
+  const licenseCounts = countDocuments(filterLicenses());
+
+  //ngsertificates
+
+  const [showAllNGSertificates, setShowAllNGSertificates] = useState(false);
+  const ngsertificates = useAppStore((state) => state.ngsertificates);
+  const setNgsertificates = useAppStore((state) => state.setNgsertificates);
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "ngsertificates"),
+      setNgsertificates,
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setNgsertificates]);
+
+  const filterNgsertificates = () =>
+    filterDocuments(
+      ngsertificates,
+      showAllNGSertificates,
+      selectedStation,
+      searchTerm
+    );
+  const ngsertificatesCounts = countDocuments(filterNgsertificates());
+
+  // humidity
+
+  const humidity = useAppStore((state) => state.humidity); //zamena //zamena
+  const setHumidity = useAppStore((state) => state.setHumidity); //zamena //zamena
+  const [showAllHumidity, setShowAllHumidity] = useState(false); //zamena //zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "humidityes"), //zamena
+      setHumidity, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setHumidity]); //zamena
+
+  const filterHumidity = () =>
+    //zamena
+    filterDocuments(
+      humidity, //zamena
+      showAllHumidity, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const humidityCounts = countDocuments(filterHumidity()); //zamena //zamena
+
+  // gasanalyzers
+
+  const gasanalyzers = useAppStore((state) => state.gasanalyzers);
+  const setGasanalyzers = useAppStore((state) => state.setGasanalyzers);
+  const [showAllGasAnalyzers, setShowAllGasAnalyzers] = useState(false);
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "gasanalyzers"), //zamena
+      setGasanalyzers, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setGasanalyzers]); //zamena
+
+  const filterGasanalyzers = () =>
+    //zamena
+    filterDocuments(
+      gasanalyzers, //zamena
+      showAllGasAnalyzers, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const gasanalyzersCounts = countDocuments(filterGasanalyzers()); //zamena //zamena
+
+  //prodinsurance
+
+  const prodinsurance = useAppStore((state) => state.prodinsurance);
+  const setProdinsurance = useAppStore((state) => state.setProdinsurance);
+  const [showAllProdinsurance, setShowAllProdinsurance] = useState(false);
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "prodinsurances"), //zamena
+      setProdinsurance, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setProdinsurance]); //zamena
+
+  const filterProdinsurance = () =>
+    //zamena
+    filterDocuments(
+      prodinsurance, //zamena
+      showAllProdinsurance, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const prodinsuranceCounts = countDocuments(filterProdinsurance()); //zamena //zamena
+
+  //lifeinsurance
 
   const lifeinsurance = useAppStore((state) => state.lifeinsurance);
   const setLifeinsurance = useAppStore((state) => state.setLifeinsurance);
@@ -381,71 +260,26 @@ function Docs() {
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "lifeinsurances"),
-      setLifeinsurance,
+      () => getDocs(user?.access_token, "lifeinsurances"), //zamena
+      setLifeinsurance, //zamena
       user,
       setUser,
       navigate,
       toast
     );
-  }, [user, setLifeinsurance]);
+  }, [user, setLifeinsurance]); //zamena
 
-  const filterLifeinsurances = () => {
-    let filtered = [...lifeinsurance];
+  const filterLifeinsurances = () =>
+    //zamena
+    filterDocuments(
+      lifeinsurance, //zamena
+      showAllLifeinsurance, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const lifeinsuranceCounts = countDocuments(filterLifeinsurances()); //zamena //zamena
 
-    if (!showAllLifeinsurance) {
-      // Оставляем только последние лицензии для каждой станции
-      const latestLifeinsurance = filtered.reduce((acc, lifeinsurance) => {
-        const { station_id, expiration } = lifeinsurance;
-        const parsedExpiration = new Date(parseDate(expiration));
-
-        if (
-          !acc[station_id] ||
-          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
-        ) {
-          acc[station_id] = lifeinsurance;
-        }
-        return acc;
-      }, {});
-      filtered = Object.values(latestLifeinsurance);
-    }
-
-    if (selectedStation && selectedStation !== "all") {
-      filtered = filtered.filter(
-        (lifeinsurance) =>
-          getStationNameByNumber(lifeinsurance.station_id) === selectedStation
-      );
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter((gasanalyzer) =>
-        lifeinsurance.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const lifeinsuranceCounts = filterLifeinsurances().reduce(
-    (acc, lifeinsurance) => {
-      const expirationDate = new Date(parseDate(lifeinsurance.expiration));
-      const currentDate = new Date();
-
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
-  );
-
-  // Ecology
+  //Ecology
 
   const ecology = useAppStore((state) => state.ecology);
   const setEcology = useAppStore((state) => state.setEcology);
@@ -453,70 +287,26 @@ function Docs() {
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "ecology"),
-      setEcology,
+      () => getDocs(user?.access_token, "ecology"), //zamena
+      setEcology, //zamena
       user,
       setUser,
       navigate,
       toast
     );
-  }, [user, setEcology]);
+  }, [user, setEcology]); //zamena
 
-  const filterEcology = () => {
-    let filtered = [...ecology];
+  const filterEcology = () =>
+    //zamena
+    filterDocuments(
+      ecology, //zamena
+      showAllEcology, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const ecologyCounts = countDocuments(filterEcology()); //zamena //zamena
 
-    if (!showAllEcology) {
-      const latestEcology = filtered.reduce((acc, ecology) => {
-        const { station_id, expiration } = ecology;
-        const parsedExpiration = new Date(parseDate(expiration));
-
-        if (
-          !acc[station_id] ||
-          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
-        ) {
-          acc[station_id] = ecology;
-        }
-        return acc;
-      }, {});
-      filtered = Object.values(latestEcology);
-    }
-
-    if (selectedStation && selectedStation !== "all") {
-      filtered = filtered.filter(
-        (ecology) =>
-          getStationNameByNumber(ecology.station_id) === selectedStation
-      );
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter((ecology) =>
-        ecology.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const ecologyCounts = filterEcology().reduce(
-    (acc, ecology) => {
-      const expirationDate = new Date(parseDate(ecology.expiration));
-      const currentDate = new Date();
-
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
-  );
-
-  // IK
+  // ik
 
   const ik = useAppStore((state) => state.ik); // zamena zamena
   const setIk = useAppStore((state) => state.setIk); //zamena zamena
@@ -533,72 +323,17 @@ function Docs() {
     );
   }, [user, setIk]); //zamena
 
-  const filterIk = () => {
+  const filterIk = () =>
     //zamena
-    let filtered = [...ik]; //zamena
+    filterDocuments(
+      ik, //zamena
+      showAllIk, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const ikCounts = countDocuments(filterIk()); //zamena //zamena
 
-    if (!showAllIk) {
-      //zamena
-      const latestIk = filtered.reduce((acc, ik) => {
-        //zamena zamena
-        const { station_id, expiration } = ik; //zamena
-        const parsedExpiration = new Date(parseDate(expiration));
-
-        if (
-          !acc[station_id] ||
-          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
-        ) {
-          acc[station_id] = ik; //zamena
-        }
-        return acc;
-      }, {});
-      filtered = Object.values(latestIk); //zamena
-    }
-
-    if (selectedStation && selectedStation !== "all") {
-      filtered = filtered.filter(
-        (
-          ik //zamena
-        ) => getStationNameByNumber(ik.station_id) === selectedStation //zamena
-      );
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (
-          ik //zamena
-        ) =>
-          ik.docNumber //zamena zamena
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const ikCounts = filterIk().reduce(
-    //zamena
-    (acc, ik) => {
-      //zamena
-      const expirationDate = new Date(parseDate(ik.expiration)); //zamena
-      const currentDate = new Date();
-
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
-  );
-
-  // pilot
+  //pilot
 
   const pilot = useAppStore((state) => state.pilot);
   const setPilot = useAppStore((state) => state.setPilot);
@@ -606,69 +341,26 @@ function Docs() {
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "pilot"),
-      setPilot,
+      () => getDocs(user?.access_token, "pilot"), //zamena
+      setPilot, //zamena
       user,
       setUser,
       navigate,
       toast
     );
-  }, [user, setPilot]);
+  }, [user, setPilot]); //zamena
 
-  const filterPilot = () => {
-    let filtered = [...pilot];
+  const filterPilot = () =>
+    //zamena
+    filterDocuments(
+      pilot, //zamena
+      showAllPilot, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const pilotCounts = countDocuments(filterPilot()); //zamena //zamena
 
-    if (!showAllPilot) {
-      const latestPilot = filtered.reduce((acc, pilot) => {
-        const { station_id, expiration } = pilot;
-        const parsedExpiration = new Date(parseDate(expiration));
-
-        if (
-          !acc[station_id] ||
-          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
-        ) {
-          acc[station_id] = pilot;
-        }
-        return acc;
-      }, {});
-      filtered = Object.values(latestPilot);
-    }
-
-    if (selectedStation && selectedStation !== "all") {
-      filtered = filtered.filter(
-        (pilot) => getStationNameByNumber(pilot.station_id) === selectedStation
-      );
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter((pilot) =>
-        pilot.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const pilotCounts = filterPilot().reduce(
-    (acc, pilot) => {
-      const expirationDate = new Date(parseDate(pilot.expiration));
-      const currentDate = new Date();
-
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
-  );
-
-  // shayba
+  //shayba
 
   const shayba = useAppStore((state) => state.shayba); // zamena zamena
   const setShayba = useAppStore((state) => state.setShayba); //zamena zamena
@@ -685,70 +377,15 @@ function Docs() {
     );
   }, [user, setShayba]); //zamena
 
-  const filterShayba = () => {
+  const filterShayba = () =>
     //zamena
-    let filtered = [...shayba]; //zamena
-
-    if (!showAllShayba) {
-      //zamena
-      const latestShayba = filtered.reduce((acc, shayba) => {
-        //zamena zamena
-        const { station_id, expiration } = shayba; //zamena
-        const parsedExpiration = new Date(parseDate(expiration));
-
-        if (
-          !acc[station_id] ||
-          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
-        ) {
-          acc[station_id] = shayba; //zamena
-        }
-        return acc;
-      }, {});
-      filtered = Object.values(latestShayba); //zamena
-    }
-
-    if (selectedStation && selectedStation !== "all") {
-      filtered = filtered.filter(
-        (
-          shayba //zamena
-        ) => getStationNameByNumber(shayba.station_id) === selectedStation //zamena
-      );
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (
-          shayba //zamena
-        ) =>
-          shayba.docNumber //zamena zamena
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const shaybaCounts = filterShayba().reduce(
-    //zamena
-    (acc, shayba) => {
-      //zamena
-      const expirationDate = new Date(parseDate(shayba.expiration)); //zamena
-      const currentDate = new Date();
-
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
-  );
+    filterDocuments(
+      shayba, //zamena
+      showAllShayba, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const shaybaCounts = countDocuments(filterShayba()); //zamena //zamena
 
   // water
 
@@ -767,72 +404,17 @@ function Docs() {
     );
   }, [user, setWater]); //zamena
 
-  const filterWater = () => {
+  const filterWater = () =>
     //zamena
-    let filtered = [...water]; //zamena
+    filterDocuments(
+      water, //zamena
+      showAllWater, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const waterCounts = countDocuments(filterWater()); //zamena //zamena
 
-    if (!showAllWater) {
-      //zamena
-      const latestWater = filtered.reduce((acc, water) => {
-        //zamena zamena
-        const { station_id, expiration } = water; //zamena
-        const parsedExpiration = new Date(parseDate(expiration));
-
-        if (
-          !acc[station_id] ||
-          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
-        ) {
-          acc[station_id] = water; //zamena
-        }
-        return acc;
-      }, {});
-      filtered = Object.values(latestWater); //zamena
-    }
-
-    if (selectedStation && selectedStation !== "all") {
-      filtered = filtered.filter(
-        (
-          water //zamena
-        ) => getStationNameByNumber(water.station_id) === selectedStation //zamena
-      );
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (
-          water //zamena
-        ) =>
-          water.docNumber //zamena zamena
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const waterCounts = filterWater().reduce(
-    //zamena
-    (acc, water) => {
-      //zamena
-      const expirationDate = new Date(parseDate(water.expiration)); //zamena
-      const currentDate = new Date();
-
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
-  );
-
-  // electric
+  //electric
 
   const electric = useAppStore((state) => state.electric); // zamena zamena
   const setElectric = useAppStore((state) => state.setElectric); //zamena zamena
@@ -849,70 +431,15 @@ function Docs() {
     );
   }, [user, setElectric]); //zamena
 
-  const filterElectric = () => {
+  const filterElectric = () =>
     //zamena
-    let filtered = [...electric]; //zamena
-
-    if (!showAllElectric) {
-      //zamena
-      const latestElectric = filtered.reduce((acc, electric) => {
-        //zamena zamena
-        const { station_id, expiration } = electric; //zamena
-        const parsedExpiration = new Date(parseDate(expiration));
-
-        if (
-          !acc[station_id] ||
-          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
-        ) {
-          acc[station_id] = electric; //zamena
-        }
-        return acc;
-      }, {});
-      filtered = Object.values(latestElectric); //zamena
-    }
-
-    if (selectedStation && selectedStation !== "all") {
-      filtered = filtered.filter(
-        (
-          electric //zamena
-        ) => getStationNameByNumber(electric.station_id) === selectedStation //zamena
-      );
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (
-          electric //zamena
-        ) =>
-          electric.docNumber //zamena zamena
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const electricCounts = filterElectric().reduce(
-    //zamena
-    (acc, electric) => {
-      //zamena
-      const expirationDate = new Date(parseDate(electric.expiration)); //zamena
-      const currentDate = new Date();
-
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
-  );
+    filterDocuments(
+      electric, //zamena
+      showAllElectric, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const electricCounts = countDocuments(filterElectric()); //zamena //zamena
 
   // kolonka
 
@@ -931,70 +458,285 @@ function Docs() {
     );
   }, [user, setKolonka]); //zamena
 
-  const filterKolonka = () => {
+  const filterKolonka = () =>
     //zamena
-    let filtered = [...kolonka]; //zamena
+    filterDocuments(
+      kolonka, //zamena
+      showAllKolonka, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const kolonkaCounts = countDocuments(filterKolonka()); //zamena //zamena
 
-    if (!showAllKolonka) {
-      //zamena
-      const latestKolonka = filtered.reduce((acc, kolonka) => {
-        //zamena zamena
-        const { station_id, expiration } = kolonka; //zamena
-        const parsedExpiration = new Date(parseDate(expiration));
+  //manometr
 
-        if (
-          !acc[station_id] ||
-          new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
-        ) {
-          acc[station_id] = kolonka; //zamena
-        }
-        return acc;
-      }, {});
-      filtered = Object.values(latestKolonka); //zamena
-    }
+  const manometr = useAppStore((state) => state.manometr); // zamena zamena
+  const setManometr = useAppStore((state) => state.setManometr); //zamena zamena
+  const [showAllManometr, setShowAllManometr] = useState(false); //zamena zamena
 
-    if (selectedStation && selectedStation !== "all") {
-      filtered = filtered.filter(
-        (
-          kolonka //zamena
-        ) => getStationNameByNumber(kolonka.station_id) === selectedStation //zamena
-      );
-    }
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "manometr"), //zamena
+      setManometr, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setManometr]); //zamena
 
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (
-          kolonka //zamena
-        ) =>
-          kolonka.docNumber //zamena zamena
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
-  };
-
-  const kolonkaCounts = filterKolonka().reduce(
+  const filterManometr = () =>
     //zamena
-    (acc, kolonka) => {
-      //zamena
-      const expirationDate = new Date(parseDate(kolonka.expiration)); //zamena
-      const currentDate = new Date();
+    filterDocuments(
+      manometr, //zamena
+      showAllManometr, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const manometrCounts = countDocuments(filterManometr()); //zamena //zamena
 
-      if (expirationDate < currentDate) {
-        acc.expired += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 5) {
-        acc.expiringSoon5 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 15) {
-        acc.expiringSoon15 += 1;
-      } else if ((expirationDate - currentDate) / (1000 * 60 * 60 * 24) <= 30) {
-        acc.active += 1;
-      }
-      return acc;
-    },
-    { active: 0, expiringSoon5: 0, expiringSoon15: 0, expired: 0 }
-  );
+  //termometr
+
+  const termometr = useAppStore((state) => state.termometr); // zamena zamena
+  const setTermometr = useAppStore((state) => state.setTermometr); //zamena zamena
+  const [showAllTermometr, setShowAllTermometr] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "termometr"), //zamena
+      setTermometr, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setTermometr]); //zamena
+
+  const filterTermometr = () =>
+    //zamena
+    filterDocuments(
+      termometr, //zamena
+      showAllTermometr, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const termometrCounts = countDocuments(filterTermometr()); //zamena //zamena
+
+  // voltmetr
+
+  const voltmetr = useAppStore((state) => state.voltmetr); // zamena zamena
+  const setVoltmetr = useAppStore((state) => state.setVoltmetr); //zamena zamena
+  const [showAllVoltmetr, setShowAllVoltmetr] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "voltmetr"), //zamena
+      setVoltmetr, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setVoltmetr]); //zamena
+
+  const filterVoltmetr = () =>
+    //zamena
+    filterDocuments(
+      voltmetr, //zamena
+      showAllVoltmetr, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const voltmetrCounts = countDocuments(filterVoltmetr()); //zamena //zamena
+
+  //shlang
+
+  const shlang = useAppStore((state) => state.shlang); // zamena zamena
+  const setShlang = useAppStore((state) => state.setShlang); //zamena zamena
+  const [showAllShlang, setShowAllShlang] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "shlang"), //zamena
+      setShlang, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setShlang]); //zamena
+
+  const filterShlang = () =>
+    //zamena
+    filterDocuments(
+      shlang, //zamena
+      showAllShlang, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const shlangCounts = countDocuments(filterShlang()); //zamena //zamena
+
+  //ppk
+
+  const ppk = useAppStore((state) => state.ppk); // zamena zamena
+  const setPpk = useAppStore((state) => state.setPpk); //zamena zamena
+  const [showAllPpk, setShowAllPpk] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "ppk"), //zamena
+      setPpk, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setPpk]); //zamena
+
+  const filterPpk = () =>
+    //zamena
+    filterDocuments(
+      ppk, //zamena
+      showAllPpk, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const ppkCounts = countDocuments(filterPpk()); //zamena //zamena
+
+  // elprotec
+
+  const elprotec = useAppStore((state) => state.elprotec); // zamena zamena
+  const setElprotec = useAppStore((state) => state.setElprotec); //zamena zamena
+  const [showAllElprotec, setShowAllElprotec] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "elprotec"), //zamena
+      setElprotec, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setElprotec]); //zamena
+
+  const filterElprotec = () =>
+    //zamena
+    filterDocuments(
+      elprotec, //zamena
+      showAllElprotec, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const elprotecCounts = countDocuments(filterElprotec()); //zamena //zamena
+
+  // mol
+
+  const mol = useAppStore((state) => state.mol); // zamena zamena
+  const setMol = useAppStore((state) => state.setMol); //zamena zamena
+  const [showAllMol, setShowAllMol] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "mol"), //zamena
+      setMol, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setMol]); //zamena
+
+  const filterMol = () =>
+    //zamena
+    filterDocuments(
+      mol, //zamena
+      showAllMol, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const molCounts = countDocuments(filterMol()); //zamena //zamena
+
+  //smazka
+
+  const smazka = useAppStore((state) => state.smazka); // zamena zamena
+  const setSmazka = useAppStore((state) => state.setSmazka); //zamena zamena
+  const [showAllSmazka, setShowAllSmazka] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "smazka"), //zamena
+      setSmazka, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setSmazka]); //zamena
+
+  const filterSmazka = () =>
+    //zamena
+    filterDocuments(
+      smazka, //zamena
+      showAllSmazka, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const smazkaCounts = countDocuments(filterSmazka()); //zamena //zamena
+
+  //ger
+
+  const ger = useAppStore((state) => state.ger); // zamena zamena
+  const setGer = useAppStore((state) => state.setGer); //zamena zamena
+  const [showAllGer, setShowAllGer] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "ger"), //zamena
+      setGer, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setGer]); //zamena
+
+  const filterGer = () =>
+    //zamena
+    filterDocuments(
+      ger, //zamena
+      showAllGer, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const gerCounts = countDocuments(filterGer()); //zamena //zamena
+
+  //aptechka
+
+  const aptek = useAppStore((state) => state.aptek); // zamena zamena
+  const setAptek = useAppStore((state) => state.setAptek); //zamena zamena
+  const [showAllAptek, setShowAllAptek] = useState(false); //zamena zamena
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "aptek"), //zamena
+      setAptek, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setAptek]); //zamena
+
+  const filterAptek = () =>
+    //zamena
+    filterDocuments(
+      aptek, //zamena
+      showAllAptek, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const aptekCounts = countDocuments(filterAptek()); //zamena //zamena
 
   return (
     <div className="flex flex-col justify-center items-center gap-5 w-full">
@@ -1002,514 +744,143 @@ function Docs() {
         <h1 className="text-2xl font-bold">Хужжатлар рўйхати</h1>
       </div>
       <ul className="flex flex-col justify-center items-center gap-3 w-[600px]">
-        <li className="flex justify-center w-full">
-          <Link
-            className="flex justify-between items-center gap-5 w-full text-xl "
-            to="/licenses"
-          >
-            <Button className="flex justify-between items-center gap-5 w-full text-xl">
-              Лицензиялар
-              <div className="flex gap-8">
-                {licenseCounts.active > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-green-500">
-                      {licenseCounts.active}
-                    </span>
-                  </div>
-                )}
-                {licenseCounts.expiringSoon15 > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-yellow-500 ">
-                      {licenseCounts.expiringSoon15}
-                    </span>
-                  </div>
-                )}
-                {licenseCounts.expiringSoon5 > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-orange-500">
-                      {licenseCounts.expiringSoon5}
-                    </span>
-                  </div>
-                )}
-                {licenseCounts.expired > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                      {licenseCounts.expired}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </Button>
-          </Link>
-        </li>
+        <DocumentLink
+          to="/licenses"
+          title="1. Лицензиялар"
+          counts={licenseCounts}
+        />
 
-        <li className="flex justify-center w-full">
-          <Link
-            className="flex justify-between items-center gap-5 w-full text-xl "
-            to="/ngsertificates"
-          >
-            <Button className="flex justify-between items-center gap-5 w-full text-xl">
-              Табиий газ сертификатлари
-              <div className="flex gap-8">
-                {ngsertificateCounts.active > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-green-500">
-                      {ngsertificateCounts.active}
-                    </span>
-                  </div>
-                )}
-                {ngsertificateCounts.expiringSoon15 > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-yellow-500 ">
-                      {ngsertificateCounts.expiringSoon15}
-                    </span>
-                  </div>
-                )}
-                {ngsertificateCounts.expiringSoon5 > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-orange-500">
-                      {ngsertificateCounts.expiringSoon5}
-                    </span>
-                  </div>
-                )}
-                {ngsertificateCounts.expired > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                      {ngsertificateCounts.expired}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </Button>
-          </Link>
-        </li>
+        <DocumentLink
+          to="/ngsertificates" //zamena
+          title="2. Табиий газ сертификатлари" //zamena
+          counts={ngsertificatesCounts} //zamena
+        />
 
-        <li className="flex justify-center w-full">
-          <Button className="flex justify-between items-center gap-5 w-full">
-            <Link className="text-xl" to="/humidity">
-              Влагомер сертификатлари
-            </Link>
-            <div className="flex gap-8">
-              {humidityCounts.active > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-500">
-                    {humidityCounts.active}
-                  </span>
-                </div>
-              )}
-              {humidityCounts.expiringSoon15 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-500">
-                    {humidityCounts.expiringSoon15}
-                  </span>
-                </div>
-              )}
-              {humidityCounts.expiringSoon5 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-500">
-                    {humidityCounts.expiringSoon5}
-                  </span>
-                </div>
-              )}
-              {humidityCounts.expired > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                    {humidityCounts.expired}
-                  </span>
-                </div>
-              )}
-            </div>
-          </Button>
-        </li>
+        <DocumentLink
+          to="/humidity" //zamena
+          title="3. Влагомер сертификатлари" //zamena
+          counts={humidityCounts} //zamena
+        />
 
-        <li className="flex justify-center w-full">
-          <Button className="flex justify-between items-center gap-5 w-full">
-            <Link className="text-xl" to="/gasanalyzers">
-              Газ анализатор сертификатлари
-            </Link>
-            <div className="flex gap-8">
-              {gasanalyzerCounts.active > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-500">
-                    {gasanalyzerCounts.active}
-                  </span>
-                </div>
-              )}
-              {gasanalyzerCounts.expiringSoon15 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-500">
-                    {gasanalyzerCounts.expiringSoon15}
-                  </span>
-                </div>
-              )}
-              {gasanalyzerCounts.expiringSoon5 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-500">
-                    {gasanalyzerCounts.expiringSoon5}
-                  </span>
-                </div>
-              )}
-              {gasanalyzerCounts.expired > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                    {gasanalyzerCounts.expired}
-                  </span>
-                </div>
-              )}
-            </div>
-          </Button>
-        </li>
+        <DocumentLink
+          to="/gasanalyzers" //zamena
+          title="4. Газ анализатор сертификатлари" //zamena
+          counts={gasanalyzersCounts} //zamena
+        />
 
-        <li className="flex justify-center w-full">
-          <Button className="flex justify-between items-center gap-5 w-full">
-            <Link className="text-xl" to="/prodinsurance">
-              Хавфли ишлаб чиқариш полисилари
-            </Link>
-            <div className="flex gap-8">
-              {prodinsuranceCounts.active > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-500">
-                    {prodinsuranceCounts.active}
-                  </span>
-                </div>
-              )}
-              {prodinsuranceCounts.expiringSoon15 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-500">
-                    {prodinsuranceCounts.expiringSoon15}
-                  </span>
-                </div>
-              )}
-              {prodinsuranceCounts.expiringSoon5 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-500">
-                    {prodinsuranceCounts.expiringSoon5}
-                  </span>
-                </div>
-              )}
-              {prodinsuranceCounts.expired > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                    {prodinsuranceCounts.expired}
-                  </span>
-                </div>
-              )}
-            </div>
-          </Button>
-        </li>
+        <DocumentLink
+          to="/prodinsurance" //zamena
+          title="5. Хавфли ишлаб чиқариш объекти полиси" //zamena
+          counts={prodinsuranceCounts} //zamena
+        />
 
-        <li className="flex justify-center w-full">
-          <Button className="flex justify-between items-center gap-5 w-full">
-            <Link className="text-xl" to="/lifeinsurance">
-              Ходимларни хаётини суғурталаш полисилари
-            </Link>
-            <div className="flex gap-8">
-              {lifeinsuranceCounts.active > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-500">
-                    {lifeinsuranceCounts.active}
-                  </span>
-                </div>
-              )}
-              {lifeinsuranceCounts.expiringSoon15 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-500">
-                    {lifeinsuranceCounts.expiringSoon15}
-                  </span>
-                </div>
-              )}
-              {lifeinsuranceCounts.expiringSoon5 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-500">
-                    {lifeinsuranceCounts.expiringSoon5}
-                  </span>
-                </div>
-              )}
-              {lifeinsuranceCounts.expired > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                    {lifeinsuranceCounts.expired}
-                  </span>
-                </div>
-              )}
-            </div>
-          </Button>
-        </li>
+        <DocumentLink
+          to="/lifeinsurance" //zamena
+          title="6. Ходимлар хаётини суғурталаш полиси" //zamena
+          counts={lifeinsuranceCounts} //zamena
+        />
 
-        <li className="flex justify-center w-full">
-          <Button className="flex justify-between items-center gap-5 w-full">
-            <Link className="text-xl" to="/ecology">
-              Экология хулосалари
-            </Link>
-            <div className="flex gap-8">
-              {ecologyCounts.active > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-500">
-                    {ecologyCounts.active}
-                  </span>
-                </div>
-              )}
-              {ecologyCounts.expiringSoon15 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-500">
-                    {ecologyCounts.expiringSoon15}
-                  </span>
-                </div>
-              )}
-              {ecologyCounts.expiringSoon5 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-500">
-                    {ecologyCounts.expiringSoon5}
-                  </span>
-                </div>
-              )}
-              {ecologyCounts.expired > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                    {ecologyCounts.expired}
-                  </span>
-                </div>
-              )}
-            </div>
-          </Button>
-        </li>
+        <DocumentLink
+          to="/ecology" //zamena
+          title="7. Экология хулосалари" //zamena
+          counts={ecologyCounts} //zamena
+        />
 
-        <li className="flex justify-center w-full">
-          <Button className="flex justify-between items-center gap-5 w-full">
-            <Link className="text-xl" to="/ik">
-              Ўлов комплекслари ИК сертификатлари
-            </Link>
-            <div className="flex gap-8">
-              {ikCounts.active > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-500">
-                    {ikCounts.active}
-                  </span>
-                </div>
-              )}
-              {ikCounts.expiringSoon15 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-500">
-                    {ikCounts.expiringSoon15}
-                  </span>
-                </div>
-              )}
-              {ikCounts.expiringSoon5 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-500">
-                    {ikCounts.expiringSoon5}
-                  </span>
-                </div>
-              )}
-              {ikCounts.expired > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                    {ikCounts.expired}
-                  </span>
-                </div>
-              )}
-            </div>
-          </Button>
-        </li>
+        <DocumentLink
+          to="/ik" //zamena
+          title="8. Ўлчов комплекси сертификатлари" //zamena
+          counts={ikCounts} //zamena
+        />
 
-        <li className="flex justify-center w-full">
-          <Button className="flex justify-between items-center gap-5 w-full">
-            <Link className="text-xl" to="/pilot">
-              Автопилот сертификатлари
-            </Link>
-            <div className="flex gap-8">
-              {pilotCounts.active > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-500">
-                    {pilotCounts.active}
-                  </span>
-                </div>
-              )}
-              {pilotCounts.expiringSoon15 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-500">
-                    {pilotCounts.expiringSoon15}
-                  </span>
-                </div>
-              )}
-              {pilotCounts.expiringSoon5 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-500">
-                    {pilotCounts.expiringSoon5}
-                  </span>
-                </div>
-              )}
-              {pilotCounts.expired > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                    {pilotCounts.expired}
-                  </span>
-                </div>
-              )}
-            </div>
-          </Button>
-        </li>
+        <DocumentLink
+          to="/pilot" //zamena
+          title="9. Автопилот сертификатлари" //zamena
+          counts={pilotCounts} //zamena
+        />
 
-        <li className="flex justify-center w-full">
-          <Button className="flex justify-between items-center gap-5 w-full">
-            <Link className="text-xl" to="/shayba">
-              Шайба сертификатлари
-            </Link>
-            <div className="flex gap-8">
-              {shaybaCounts.active > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-green-500">
-                    {shaybaCounts.active}
-                  </span>
-                </div>
-              )}
-              {shaybaCounts.expiringSoon15 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-yellow-500">
-                    {shaybaCounts.expiringSoon15}
-                  </span>
-                </div>
-              )}
-              {shaybaCounts.expiringSoon5 > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-orange-500">
-                    {shaybaCounts.expiringSoon5}
-                  </span>
-                </div>
-              )}
-              {shaybaCounts.expired > 0 && (
-                <div className="indicator ">
-                  <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                    {shaybaCounts.expired}
-                  </span>
-                </div>
-              )}
-            </div>
-          </Button>
-        </li>
+        <DocumentLink
+          to="/shayba" //zamena
+          title="10. Шайба сертификатлари" //zamena
+          counts={shaybaCounts} //zamena
+        />
 
-        <li className="flex justify-center w-full">
-          <Link
-            className="flex justify-between items-center gap-5 w-full text-xl "
-            to="/water"
-          >
-            <Button className="flex justify-between items-center gap-5 w-full text-xl">
-              Сув ҳисоблагич сертификатлари
-              <div className="flex gap-8">
-                {waterCounts.active > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-green-500">
-                      {waterCounts.active}
-                    </span>
-                  </div>
-                )}
-                {waterCounts.expiringSoon15 > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-yellow-500 ">
-                      {waterCounts.expiringSoon15}
-                    </span>
-                  </div>
-                )}
-                {waterCounts.expiringSoon5 > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-orange-500">
-                      {waterCounts.expiringSoon5}
-                    </span>
-                  </div>
-                )}
-                {waterCounts.expired > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                      {waterCounts.expired}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </Button>
-          </Link>
-        </li>
+        <DocumentLink
+          to="/water" //zamena
+          title="11. Сув ҳисоблагич сертификатлари" //zamena
+          counts={waterCounts} //zamena
+        />
 
-        <li className="flex justify-center w-full">
-          <Link
-            className="flex justify-between items-center gap-5 w-full text-xl "
-            to="/electric"
-          >
-            <Button className="flex justify-between items-center gap-5 w-full text-xl">
-              Электр ҳисоблагич сертификатлари
-              <div className="flex gap-8">
-                {electricCounts.active > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-green-500">
-                      {electricCounts.active}
-                    </span>
-                  </div>
-                )}
-                {electricCounts.expiringSoon15 > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-yellow-500 ">
-                      {electricCounts.expiringSoon15}
-                    </span>
-                  </div>
-                )}
-                {electricCounts.expiringSoon5 > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-orange-500">
-                      {electricCounts.expiringSoon5}
-                    </span>
-                  </div>
-                )}
-                {electricCounts.expired > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                      {electricCounts.expired}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </Button>
-          </Link>
-        </li>
+        <DocumentLink
+          to="/electric" //zamena
+          title="12. Электр энергия ҳисоблагич сертификатлари" //zamena
+          counts={electricCounts} //zamena
+        />
 
-        <li className="flex justify-center w-full">
-          <Link
-            className="flex justify-between items-center gap-5 w-full text-xl "
-            to="/kolonka"
-          >
-            <Button className="flex justify-between items-center gap-5 w-full text-xl">
-              Колонкалар сертификатлари
-              <div className="flex gap-8">
-                {kolonkaCounts.active > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-green-500">
-                      {kolonkaCounts.active}
-                    </span>
-                  </div>
-                )}
-                {kolonkaCounts.expiringSoon15 > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-yellow-500 ">
-                      {kolonkaCounts.expiringSoon15}
-                    </span>
-                  </div>
-                )}
-                {kolonkaCounts.expiringSoon5 > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-orange-500">
-                      {kolonkaCounts.expiringSoon5}
-                    </span>
-                  </div>
-                )}
-                {kolonkaCounts.expired > 0 && (
-                  <div className="indicator ">
-                    <span className="badge badge-sm indicator-item bg-red-700 text-white">
-                      {kolonkaCounts.expired}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </Button>
-          </Link>
-        </li>
+        <DocumentLink
+          to="/kolonka" //zamena
+          title="13. Колонкалар сертификатлари" //zamena
+          counts={kolonkaCounts} //zamena
+        />
+
+        <DocumentLink
+          to="/manometr" //zamena
+          title="14. Манометрлар сертификатлари" //zamena
+          counts={manometrCounts} //zamena
+        />
+
+        <DocumentLink
+          to="/termometr" //zamena
+          title="15. Термометрлар сертификатлари" //zamena
+          counts={termometrCounts} //zamena
+        />
+
+        <DocumentLink
+          to="/voltmetr" //zamena
+          title="16. Амперметр ва вольтметр сертификатлари" //zamena
+          counts={voltmetrCounts} //zamena
+        />
+
+        <DocumentLink
+          to="/shlang" //zamena
+          title="17. Газ тўлдириш шланглари далолатномалари" //zamena
+          counts={shlangCounts} //zamena
+        />
+
+        <DocumentLink
+          to="/ppk" //zamena
+          title='18. Сақловчи клапанлар ("ППК") синов далолатномалари' //zamena
+          counts={ppkCounts} //zamena
+        />
+
+        <DocumentLink
+          to="/elprotec" //zamena
+          title="19. Электр ҳимоя воситалари синов далолатномалари" //zamena
+          counts={elprotecCounts} //zamena
+        />
+
+        <DocumentLink
+          to="/mol" //zamena
+          title="20. Чақмоқ қайтаргич синов далолатномалари" //zamena
+          counts={molCounts} //zamena
+        />
+
+        <DocumentLink
+          to="/smazka" //zamena
+          title="21. Технологияларни мойлаш далолатномалари" //zamena
+          counts={smazkaCounts} //zamena
+        />
+
+        <DocumentLink
+          to="/ger" //zamena
+          title="22. Технологияларни кўпикда текшириш далолатномалари" //zamena
+          counts={gerCounts} //zamena
+        />
+
+        <DocumentLink
+          to="/aptek" //zamena
+          title="23. Аптечкани  текшириш далолатномалари" //zamena
+          counts={aptekCounts} //zamena
+        />
       </ul>
       <div>
         <button className="btn btn-outline">

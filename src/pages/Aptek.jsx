@@ -15,10 +15,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "../components/ui/input";
-import ShaybaList from "../components/shayba/ShaybaList";
-import AddNewShayba from "../components/shayba/AddNewShayba";
+import AptekList from "../components/aptek/AptekList";
+import AddNewAptek from "../components/aptek/AddNewAptek";
 
-function Shayba() {
+function Aptek() {
   // замена
   const [sendingData, setSendingData] = useState(null);
   const [showAllDocs, setShowAllDocs] = useState(true);
@@ -33,8 +33,8 @@ function Shayba() {
   const setAddItemModal = useAppStore((state) => state.setAddItemModal);
   const ltd = useAppStore((state) => state.ltd);
   const setLtd = useAppStore((state) => state.setLtd);
-  const shayba = useAppStore((state) => state.shayba); //zamena
-  const setShayba = useAppStore((state) => state.setShayba); //zamena
+  const aptek = useAppStore((state) => state.aptek); //zamena
+  const setAptek = useAppStore((state) => state.setAptek); //zamena
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
@@ -56,12 +56,12 @@ function Shayba() {
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "shayba"), // zamena
-      setShayba, // zamena
+      () => getDocs(user?.access_token, "aptek"), // zamena
+      setAptek, // zamena
       user,
       setUser
     );
-  }, [user, setShayba]); // zamena
+  }, [user, setAptek]); // zamena
 
   const getLtdNameById = (id) => {
     if (!ltd || ltd.length === 0) return "Номаълум";
@@ -88,7 +88,7 @@ function Shayba() {
   };
 
   const filteredDocs = () => {
-    let filtered = [...shayba]; //zamena
+    let filtered = [...aptek]; //zamena
 
     if (!showAllDocs) {
       const latestDocs = filtered.reduce((acc, doc) => {
@@ -151,7 +151,7 @@ function Shayba() {
     return filtered;
   };
 
-  if (!stations || !shayba || !ltd) {
+  if (!stations || !aptek || !ltd) {
     //zamena
     return (
       <div className="flex items-center justify-center h-screen">
@@ -169,7 +169,7 @@ function Shayba() {
       "МЧЖ номи ва рақами": `${getLtdNameById(
         doc.ltd_id
       )} АГТКШ № ${getStationNumberByNumber(doc.station_number)}`,
-      "Сертификат рақами": doc.docNumber, //zamena
+      "Далолатнома рақами": doc.docNumber, //zamena
       "Берилган сана": doc.issue,
       "Амал қилиш санаси": doc.expiration,
       Холати:
@@ -180,9 +180,9 @@ function Shayba() {
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "SHAYBA"); //zamena
+    XLSX.utils.book_append_sheet(workbook, worksheet, "aptechka"); //zamena
 
-    XLSX.writeFile(workbook, "shayba.xlsx"); //zamena
+    XLSX.writeFile(workbook, "aptechka.xlsx"); //zamena
   };
   return (
     <>
@@ -190,15 +190,15 @@ function Shayba() {
         <div className="flex flex-col items-center justify-between gap-1">
           <div className="flex justify-between w-full px-4">
             <h1 className="text-3xl font-bold">
-              Автопилот торайтирувчи мосламаси ("Шайба") сертификатлари
+              Аптечкани тўлдириш ва текшириш далолатномалари
             </h1>
             {user.type === "admin" ? (
               <Button
                 onClick={setAddItemModal}
-                disabled={shayba ? false : true} //zamena
-                className={shayba ? "cursor-pointer" : "cursor-not-allowed"} //zamena
+                disabled={aptek ? false : true} //zamena
+                className={aptek ? "cursor-pointer" : "cursor-not-allowed"} //zamena
               >
-                Янги сертификат қўшиш
+                Янги далолатнома қўшиш
               </Button> //zamena
             ) : null}
           </div>
@@ -266,7 +266,7 @@ function Shayba() {
                   </Select>
                   <Input
                     type="text"
-                    placeholder="сертификат рақами билан" //zamena
+                    placeholder="далолатнома рақами билан" //zamena
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="input input-bordered w-[200px]"
@@ -303,7 +303,7 @@ function Shayba() {
               <th className="text-center">#</th>
               <th className="text-center">Шахобча номи</th>
               <th className="text-center">МЧЖ номи ва рақами</th>
-              <th className="text-center">сертификат рақами</th>
+              <th className="text-center">Далолатнома рақами</th>
               <th className="text-center">Берилган сана</th>
               <th className="text-center">Амал қилиш санаси</th>
               <th className="text-center">Файл</th>
@@ -324,7 +324,7 @@ function Shayba() {
                   expiration,
                   value,
                 }) => (
-                  <ShaybaList
+                  <AptekList
                     key={id}
                     id={id}
                     moljal={getStationNameByNumber(station_id)}
@@ -341,7 +341,7 @@ function Shayba() {
               <tr>
                 <td colSpan="7" className="text-center">
                   <h1 className="my-5 btn-link text-2xl italic">
-                    Сертификатлар мавжуд эмас
+                    Далолатномалар мавжуд эмас
                   </h1>
                 </td>
               </tr>
@@ -349,7 +349,7 @@ function Shayba() {
           </tbody>
         </table>
       </div>
-      <AddNewShayba sendingData={sendingData} setSendingData={setSendingData} />
+      <AddNewAptek sendingData={sendingData} setSendingData={setSendingData} />
       <div className="flex w-full h-screen justify-center mt-5">
         <Button>
           <Link to="/docs">Орқага</Link>
@@ -359,4 +359,4 @@ function Shayba() {
   );
 }
 
-export default Shayba;
+export default Aptek;

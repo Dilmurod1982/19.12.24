@@ -15,10 +15,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "../components/ui/input";
-import ShaybaList from "../components/shayba/ShaybaList";
-import AddNewShayba from "../components/shayba/AddNewShayba";
+import ElprotecList from "../components/elprotec/ElprotecList";
+import AddNewElprotec from "../components/elprotec/AddNewElprotec";
 
-function Shayba() {
+function Elprotec() {
   // замена
   const [sendingData, setSendingData] = useState(null);
   const [showAllDocs, setShowAllDocs] = useState(true);
@@ -33,8 +33,8 @@ function Shayba() {
   const setAddItemModal = useAppStore((state) => state.setAddItemModal);
   const ltd = useAppStore((state) => state.ltd);
   const setLtd = useAppStore((state) => state.setLtd);
-  const shayba = useAppStore((state) => state.shayba); //zamena
-  const setShayba = useAppStore((state) => state.setShayba); //zamena
+  const elprotec = useAppStore((state) => state.elprotec); //zamena
+  const setElprotec = useAppStore((state) => state.setElprotec); //zamena
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
@@ -56,12 +56,12 @@ function Shayba() {
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "shayba"), // zamena
-      setShayba, // zamena
+      () => getDocs(user?.access_token, "elprotec"), // zamena
+      setElprotec, // zamena
       user,
       setUser
     );
-  }, [user, setShayba]); // zamena
+  }, [user, setElprotec]); // zamena
 
   const getLtdNameById = (id) => {
     if (!ltd || ltd.length === 0) return "Номаълум";
@@ -88,7 +88,7 @@ function Shayba() {
   };
 
   const filteredDocs = () => {
-    let filtered = [...shayba]; //zamena
+    let filtered = [...elprotec]; //zamena
 
     if (!showAllDocs) {
       const latestDocs = filtered.reduce((acc, doc) => {
@@ -151,7 +151,7 @@ function Shayba() {
     return filtered;
   };
 
-  if (!stations || !shayba || !ltd) {
+  if (!stations || !elprotec || !ltd) {
     //zamena
     return (
       <div className="flex items-center justify-center h-screen">
@@ -180,9 +180,9 @@ function Shayba() {
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "SHAYBA"); //zamena
+    XLSX.utils.book_append_sheet(workbook, worksheet, "ELPROTEC"); //zamena
 
-    XLSX.writeFile(workbook, "shayba.xlsx"); //zamena
+    XLSX.writeFile(workbook, "elprotec.xlsx"); //zamena
   };
   return (
     <>
@@ -190,15 +190,15 @@ function Shayba() {
         <div className="flex flex-col items-center justify-between gap-1">
           <div className="flex justify-between w-full px-4">
             <h1 className="text-3xl font-bold">
-              Автопилот торайтирувчи мосламаси ("Шайба") сертификатлари
+              Электр ҳимоя воситалари синов далолатномалари
             </h1>
             {user.type === "admin" ? (
               <Button
                 onClick={setAddItemModal}
-                disabled={shayba ? false : true} //zamena
-                className={shayba ? "cursor-pointer" : "cursor-not-allowed"} //zamena
+                disabled={elprotec ? false : true} //zamena
+                className={elprotec ? "cursor-pointer" : "cursor-not-allowed"} //zamena
               >
-                Янги сертификат қўшиш
+                Янги далолантнома қўшиш
               </Button> //zamena
             ) : null}
           </div>
@@ -324,7 +324,7 @@ function Shayba() {
                   expiration,
                   value,
                 }) => (
-                  <ShaybaList
+                  <ElprotecList
                     key={id}
                     id={id}
                     moljal={getStationNameByNumber(station_id)}
@@ -349,7 +349,10 @@ function Shayba() {
           </tbody>
         </table>
       </div>
-      <AddNewShayba sendingData={sendingData} setSendingData={setSendingData} />
+      <AddNewElprotec
+        sendingData={sendingData}
+        setSendingData={setSendingData}
+      />
       <div className="flex w-full h-screen justify-center mt-5">
         <Button>
           <Link to="/docs">Орқага</Link>
@@ -359,4 +362,4 @@ function Shayba() {
   );
 }
 
-export default Shayba;
+export default Elprotec;

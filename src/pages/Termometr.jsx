@@ -15,10 +15,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "../components/ui/input";
-import ShaybaList from "../components/shayba/ShaybaList";
-import AddNewShayba from "../components/shayba/AddNewShayba";
+import AddNewTermometr from "../components/termometr/AddNewTermometr";
+import TermometrList from "../components/termometr/TermometrList";
 
-function Shayba() {
+function Termometr() {
   // замена
   const [sendingData, setSendingData] = useState(null);
   const [showAllDocs, setShowAllDocs] = useState(true);
@@ -33,8 +33,8 @@ function Shayba() {
   const setAddItemModal = useAppStore((state) => state.setAddItemModal);
   const ltd = useAppStore((state) => state.ltd);
   const setLtd = useAppStore((state) => state.setLtd);
-  const shayba = useAppStore((state) => state.shayba); //zamena
-  const setShayba = useAppStore((state) => state.setShayba); //zamena
+  const termometr = useAppStore((state) => state.termometr); //zamena
+  const setTermometr = useAppStore((state) => state.setTermometr); //zamena
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
@@ -56,12 +56,12 @@ function Shayba() {
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "shayba"), // zamena
-      setShayba, // zamena
+      () => getDocs(user?.access_token, "termometr"), // zamena
+      setTermometr, // zamena
       user,
       setUser
     );
-  }, [user, setShayba]); // zamena
+  }, [user, setTermometr]); // zamena
 
   const getLtdNameById = (id) => {
     if (!ltd || ltd.length === 0) return "Номаълум";
@@ -88,7 +88,7 @@ function Shayba() {
   };
 
   const filteredDocs = () => {
-    let filtered = [...shayba]; //zamena
+    let filtered = [...termometr]; //zamena
 
     if (!showAllDocs) {
       const latestDocs = filtered.reduce((acc, doc) => {
@@ -151,7 +151,7 @@ function Shayba() {
     return filtered;
   };
 
-  if (!stations || !shayba || !ltd) {
+  if (!stations || !termometr || !ltd) {
     //zamena
     return (
       <div className="flex items-center justify-center h-screen">
@@ -180,23 +180,21 @@ function Shayba() {
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "SHAYBA"); //zamena
+    XLSX.utils.book_append_sheet(workbook, worksheet, "TERMOMETR"); //zamena
 
-    XLSX.writeFile(workbook, "shayba.xlsx"); //zamena
+    XLSX.writeFile(workbook, "termometr.xlsx"); //zamena
   };
   return (
     <>
       <div className="overflow-x-auto">
         <div className="flex flex-col items-center justify-between gap-1">
           <div className="flex justify-between w-full px-4">
-            <h1 className="text-3xl font-bold">
-              Автопилот торайтирувчи мосламаси ("Шайба") сертификатлари
-            </h1>
+            <h1 className="text-3xl font-bold">Термометр сертификатлари</h1>
             {user.type === "admin" ? (
               <Button
                 onClick={setAddItemModal}
-                disabled={shayba ? false : true} //zamena
-                className={shayba ? "cursor-pointer" : "cursor-not-allowed"} //zamena
+                disabled={termometr ? false : true} //zamena
+                className={termometr ? "cursor-pointer" : "cursor-not-allowed"} //zamena
               >
                 Янги сертификат қўшиш
               </Button> //zamena
@@ -324,7 +322,7 @@ function Shayba() {
                   expiration,
                   value,
                 }) => (
-                  <ShaybaList
+                  <TermometrList
                     key={id}
                     id={id}
                     moljal={getStationNameByNumber(station_id)}
@@ -349,7 +347,10 @@ function Shayba() {
           </tbody>
         </table>
       </div>
-      <AddNewShayba sendingData={sendingData} setSendingData={setSendingData} />
+      <AddNewTermometr
+        sendingData={sendingData}
+        setSendingData={setSendingData}
+      />
       <div className="flex w-full h-screen justify-center mt-5">
         <Button>
           <Link to="/docs">Орқага</Link>
@@ -359,4 +360,4 @@ function Shayba() {
   );
 }
 
-export default Shayba;
+export default Termometr;
