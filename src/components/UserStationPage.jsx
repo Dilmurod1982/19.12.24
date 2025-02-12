@@ -169,7 +169,7 @@ export default function UserStationPage({
   return (
     <Link
       to={`/userstationdocs/${station.id}`}
-      className="w-96 rounded-sm border flex flex-col justify-center items-center gap-5"
+      className="w-96 rounded-md border-[4px] shadow-[10px]  flex flex-col justify-center items-center gap-5"
     >
       <div>
         <h1 className="font-bold text-2xl">{station.moljal}</h1>

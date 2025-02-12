@@ -258,7 +258,7 @@ export default function UserStationDocs() {
             <span>Барча хужжатларни кўрсатиш</span>
           </label>
         </div>
-        <div className="flex justify-between px-4">
+        <div className="hidden lg:flex justify-between px-4">
           <Button onClick={exportToExcel} className="ml-2" variant="outline">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -274,7 +274,7 @@ export default function UserStationDocs() {
           </Button>
         </div>
       </div>
-      <div>
+      <div className="hidden lg:flex">
         <Link to={`/usernewdocs/${stationId}`} className="btn btn-neutral">
           Янги хужжат қўшиш
         </Link>
@@ -285,9 +285,9 @@ export default function UserStationDocs() {
           <tr>
             <th>#</th>
             <th>Хужжат тури</th>
-            <th className="text-center">Хужжат рақами</th>
-            <th className="text-center">Берилган сана</th>
-            <th className="text-center">Тугаш санаси</th>
+            <th className="text-center hidden lg:table-cell ">Хужжат рақами</th>
+            <th className="text-center hidden lg:table-cell">Берилган сана</th>
+            <th className="text-center hidden lg:table-cell">Тугаш санаси</th>
             <th className="text-center">Хужжат</th>
             <th className="text-center">Холати</th>
           </tr>
@@ -297,9 +297,13 @@ export default function UserStationDocs() {
             <tr key={doc.id || index} className={getRowClass(doc.expiration)}>
               <td>{index + 1}</td>
               <td>{docTypes[doc.document_type] || "Номаълум хужжат"}</td>
-              <td className="text-center">{doc.docNumber || "Номсиз"}</td>
-              <td className="text-center">{doc.issue || "Маълумот йўқ"}</td>
-              <td className="text-center">
+              <td className="text-center hidden lg:table-cell">
+                {doc.docNumber || "Номсиз"}
+              </td>
+              <td className="text-center hidden lg:table-cell">
+                {doc.issue || "Маълумот йўқ"}
+              </td>
+              <td className="text-center hidden lg:table-cell">
                 {doc.expiration || "Маълумот йўқ"}
               </td>
               <td className="text-center">
@@ -364,6 +368,12 @@ export default function UserStationDocs() {
           ))}
         </tbody>
       </table>
+
+      <div className="flex w-full justify-center mt-5 lg:hidden">
+        <Link to={`/usernewdocs/${stationId}`} className="btn btn-neutral">
+          Янги хужжат қўшиш
+        </Link>
+      </div>
 
       <div className="flex justify-center items-center py-5">
         <Link to="/userstations">
