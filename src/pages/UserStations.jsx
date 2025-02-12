@@ -307,7 +307,7 @@ function UserStations() {
   );
 
   return (
-    <div className="flex justify-center items-center gap-5">
+    <div className="grid lg:grid-cols-3 sm:grid-cols-1 place-items-center gap-5">
       {filteredStations ? (
         filteredStations.map((station) => {
           return (

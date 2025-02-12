@@ -30,59 +30,46 @@ export default function Navbar() {
       </div>
       <ul className="menu menu-horizontal px-1">
         <li className="relative">
-          <summary onClick={toggleMenu} className="btn btn-ghost">
-            Маълумот
-          </summary>
-          {menuOpen && (
-            <ul className="absolute left-0 top-full bg-white p-2 shadow z-40">
-              {user.type === "admin" ? (
-                <li>
-                  <Link to="/users" onClick={closeMenu}>
-                    Фойдаланувчилар
-                  </Link>
-                </li>
-              ) : (
-                ""
+          {user.type === "admin" && (
+            <>
+              <button onClick={toggleMenu} className="btn btn-ghost">
+                Маълумот
+              </button>
+              {menuOpen && (
+                <ul className="absolute left-0 top-full bg-white p-2 shadow z-40">
+                  <li>
+                    <Link to="/users" onClick={closeMenu}>
+                      Фойдаланувчилар
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/regions" onClick={closeMenu}>
+                      Вилоятлар
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/cities" onClick={closeMenu}>
+                      Туманлар
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/ltd" onClick={closeMenu}>
+                      МЧЖлар
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/stations" onClick={closeMenu}>
+                      Шахобчалар
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/kolonkamarka" onClick={closeMenu}>
+                      Колонкалар тури
+                    </Link>
+                  </li>
+                </ul>
               )}
-
-              <li>
-                {user.type === "admin" ? (
-                  <Link to="/regions" onClick={closeMenu}>
-                    Вилоятлар
-                  </Link>
-                ) : (
-                  ""
-                )}
-              </li>
-              <li>
-                {user.type === "admin" ? (
-                  <Link to="/cities" onClick={closeMenu}>
-                    Туманлар
-                  </Link>
-                ) : (
-                  ""
-                )}
-              </li>
-              <li>
-                {user.type === "admin" ? (
-                  <Link to="/ltd" onClick={closeMenu}>
-                    МЧЖлар
-                  </Link>
-                ) : (
-                  ""
-                )}
-              </li>
-              <li>
-                <Link to="/stations" onClick={closeMenu}>
-                  Шахобчалар
-                </Link>
-              </li>
-              <li>
-                <Link to="/kolonkamarka" onClick={closeMenu}>
-                  Колонкалар тури
-                </Link>
-              </li>
-            </ul>
+            </>
           )}
         </li>
       </ul>

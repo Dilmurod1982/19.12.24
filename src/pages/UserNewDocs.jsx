@@ -176,6 +176,19 @@ export default function UserNewDocs() {
         <button
           className="btn btn-neutral text-xl text-white"
           onClick={() => {
+            setSelectedKolonkaDoc({
+              baseKolonkaName: "kolonka",
+              docKolonkaName: "Колонкалар сертификати",
+            });
+            setAddItemModal(true);
+          }}
+        >
+          13. Колонкалар сертификати
+        </button>
+
+        <button
+          className="btn btn-neutral text-xl text-white"
+          onClick={() => {
             setSelectedDoc({
               baseName: "manometr",
               docName: "Манометрлар сертификати",
@@ -301,19 +314,6 @@ export default function UserNewDocs() {
           }}
         >
           23. Аптечкани текшириш далолатномаси
-        </button>
-
-        <button
-          className="btn btn-neutral text-xl text-white"
-          onClick={() => {
-            setSelectedKolonkaDoc({
-              baseKolonkaName: "kolonka",
-              docKolonkaName: "Колонкалар сертификати",
-            });
-            setAddItemModal(true);
-          }}
-        >
-          13. Колонкалар сертификати
         </button>
       </div>
       <div className=" flex justify-center items-center mt-5">

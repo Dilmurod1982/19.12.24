@@ -31,12 +31,12 @@ export default function Login() {
   return (
     <>
       {loading ? (
-        <div className="flex w-full h-screen justify-center items-center">
+        <div className="flex w-full h-screen justify-center items-center ">
           <ClockLoader size={149} speedMultiplier={0.5} />
         </div>
       ) : (
         <div className="flex w-full h-screen justify-center items-center">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-96">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-96 ">
             <div>
               <Label htmlFor="username">Логин</Label>
               <Input
@@ -56,7 +56,7 @@ export default function Login() {
               />
             </div>
             <div>
-              <Button className="w-full" type="submit">
+              <Button className="w-full " type="submit">
                 Кириш
               </Button>
             </div>
