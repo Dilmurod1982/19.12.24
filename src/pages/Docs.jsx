@@ -848,13 +848,13 @@ function Docs() {
 
         <DocumentLink
           to="/ppk" //zamena
-          title='18. Сақловчи клапанлар ("ППК") синов далолатномалари' //zamena
+          title='18. Сақловчи клапанлар ("ППК") синов дал-лари' //zamena
           counts={ppkCounts} //zamena
         />
 
         <DocumentLink
           to="/elprotec" //zamena
-          title="19. Электр ҳимоя воситалари синов далолатномалари" //zamena
+          title="19. Электр ҳимоя воситалари синов дал-лари" //zamena
           counts={elprotecCounts} //zamena
         />
 
@@ -872,7 +872,7 @@ function Docs() {
 
         <DocumentLink
           to="/ger" //zamena
-          title="22. Технологияларни кўпикда текшириш далолатномалари" //zamena
+          title="22. Технологияларни кўпикда текшириш дал-лари" //zamena
           counts={gerCounts} //zamena
         />
 

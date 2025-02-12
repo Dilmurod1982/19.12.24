@@ -456,3 +456,29 @@ export async function fetchDataWithTokenRefresh(
     }
   }
 }
+
+// export async function accessToken() {
+//   try {
+//     const data = await fetchFunction(user?.access_token);
+//     setFunction(data);
+//   } catch (error) {
+//     if (error.message === "403") {
+//       try {
+//         // Попытка обновить токен
+//         const { access_token } = await refreshToken(user?.refreshToken);
+//         setUser({ ...user, access_token });
+
+//         // Повторная попытка получить данные
+//         const newData = await fetchFunction(access_token);
+//         setFunction(newData);
+//       } catch (err) {
+//         console.error("Ошибка при обновлении токена или загрузке данных:", err);
+//         toast.info("Тизимга қайта киринг!");
+//         setUser(null);
+//         navigate("/login");
+//       }
+//     } else {
+//       console.error("Ошибка при загрузке данных:", error);
+//     }
+//   }
+// }

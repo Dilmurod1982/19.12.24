@@ -21,6 +21,21 @@ export default function UserStationDocs() {
   const lifeinsurance = useAppStore((state) => state.lifeinsurance);
   const ecology = useAppStore((state) => state.ecology);
   const ik = useAppStore((state) => state.ik);
+  const pilot = useAppStore((state) => state.pilot);
+  const shayba = useAppStore((state) => state.shayba);
+  const water = useAppStore((state) => state.water);
+  const electric = useAppStore((state) => state.electric);
+  const kolonka = useAppStore((state) => state.kolonka);
+  const manometr = useAppStore((state) => state.manometr);
+  const termometr = useAppStore((state) => state.termometr);
+  const voltmetr = useAppStore((state) => state.voltmetr);
+  const shlang = useAppStore((state) => state.shlang);
+  const ppk = useAppStore((state) => state.ppk);
+  const elprotec = useAppStore((state) => state.elprotec);
+  const mol = useAppStore((state) => state.mol);
+  const smazka = useAppStore((state) => state.smazka);
+  const ger = useAppStore((state) => state.ger);
+  const aptek = useAppStore((state) => state.aptek);
   const user = useAppStore((state) => state.user);
 
   const docTypes = {
@@ -32,6 +47,21 @@ export default function UserStationDocs() {
     lifeinsurance: "Ходимлар полиси",
     ecology: "Экология хулосаси",
     ik: "Ўлчов комплекси (ИК) сертификати",
+    pilot: "Автопилот сертификати",
+    shayba: "Шайба сертификати",
+    water: "Сув ҳисоблагич сертификати",
+    electric: "Электр ҳисоблагич сертификати",
+    kolonka: "Колонкалар сертификати",
+    manometr: "Манометрлар сертификати",
+    termometr: "Термометрлар сертификати",
+    voltmetr: "Амперметр ва вольтметрлар сертификати",
+    shlang: "Газ тўлдириш шланглари синов дал-си",
+    ppk: "Сақлагич клапанлар синов далолатномаси",
+    elprotec: "Электр ҳимоя воситалари дал-си",
+    mol: "Чақмоқ қайтаргич ва кабеллар синов дал-си",
+    smazka: "Технологияларни мойлаш дал-си",
+    ger: "Технологияларда утечка текширилганлиги д-си",
+    aptek: "Аптечка текширилганлиги дал-си",
   };
 
   const allDocuments = [
@@ -46,6 +76,21 @@ export default function UserStationDocs() {
     ...lifeinsurance.map((doc) => ({ ...doc, document_type: "lifeinsurance" })),
     ...ecology.map((doc) => ({ ...doc, document_type: "ecology" })),
     ...ik.map((doc) => ({ ...doc, document_type: "ik" })),
+    ...pilot.map((doc) => ({ ...doc, document_type: "pilot" })),
+    ...shayba.map((doc) => ({ ...doc, document_type: "shayba" })),
+    ...water.map((doc) => ({ ...doc, document_type: "water" })),
+    ...electric.map((doc) => ({ ...doc, document_type: "electric" })),
+    ...kolonka.map((doc) => ({ ...doc, document_type: "kolonka" })),
+    ...manometr.map((doc) => ({ ...doc, document_type: "manometr" })),
+    ...termometr.map((doc) => ({ ...doc, document_type: "termometr" })),
+    ...voltmetr.map((doc) => ({ ...doc, document_type: "voltmetr" })),
+    ...shlang.map((doc) => ({ ...doc, document_type: "shlang" })),
+    ...ppk.map((doc) => ({ ...doc, document_type: "ppk" })),
+    ...elprotec.map((doc) => ({ ...doc, document_type: "elprotec" })),
+    ...mol.map((doc) => ({ ...doc, document_type: "mol" })),
+    ...smazka.map((doc) => ({ ...doc, document_type: "smazka" })),
+    ...ger.map((doc) => ({ ...doc, document_type: "ger" })),
+    ...aptek.map((doc) => ({ ...doc, document_type: "aptek" })),
   ];
 
   const documents = allDocuments.filter(
@@ -99,16 +144,16 @@ export default function UserStationDocs() {
     return "";
   };
 
-  const docNumberKeys = {
-    ik: "ik_number",
-    ecology: "ecology_number",
-    lifeinsurance: "lifeinsurance_number",
-    prodinsurance: "prodinsurance_number",
-    gasanalyzers: "gasanalyzer_number",
-    humidity: "humidity_number",
-    ngsertificates: "ngsertificate_number",
-    licenses: "license_number",
-  };
+  // const docNumberKeys = {
+  //   ik: "ik_number",
+  //   ecology: "ecology_number",
+  //   lifeinsurance: "lifeinsurance_number",
+  //   prodinsurance: "prodinsurance_number",
+  //   gasanalyzers: "gasanalyzer_number",
+  //   humidity: "humidity_number",
+  //   ngsertificates: "ngsertificate_number",
+  //   licenses: "license_number",
+  // };
 
   const getStationNameByNumber = (stationId) => {
     if (!stations || stations.length === 0) return "Номаълум";

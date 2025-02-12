@@ -7,6 +7,7 @@ import { toast } from "sonner";
 function UserHome() {
   const user = useAppStore((state) => state.user);
   const setUser = useAppStore((state) => state.setUser);
+  const navigate = useNavigate();
 
   const licenses = useAppStore((state) => state.licenses);
   const ngsertificates = useAppStore((state) => state.ngsertificates);
@@ -16,84 +17,21 @@ function UserHome() {
   const lifeinsurance = useAppStore((state) => state.lifeinsurance);
   const ecology = useAppStore((state) => state.ecology);
   const ik = useAppStore((state) => state.ik);
-
-  const setLicenses = useAppStore((state) => state.setLicenses);
-  const setNgsertificates = useAppStore((state) => state.setNgsertificates);
-  const setHumidity = useAppStore((state) => state.setHumidity);
-  const setGasanalyzers = useAppStore((state) => state.setGasanalyzers);
-  const setProdinsurance = useAppStore((state) => state.setProdinsurance);
-  const setLifeinsurance = useAppStore((state) => state.setLifeinsurance);
-  const setEcology = useAppStore((state) => state.setEcology);
-  const setIk = useAppStore((state) => state.setIk);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "licenses"),
-      setLicenses,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "ngsertificates"),
-      setNgsertificates,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "humidityes"),
-      setHumidity,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "gasanalyzers"),
-      setGasanalyzers,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "prodinsurances"),
-      setProdinsurance,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "lifeinsurances"),
-      setLifeinsurance,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "ecology"),
-      setEcology,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "ik"),
-      setIk,
-      user,
-      setUser,
-      navigate,
-      toast
-    );
-  }, []);
-
+  const pilot = useAppStore((state) => state.pilot);
+  const shayba = useAppStore((state) => state.shayba);
+  const water = useAppStore((state) => state.water);
+  const electric = useAppStore((state) => state.electric);
+  const kolonka = useAppStore((state) => state.kolonka);
+  const manometr = useAppStore((state) => state.manometr);
+  const termometr = useAppStore((state) => state.termometr);
+  const voltmetr = useAppStore((state) => state.voltmetr);
+  const shlang = useAppStore((state) => state.shlang);
+  const ppk = useAppStore((state) => state.ppk);
+  const elprotec = useAppStore((state) => state.elprotec);
+  const mol = useAppStore((state) => state.mol);
+  const smazka = useAppStore((state) => state.smazka);
+  const ger = useAppStore((state) => state.ger);
+  const aptek = useAppStore((state) => state.aptek);
 
   return (
     <div className="flex flex-col gap-3">

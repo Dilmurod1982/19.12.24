@@ -2,8 +2,9 @@ import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { useAppStore } from "../lib/zustand";
 
-export default function AdminHome() {
+export default function Home() {
   const user = useAppStore((state) => state.user);
+
   return (
     <div className="flex flex-col  items-center w-full h-screen mt-10">
       <div className="flex flex-col gap-5 w-96">

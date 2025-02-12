@@ -17,6 +17,21 @@ export default function UserStationPage({
   lifeinsurance,
   ecology,
   ik,
+  pilot,
+  shayba,
+  water,
+  electric,
+  kolonka,
+  manometr,
+  termometr,
+  voltmetr,
+  shlang,
+  ppk,
+  elprotec,
+  mol,
+  smazka,
+  ger,
+  aptek,
 }) {
   const [documents, setDocuments] = useState([]);
   const stations = useAppStore((state) => state.stations);
@@ -29,25 +44,6 @@ export default function UserStationPage({
   const setRegions = useAppStore((state) => state.setRegions);
   const cities = useAppStore((state) => state.cities);
   const setCities = useAppStore((state) => state.setCities);
-
-  //   console.log(
-  //     "Лицензия",
-  //     licenses,
-  //     "сертификат соответвия:",
-  //     ngsertificates,
-  //     "Влагомер:",
-  //     humidity,
-  //     "Газ анализатор:",
-  //     gasanalyzers,
-  //     "Хавфли ишлаб чиыариш полиси:",
-  //     prodinsurance,
-  //     "Ходимлар полиси:",
-  //     lifeinsurance,
-  //     "Экология хулосаси:",
-  //     ecology,
-  //     "ИК:",
-  //     ik
-  //   );
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
@@ -98,9 +94,27 @@ export default function UserStationPage({
     ...humidity.map((doc) => ({ ...doc, document_type: "humidity" })),
     ...gasanalyzers.map((doc) => ({ ...doc, document_type: "gasanalyzers" })),
     ...prodinsurance.map((doc) => ({ ...doc, document_type: "prodinsurance" })),
-    ...lifeinsurance.map((doc) => ({ ...doc, document_type: "lifeinsurance" })),
+    ...lifeinsurance.map((doc) => ({
+      ...doc,
+      document_type: "lifeinsurance",
+    })),
     ...ecology.map((doc) => ({ ...doc, document_type: "ecology" })),
     ...ik.map((doc) => ({ ...doc, document_type: "ik" })),
+    ...pilot.map((doc) => ({ ...doc, document_type: "pilot" })),
+    ...shayba.map((doc) => ({ ...doc, document_type: "shayba" })),
+    ...water.map((doc) => ({ ...doc, document_type: "water" })),
+    ...electric.map((doc) => ({ ...doc, document_type: "electric" })),
+    ...kolonka.map((doc) => ({ ...doc, document_type: "kolonka" })),
+    ...manometr.map((doc) => ({ ...doc, document_type: "manometr" })),
+    ...termometr.map((doc) => ({ ...doc, document_type: "termometr" })),
+    ...voltmetr.map((doc) => ({ ...doc, document_type: "voltmetr" })),
+    ...shlang.map((doc) => ({ ...doc, document_type: "shlang" })),
+    ...ppk.map((doc) => ({ ...doc, document_type: "ppk" })),
+    ...elprotec.map((doc) => ({ ...doc, document_type: "elprotec" })),
+    ...mol.map((doc) => ({ ...doc, document_type: "mol" })),
+    ...smazka.map((doc) => ({ ...doc, document_type: "smazka" })),
+    ...ger.map((doc) => ({ ...doc, document_type: "ger" })),
+    ...aptek.map((doc) => ({ ...doc, document_type: "aptek" })),
   ];
 
   // Фильтруем документы по station_id

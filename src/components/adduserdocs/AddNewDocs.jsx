@@ -33,11 +33,13 @@ export default function AddNewDocs({
   stationId,
   baseName,
   docName,
+  onClose,
 }) {
   const [value, setValue] = useState(null);
   const [loading, setLoading] = useState(false);
   const [formState, setFormState] = useState(initialFormState);
   const [isFormValid, setIsFormValid] = useState(false);
+  // const [addItemModal, setAddItemModal] = useState(false);
 
   const addItemModal = useAppStore((state) => state.addItemModal);
   const setAddItemModal = useAppStore((state) => state.setAddItemModal);
@@ -52,16 +54,6 @@ export default function AddNewDocs({
 
   const fileInputRef = useRef(null);
 
-  // useEffect(() => {
-  //   if (docNumber) {
-  //     setFormState((prevState) => ({
-  //       ...prevState,
-  //       [docNumber]: "", // Динамически создается ключ с названием, переданным через пропс
-  //     }));
-  //   }
-  // }, [docNumber]);
-
-  // Fetch stations and ltd on mount
   useEffect(() => {
     getDocs(user?.access_token, "stations")
       .then(({ data }) => setStations(data))
@@ -92,7 +84,6 @@ export default function AddNewDocs({
       });
   }, [user, setStations, setLtd]);
 
-  console.log(ltd);
   useEffect(() => {
     if (stationId && stations.length > 0) {
       const selectedStation = stations.find(
@@ -153,9 +144,10 @@ export default function AddNewDocs({
         .then((res) => {
           toast.dismiss();
           toast.success(`Янги ${docName} мувафақиятли қўшилди!`);
-          setSendingData(null);
-          // Только здесь закрываем модальное окно
-          setAddItemModal(false);
+          setSendingData(null); // Очищаем sendingData
+          onClose(); // Закрываем модальное окно и очищаем selectedDoc
+
+          // Обновляем данные
           getDocs(user?.access_token, `${baseName}`)
             .then(({ data }) => {
               setBase(data);
@@ -179,7 +171,17 @@ export default function AddNewDocs({
           setLoading(false);
         });
     }
-  }, [sendingData, base, user, setAddItemModal, setBase]);
+  }, [
+    sendingData,
+    base,
+    user,
+    setBase,
+    setSendingData,
+    docName,
+    baseName,
+    setUser,
+    onClose,
+  ]);
 
   function handleUploadImage(file) {
     if (file.size >= allowPdfSizeLicense) {
@@ -226,9 +228,13 @@ export default function AddNewDocs({
     return new Date(`${year}-${month}-${day}`); // Преобразуем в формат YYYY-MM-DD
   };
 
-  console.log("Modal state:", addItemModal);
+  const handleCloseModal = () => {
+    setFormState(initialFormState); // Сбрасываем состояние формы
+    onClose(); // Вызываем переданный обработчик закрытия
+  };
+
   return (
-    <Dialog open={addItemModal} onOpenChange={setAddItemModal}>
+    <Dialog open={addItemModal} onOpenChange={handleCloseModal}>
       <DialogContent className="h-screen">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
@@ -336,7 +342,7 @@ export default function AddNewDocs({
 
             {/* Buttons */}
             <div className="flex justify-between mt-6">
-              <Button variant="outline" onClick={() => setAddItemModal(false)}>
+              <Button variant="outline" onClick={handleCloseModal}>
                 Отмена
               </Button>
               <Button type="submit" disabled={!isFormValid}>
