@@ -22,7 +22,7 @@ export default function UserNewDocs() {
       <h1 className="font-bold text-2xl text-center mb-5">
         Янги хужжатлар рўйхати
       </h1>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 px-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 px-3">
         <button
           className="btn btn-neutral text-xl text-white"
           onClick={() => {
@@ -316,10 +316,17 @@ export default function UserNewDocs() {
           23. Аптечкани текшириш далолатномаси
         </button>
       </div>
-      <div className=" flex justify-center items-center mt-5">
-        <Link to="/userstations" className="btn btn-outline">
-          Шахобчалар рўйхатига ўтиш
-        </Link>
+      <div className="flex justify-around items-center">
+        <div className=" flex justify-center items-center mt-5">
+          <Link to="/userstations" className="btn btn-outline">
+            Шахобчалар рўйхатига ўтиш
+          </Link>
+        </div>
+        <div className=" flex justify-center items-center mt-5">
+          <Link to={`/userstationdocs/${stationId}`}>
+            <button className="btn btn-outline">Орқага</button>
+          </Link>
+        </div>
       </div>
 
       {selectedDoc && (

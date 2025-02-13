@@ -245,10 +245,10 @@ export default function AddNewDocs({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="relative">
-          <div className="w-[450px] p-2 flex flex-col gap-2">
+          <div className="w-full max-w-[450px] flex flex-col gap-2 mt-0 pt-0">
             {/* Station Selection */}
             <div className="w-full flex flex-col gap-2">
-              <Label htmlFor="station_id">Наименование станции</Label>
+              <Label htmlFor="station_id">Шахобча номи</Label>
               <input
                 type="text"
                 name="station_id"
@@ -259,85 +259,89 @@ export default function AddNewDocs({
 
             {/* Display selected station and ltd */}
             <div className="w-full flex flex-col gap-2 my-7">
-              <Label>Название ООО и номер станции</Label>
+              <Label>МЧЖ номи ва филиал рақами</Label>
               <h1 className="w-full">
-                {formState.ltd_name || "не выбран ООО"} АГТКШ №
-                {formState.station_number || "не выбран номер станции"}
+                {formState.ltd_name || "МЧЖ танланмаган"} АГТКШ №
+                {formState.station_number || "Шахобча танланмаган"}
               </h1>
             </div>
+            <div className="flex flex-col gap-3 max-h-60 p-4 overflow-y-auto border-gray-950 border rounded-md ">
+              {/* License number */}
+              <div className="w-full flex flex-col gap-2 border-blue-500 border rounded-md p-2">
+                <Label htmlFor="docNumber">{docName} рақами</Label>
+                <Input
+                  type="text"
+                  id="docNumber"
+                  name="docNumber"
+                  value={formState.docNumber}
+                  onChange={handleChange}
+                  placeholder={`${docName} рақамини киритинг`}
+                  required
+                />
+              </div>
 
-            {/* License number */}
-            <div className="w-full flex flex-col gap-2">
-              <Label htmlFor="docNumber">Лицензия рақами</Label>
-              <Input
-                type="text"
-                id="docNumber"
-                name="docNumber"
-                value={formState.docNumber}
-                onChange={handleChange}
-                placeholder={`${docName} рақамини киритинг`}
-                required
-              />
-            </div>
+              {/* Issue Date */}
+              <div className="w-full flex flex-col gap-1 border-green-500 border rounded-md p-2">
+                <Label>Берилган санаси</Label>
+                <DatePicker
+                  selected={parseDate(formState.issue)} // Преобразуем строку в Date
+                  onChange={(date) => {
+                    if (date) {
+                      const formattedDate = date
+                        .toLocaleDateString("ru-RU", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })
+                        .replace(/\//g, ".");
+                      setFormState((prev) => ({
+                        ...prev,
+                        issue: formattedDate,
+                      }));
+                    }
+                  }}
+                  dateFormat="dd.MM.yyyy"
+                  placeholderText="Сана танланмаган"
+                  showTimeSelect={false}
+                />
+              </div>
 
-            {/* Issue Date */}
-            <div className="w-full flex flex-col gap-2">
-              <Label>Берилган санаси</Label>
-              <DatePicker
-                selected={parseDate(formState.issue)} // Преобразуем строку в Date
-                onChange={(date) => {
-                  if (date) {
-                    const formattedDate = date
-                      .toLocaleDateString("ru-RU", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })
-                      .replace(/\//g, ".");
-                    setFormState((prev) => ({ ...prev, issue: formattedDate }));
-                  }
-                }}
-                dateFormat="dd.MM.yyyy"
-                placeholderText="Сана танланмаган"
-                showTimeSelect={false}
-              />
-            </div>
+              {/* Expiration Date */}
+              <div className="w-full flex flex-col gap-1 border-red-500 border rounded-md p-2">
+                <Label>Тугаш санаси</Label>
+                <DatePicker
+                  selected={parseDate(formState.expiration)} // Преобразуем строку в Date
+                  onChange={(date) => {
+                    if (date) {
+                      const formattedDate = date
+                        .toLocaleDateString("ru-RU", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })
+                        .replace(/\//g, ".");
+                      setFormState((prev) => ({
+                        ...prev,
+                        expiration: formattedDate,
+                      }));
+                    }
+                  }}
+                  dateFormat="dd.MM.yyyy"
+                  placeholderText="Сана танланмаган"
+                  showTimeSelect={false}
+                />
+              </div>
 
-            {/* Expiration Date */}
-            <div className="w-full flex flex-col gap-2">
-              <Label>Тугаш санаси</Label>
-              <DatePicker
-                selected={parseDate(formState.expiration)} // Преобразуем строку в Date
-                onChange={(date) => {
-                  if (date) {
-                    const formattedDate = date
-                      .toLocaleDateString("ru-RU", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })
-                      .replace(/\//g, ".");
-                    setFormState((prev) => ({
-                      ...prev,
-                      expiration: formattedDate,
-                    }));
-                  }
-                }}
-                dateFormat="dd.MM.yyyy"
-                placeholderText="Сана танланмаган"
-                showTimeSelect={false}
-              />
-            </div>
-
-            {/* File upload */}
-            <div className="flex flex-col items-center gap-2 mt-4">
-              <Label>Расм юклаш</Label>
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={({ target }) => handleUploadImage(target.files[0])}
-                ref={fileInputRef}
-              />
+              {/* File upload */}
+              <div className="flex flex-col items-center gap-1 mt-4 border-gray-700 border rounded-md p-2">
+                <Label>Расм юклаш</Label>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={({ target }) => handleUploadImage(target.files[0])}
+                  ref={fileInputRef}
+                />
+              </div>
             </div>
 
             {/* Buttons */}

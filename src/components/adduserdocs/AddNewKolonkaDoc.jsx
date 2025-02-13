@@ -320,10 +320,10 @@ export default function AddNewKolonkaDoc({
           </DialogDescription>
         </div>
         <form onSubmit={handleSubmit} className="relative">
-          <div className="w-full max-w-[450px]flex flex-col gap-2 mt-0 pt-0">
+          <div className="w-full max-w-[450px] flex flex-col gap-2 mt-0 pt-0">
             {/* Station Selection */}
             <div className="w-full flex flex-col gap-2">
-              <Label htmlFor="station_id">Наименование станции</Label>
+              <Label htmlFor="station_id">Шахобча номи</Label>
               <input
                 type="text"
                 name="station_id"
@@ -334,10 +334,10 @@ export default function AddNewKolonkaDoc({
 
             {/* Display selected station and ltd */}
             <div className="w-full flex flex-col gap-2 my-4">
-              <Label>Название ООО и номер станции</Label>
+              <Label>МЧЖ номи ва филиал рақами</Label>
               <h1 className="w-full">
-                {formState.ltd_name || "не выбран ООО"} АГТКШ №
-                {formState.station_number || "не выбран номер станции"}
+                {formState.ltd_name || "МЧЖ танланмаган"} АГТКШ №
+                {formState.station_number || "шахобча танланмаган"}
               </h1>
             </div>
             <div className="flex flex-col gap-3 max-h-60 p-4 overflow-y-auto border-gray-950 border rounded-md ">
@@ -409,7 +409,7 @@ export default function AddNewKolonkaDoc({
 
               <div className="border-blue-500 border rounded-md p-2">
                 <div className="w-full flex flex-col gap-1 ">
-                  <Label htmlFor="numColumns">Количество колонок</Label>
+                  <Label htmlFor="numColumns">Колонкалар сони</Label>
                   <select
                     name="numColumns"
                     value={numColumns}
@@ -426,7 +426,7 @@ export default function AddNewKolonkaDoc({
 
                 {Array.from({ length: numColumns }, (_, i) => (
                   <div key={i} className="w-full flex flex-col gap-2">
-                    <Label htmlFor={`kolonka-${i}`}>Колонка {i + 1}</Label>
+                    <Label htmlFor={`kolonka-${i}`}>№ {i + 1} колонка </Label>
 
                     {/* Выбор марки колонки */}
                     <div className="flex gap-2">
@@ -455,7 +455,7 @@ export default function AddNewKolonkaDoc({
                         onChange={(e) =>
                           handleKolonkaChange(i, "serialNumber", e.target.value)
                         }
-                        placeholder="Заводской номер"
+                        placeholder="Завод рақамини киритинг"
                         required
                       />
                     </div>

@@ -12,6 +12,8 @@ export default function UserStationDocs() {
   const { stationId } = useParams();
   const [sendingData, setSendingData] = useState(null);
   const [showAllDocuments, setShowAllDocuments] = useState(false);
+  const [selectedDocType, setSelectedDocType] = useState("all");
+
   const stations = useAppStore((state) => state.stations);
   const licenses = useAppStore((state) => state.licenses);
   const ngsertificates = useAppStore((state) => state.ngsertificates);
@@ -116,6 +118,13 @@ export default function UserStationDocs() {
     ? documents
     : getLatestDocuments(documents);
 
+  const filteredDocuments =
+    selectedDocType === "all"
+      ? displayedDocuments
+      : displayedDocuments.filter(
+          (doc) => doc.document_type === selectedDocType
+        );
+
   const missingDocTypes = Object.keys(docTypes).filter(
     (type) => !documents.some((doc) => doc.document_type === type)
   );
@@ -143,17 +152,6 @@ export default function UserStationDocs() {
     if (daysRemaining <= 0) return "bg-red-200";
     return "";
   };
-
-  // const docNumberKeys = {
-  //   ik: "ik_number",
-  //   ecology: "ecology_number",
-  //   lifeinsurance: "lifeinsurance_number",
-  //   prodinsurance: "prodinsurance_number",
-  //   gasanalyzers: "gasanalyzer_number",
-  //   humidity: "humidity_number",
-  //   ngsertificates: "ngsertificate_number",
-  //   licenses: "license_number",
-  // };
 
   const getStationNameByNumber = (stationId) => {
     if (!stations || stations.length === 0) return "Номаълум";
@@ -244,11 +242,11 @@ export default function UserStationDocs() {
 
   return (
     <div className="overflow-x-auto">
-      <h1 className="text-2xl font-bold text-center">
+      <h1 className="text-2xl font-bold text-center mb-5">
         {getStationNameByNumber(stationId)} заправкаси хужжатлари
       </h1>
       <div className="flex justify-between px-5">
-        <div className="flex items-center mb-4">
+        <div className="flex flex-row justify-around gap-20 items-end mb-4">
           <label className="flex items-center space-x-2">
             <input
               type="checkbox"
@@ -257,6 +255,22 @@ export default function UserStationDocs() {
             />
             <span>Барча хужжатларни кўрсатиш</span>
           </label>
+        </div>
+        <div>
+          <select
+            className="w-[300px] h-[25px] text-[15px] border rounded"
+            value={selectedDocType}
+            onChange={(e) => setSelectedDocType(e.target.value)}
+          >
+            <option className="text-[15px]" value="all">
+              Барча хужжатлар
+            </option>
+            {Object.keys(docTypes).map((type) => (
+              <option className="text-[15px]" key={type} value={type}>
+                {docTypes[type]}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="hidden lg:flex justify-between px-4">
           <Button onClick={exportToExcel} className="ml-2" variant="outline">
@@ -273,11 +287,14 @@ export default function UserStationDocs() {
             Excel
           </Button>
         </div>
-      </div>
-      <div className="hidden lg:flex">
-        <Link to={`/usernewdocs/${stationId}`} className="btn btn-neutral">
-          Янги хужжат қўшиш
-        </Link>
+        <div className="hidden lg:flex ">
+          <Link
+            to={`/usernewdocs/${stationId}`}
+            class="h-8 inline-block rounded-lg bg-success px-6 pb-2 pt-2 text-xs font-medium uppercase leading-normal text-white shadow-success-3 transition duration-150 ease-in-out hover:bg-success-accent-300 hover:shadow-success-2 focus:bg-success-accent-300 focus:shadow-success-2 focus:outline-none focus:ring-0 active:bg-success-600 active:shadow-success-2 motion-reduce:transition-none dark:shadow-black/30 dark:hover:shadow-dark-strong dark:focus:shadow-dark-strong dark:active:shadow-dark-strong"
+          >
+            Янги хужжат қўшиш
+          </Link>
+        </div>
       </div>
 
       <table className="table table-xs">
@@ -288,13 +305,17 @@ export default function UserStationDocs() {
             <th className="text-center hidden lg:table-cell ">Хужжат рақами</th>
             <th className="text-center hidden lg:table-cell">Берилган сана</th>
             <th className="text-center hidden lg:table-cell">Тугаш санаси</th>
-            <th className="text-center">Хужжат</th>
+            <th className="text-center hidden lg:table-cell">Хужжат</th>
             <th className="text-center">Холати</th>
+            <th className="text-center"></th>
           </tr>
         </thead>
         <tbody>
-          {displayedDocuments.map((doc, index) => (
-            <tr key={doc.id || index} className={getRowClass(doc.expiration)}>
+          {filteredDocuments.map((doc, index) => (
+            <tr
+              key={`doc-${doc.id || doc.document_type}-${index}`}
+              className={getRowClass(doc.expiration)}
+            >
               <td>{index + 1}</td>
               <td>{docTypes[doc.document_type] || "Номаълум хужжат"}</td>
               <td className="text-center hidden lg:table-cell">
@@ -306,7 +327,7 @@ export default function UserStationDocs() {
               <td className="text-center hidden lg:table-cell">
                 {doc.expiration || "Маълумот йўқ"}
               </td>
-              <td className="text-center">
+              <td className="text-center hidden lg:table-cell">
                 <Link
                   className="flex justify-center items-center"
                   to="#"
@@ -341,7 +362,7 @@ export default function UserStationDocs() {
                     ></path>
                     <path
                       fill="#1f212b"
-                      d="M81.114 33.307H69.129c-5.247 0-9.515-4.268-9.515-9.515V12.807c0-.276.224-.5.5-.5s.5.224.5.5v10.985c0 4.695 3.82 8.515 8.515 8.515h11.985c.276 0 .5.224.5.5S81.391 33.307 81.114 33.307zM75.114 51.307c-.276 0-.5-.224-.5-.5v-3c0-.276.224-.5.5-.5s.5.224.5.5v3C75.614 51.083 75.391 51.307 75.114 51.307zM75.114 59.307c-.276 0-.5-.224-.5-.5v-6c0-.276.224-.5.5-.5s.5.224.5.5v6C75.614 59.083 75.391 59.307 75.114 59.307zM67.956 86.307H32.272c-4.223 0-7.658-3.45-7.658-7.689V25.955c0-2.549 1.264-4.931 3.382-6.371.228-.156.54-.095.695.132.155.229.096.54-.132.695-1.844 1.254-2.944 3.326-2.944 5.544v52.663c0 3.688 2.987 6.689 6.658 6.689h35.685c3.671 0 6.658-3.001 6.658-6.689V60.807c0-.276.224-.5.5-.5s.5.224.5.5v17.811C75.614 82.857 72.179 86.307 67.956 86.307z"
+                      d="M81.114 33.307H69.129c-5.247 0-9.515-4.268-9.515-9.515V12.807c0-.276.224-.5.5-.5s.5.224.5.5v10.985c0 4.695 3.82 8.515 8.515 8.515h11.985c.276 0 .5.224.5.5S81.391 33.307 81.114 33.307zM75.114 51.307c-.276 0-.5-.224-.5-.5v-3c0-.276.224-.5.5-.5s.5.224.5.5v3C75.614 51.083 75.391 51.307 75.114 51.307zM75.114 59.307c-.276 0-.5-.224-.5-.5v-6c0-.276.224-.5.5-.5s.5.224.5.5v6C75.614 59.083 75.391 59.307 75.114 59.307zM67.956 86.307H32.272c-4.223 0-7.658-3.45-7.658-7.689V25.955c0-2.549 1.264-4.931 3.382-6.371.228-.156.54-.095.695.132.155.229.096.54-.132.695-1.844 1.254-2.944 3.326-2.944 5.544v52.663c0 3.688 2.987 6.689 6.658 6.689h35.685c3.671 0 6.658-3.001 6.658-6.689V60.807c0-.276.224-.5.5-.5s.5.224.5.5v17.811C75.614,82.857,72.179,86.307,67.956,86.307z"
                     ></path>
                     <path
                       fill="#1f212b"
@@ -353,12 +374,37 @@ export default function UserStationDocs() {
               <td className="text-center">
                 {calculateDaysRemaining(doc.expiration)}
               </td>
+              <td>
+                <Link
+                  class="inline-block rounded border-2 border-neutral-800 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-neutral-800 transition duration-150 ease-in-out hover:border-blue-600 hover:text-blue-600 focus:border-neutral-300 focus:text-neutral-200 focus:outline-none focus:ring-0 active:border-neutral-300 active:text-neutral-200 motion-reduce:transition-none dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                  data-twe-ripple-init
+                  to="/userdocdetail"
+                  state={{
+                    id: doc.id,
+                    moljal: doc.moljal,
+                    ltd_name: doc.ltd_name,
+                    station_number: doc.station_number,
+                    docNumber: doc.docNumber,
+                    issue: doc.issue,
+                    expiration: doc.expiration,
+                    value: doc.value,
+                    text: doc.text,
+                    bgColorClass: doc.bgColorClass,
+                    docType: docTypes[doc.document_type],
+                    daysRemaining: calculateDaysRemaining(doc.expiration),
+                    stationId: stationId,
+                  }}
+                >
+                  {" "}
+                  Батафсил
+                </Link>
+              </td>
             </tr>
           ))}
 
           {/* Добавляем строки для отсутствующих типов документов */}
           {missingDocTypes.map((type, index) => (
-            <tr key={`missing-${index}`} className="bg-gray-200">
+            <tr key={`missing-${type}-${index}`} className="bg-gray-200">
               <td>-</td>
               <td>{docTypes[type]}</td>
               <td colSpan="5" className="text-center">

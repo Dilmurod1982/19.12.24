@@ -74,6 +74,7 @@ import MolDetail from "./components/mol/MolDetail";
 import SmazkaDetail from "./components/smazka/SmazkaDetail";
 import GerDetail from "./components/ger/GerDetail";
 import AptekDetail from "./components/aptek/AptekDetail";
+import UserDocDetail from "./components/UserDocDetail";
 
 function App() {
   const user = useAppStore((state) => state.user);
@@ -357,6 +358,10 @@ function App() {
         {
           path: "/kolonkamarka",
           element: <KolonkaMarka />,
+        },
+        {
+          path: "/userdocdetail",
+          element: <UserDocDetail />,
         },
       ],
     },
