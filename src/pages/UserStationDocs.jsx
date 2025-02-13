@@ -246,32 +246,41 @@ export default function UserStationDocs() {
         {getStationNameByNumber(stationId)} заправкаси хужжатлари
       </h1>
       <div className="flex justify-between px-5">
-        <div className="flex flex-row justify-around gap-20 items-end mb-4">
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={showAllDocuments}
-              onChange={() => setShowAllDocuments(!showAllDocuments)}
-            />
-            <span>Барча хужжатларни кўрсатиш</span>
-          </label>
-        </div>
-        <div>
-          <select
-            className="w-[300px] h-[25px] text-[15px] border rounded"
-            value={selectedDocType}
-            onChange={(e) => setSelectedDocType(e.target.value)}
-          >
-            <option className="text-[15px]" value="all">
-              Барча хужжатлар
-            </option>
-            {Object.keys(docTypes).map((type) => (
-              <option className="text-[15px]" key={type} value={type}>
-                {docTypes[type]}
+        <div className="flex justify-center items-center gap-3 mb-4">
+          <div className="flex flex-row justify-around gap-20 items-end ">
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={showAllDocuments}
+                onChange={() => setShowAllDocuments(!showAllDocuments)}
+              />
+              <span className="lg:text-xl text-[10px]">
+                Барча хужжатларни кўрсатиш
+              </span>
+            </label>
+          </div>
+          <div>
+            <select
+              className="lg:w-[300px] w-[150px] h-[25px] lg:text-[15px] text-[10px] border rounded"
+              value={selectedDocType}
+              onChange={(e) => setSelectedDocType(e.target.value)}
+            >
+              <option className="lg:text-[15px] text-[10px]" value="all">
+                Барча хужжатлар
               </option>
-            ))}
-          </select>
+              {Object.keys(docTypes).map((type) => (
+                <option
+                  className="lg:text-[15px] text-[10px]"
+                  key={type}
+                  value={type}
+                >
+                  {docTypes[type]}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
         <div className="hidden lg:flex justify-between px-4">
           <Button onClick={exportToExcel} className="ml-2" variant="outline">
             <svg
