@@ -3,7 +3,7 @@ import { useAppStore } from "../lib/zustand";
 import { fetchDataWithTokenRefresh, getDocs } from "../request";
 import { Button } from "../components/ui/button";
 import { PulseLoader } from "react-spinners";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AddNewLicense, LicensesList } from "../components";
 import * as XLSX from "xlsx";
 import {
@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "../components/ui/input";
+import { toast } from "sonner";
 
 function Licenses() {
   const [sendingData, setSendingData] = useState(null);
@@ -33,12 +34,16 @@ function Licenses() {
   const setLtd = useAppStore((state) => state.setLtd);
   const licenses = useAppStore((state) => state.licenses);
   const setLicenses = useAppStore((state) => state.setLicenses);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "stations"),
       setStations,
-      user
+      user,
+      setUser,
+      navigate,
+      toast
     );
   }, [user, setStations]);
 
@@ -157,10 +162,11 @@ function Licenses() {
   }
 
   const exportToExcel = () => {
+    // Фильтруем существующие лицензии
     const filteredLicenses = filterLicenses();
 
-    // Подготовка данных для Excel
-    const data = filteredLicenses.map((license, index) => ({
+    // Подготовка данных для существующих лицензий
+    const licensesData = filteredLicenses.map((license, index) => ({
       "#": index + 1,
       "Шахобча номи": getStationNameByNumber(license.station_id),
       "МЧЖ номи ва рақами": `${getLtdNameById(
@@ -175,14 +181,41 @@ function Licenses() {
           : "Муддати тугаган",
     }));
 
+    // Получаем станции без лицензий
+    const stationsWithoutLicenses = getStationsWithoutLicenses();
+
+    // Подготовка данных для станций без лицензий
+    const stationsData = stationsWithoutLicenses.map((station, index) => ({
+      "#": licensesData.length + index + 1, // Продолжаем нумерацию
+      "Шахобча номи": station.moljal,
+      "МЧЖ номи ва рақами": `${getLtdNameById(station.ltd_id)} АГТКШ № ${
+        station.station_number
+      }`,
+      // "Лицензия рақами": "Номаълум",
+      // "Берилган сана": "Номаълум",
+      // "Амал қилиш санаси": "Номаълум",
+      Холати: "Лицензия киритилмаган",
+    }));
+
+    // Объединяем данные
+    const combinedData = [...licensesData, ...stationsData];
+
     // Создание книги Excel
-    const worksheet = XLSX.utils.json_to_sheet(data);
+    const worksheet = XLSX.utils.json_to_sheet(combinedData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Licenses");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Licenses and Stations");
 
     // Скачивание файла
-    XLSX.writeFile(workbook, "licenses.xlsx");
+    XLSX.writeFile(workbook, "licenses_and_stations.xlsx");
   };
+
+  const getStationsWithoutLicenses = () => {
+    const stationsWithLicenses = new Set(
+      licenses.map((license) => license.station_id)
+    );
+    return stations.filter((station) => !stationsWithLicenses.has(station.id));
+  };
+
   return (
     <>
       <div className="overflow-x-auto">
@@ -344,6 +377,47 @@ function Licenses() {
               </tr>
             )}
           </tbody>
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold mb-4">
+              Лицензия киритилмаган шахобчалар
+            </h2>
+            <table className="table table-xs">
+              <thead>
+                <tr>
+                  <th className="text-center">#</th>
+                  <th className="text-center">Шахобча номи</th>
+                  <th className="text-center">МЧЖ номи ва рақами</th>
+                  <th className="text-center">Холати</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {getStationsWithoutLicenses().length > 0 ? (
+                  getStationsWithoutLicenses().map((station, index) => (
+                    <tr key={station.id}>
+                      <th className="text-center">{index + 1}</th>
+                      <td className="text-center">{station.moljal}</td>
+                      <td className="text-center">
+                        {getLtdNameById(station.ltd_id)} АГТКШ №{" "}
+                        {station.station_number}
+                      </td>
+                      <td className="text-center text-red-500">
+                        Лицензия киритилмаган
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="text-center">
+                      <h1 className="my-5 btn-link text-2xl italic">
+                        Барча шахобчаларга лицензия киритилган
+                      </h1>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </table>
       </div>
       <AddNewLicense

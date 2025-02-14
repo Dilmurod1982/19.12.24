@@ -43,7 +43,7 @@ function UserHome() {
               className="btn btn-neutral text-xl w-full text-white"
               to="/userstations"
             >
-              Шахобчалар
+              Муддали хужжатлар
             </Link>
           </li>
         </ul>
