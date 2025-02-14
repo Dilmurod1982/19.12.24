@@ -24,7 +24,12 @@ export default function Home() {
         </Button>
         <Button className="w-full">
           <Link className="text-2xl" to="/docs">
-            Хужжатлар
+            Муддатли хужжатлар
+          </Link>
+        </Button>
+        <Button className="w-full">
+          <Link className="text-2xl" to="/indefinite">
+            Муддатсиз хужжатлар
           </Link>
         </Button>
       </div>

@@ -32,6 +32,21 @@ export const useAppStore = create((set) => ({
   smazka: [],
   ger: [],
   aptek: [],
+  hokim: [],
+  contract: [],
+  apz: [],
+  gastx: [],
+  elektrtx: [],
+  suvtx: [],
+  gasloyiha: [],
+  elektrloyiha: [],
+  suvloyiha: [],
+  inshloyiha: [],
+  inshexpertiza: [],
+  prodexpertiza: [],
+  iden: [],
+  foyda: [],
+
   setUser: (user) => {
     set(() => {
       if (user) {
@@ -71,6 +86,20 @@ export const useAppStore = create((set) => ({
   setSmazka: (smazka) => set((state) => ({ smazka })),
   setGer: (ger) => set((state) => ({ ger })),
   setAptek: (aptek) => set((state) => ({ aptek })),
+  setHokim: (hokim) => set((state) => ({ hokim })),
+  setContract: (contract) => set((state) => ({ contract })),
+  setApz: (apz) => set((state) => ({ apz })),
+  setGastx: (gastx) => set((state) => ({ gastx })),
+  setElektrtx: (elektrtx) => set((state) => ({ elektrtx })),
+  setSuvtx: (suvtx) => set((state) => ({ suvtx })),
+  setGasloyiha: (gasloyiha) => set((state) => ({ gasloyiha })),
+  setElektrloyiha: (elektrloyiha) => set((state) => ({ elektrloyiha })),
+  setSuvloyiha: (suvloyiha) => set((state) => ({ suvloyiha })),
+  setInshloyiha: (inshloyiha) => set((state) => ({ inshloyiha })),
+  setInshexpertiza: (inshexpertiza) => set((state) => ({ inshexpertiza })),
+  setProdexpertiza: (prodexpertiza) => set((state) => ({ prodexpertiza })),
+  setIden: (iden) => set((state) => ({ iden })),
+  setFoyda: (foyda) => set((state) => ({ foyda })),
   setAddItemModal: () =>
     set((state) => ({ addItemModal: !state.addItemModal })),
 }));

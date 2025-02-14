@@ -1,4 +1,5 @@
 export { default as Home } from "./Home";
+export { default as Indefinite } from "./Indefinite";
 export { default as Login } from "./Login";
 export { default as Users } from "./Users";
 export { default as Stations } from "./Stations";
@@ -31,6 +32,21 @@ export { default as Mol } from "./Mol";
 export { default as Smazka } from "./Smazka";
 export { default as Ger } from "./Ger";
 export { default as Aptek } from "./Aptek";
+export { default as Hokim } from "./Hokim";
+export { default as Contract } from "./Contract";
+export { default as Apz } from "./Apz";
+export { default as GasTx } from "./GasTx";
+export { default as ElektrTx } from "./ElektrTx";
+export { default as Suvtx } from "./Suvtx";
+export { default as GasLoyiha } from "./GasLoyiha";
+export { default as ElektrLoyiha } from "./ElektrLoyiha";
+export { default as SuvLoyiha } from "./SuvLoyiha";
+export { default as InshLoyiha } from "./InshLoyiha";
+export { default as InshExpertiza } from "./InshExpertiza";
+export { default as ProdExpertiza } from "./ProdExpertiza";
+export { default as Iden } from "./Iden";
+export { default as Foyda } from "./Foyda";
+
 export { default as UserHome } from "./UserHome";
 export { default as UserStations } from "./UserStations";
 export { default as UserStationDocs } from "./UserStationDocs";

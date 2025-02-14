@@ -46,6 +46,21 @@ import {
   Smazka,
   Ger,
   Aptek,
+  Indefinite,
+  Hokim,
+  Contract,
+  Apz,
+  GasTx,
+  ElektrTx,
+  Suvtx,
+  GasLoyiha,
+  ElektrLoyiha,
+  SuvLoyiha,
+  InshLoyiha,
+  InshExpertiza,
+  ProdExpertiza,
+  Iden,
+  Foyda,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -130,7 +145,10 @@ function App() {
             )
           ) : null,
         },
-
+        {
+          path: "/indefinite",
+          element: <Indefinite />,
+        },
         {
           path: "/users",
           element: <Users />,
@@ -362,6 +380,62 @@ function App() {
         {
           path: "/userdocdetail",
           element: <UserDocDetail />,
+        },
+        {
+          path: "/hokim",
+          element: <Hokim />,
+        },
+        {
+          path: "/contract",
+          element: <Contract />,
+        },
+        {
+          path: "/apz",
+          element: <Apz />,
+        },
+        {
+          path: "/gastx",
+          element: <GasTx />,
+        },
+        {
+          path: "/elektrtx",
+          element: <ElektrTx />,
+        },
+        {
+          path: "/suvtx",
+          element: <Suvtx />,
+        },
+        {
+          path: "/gasloyiha",
+          element: <GasLoyiha />,
+        },
+        {
+          path: "/elektrloyiha",
+          element: <ElektrLoyiha />,
+        },
+        {
+          path: "/suvloyiha",
+          element: <SuvLoyiha />,
+        },
+        {
+          path: "/inshloyiha",
+          element: <InshLoyiha />,
+        },
+        {
+          path: "/inshexpertiza",
+          element: <InshExpertiza />,
+        },
+        {
+          path: "/prodexpertiza",
+          element: <ProdExpertiza />,
+        },
+        {
+          path: "/iden",
+          element: <Iden />,
+        },
+        {
+          path: "/foyda",
+          element: <Foyda />,
         },
       ],
     },
