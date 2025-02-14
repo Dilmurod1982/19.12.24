@@ -3,6 +3,7 @@ import { Button } from "../components/ui/button";
 import { useAppStore } from "../lib/zustand";
 import { fetchDataWithTokenRefresh, getDocs } from "../request";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 export default function Home() {
   const user = useAppStore((state) => state.user);
