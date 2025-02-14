@@ -245,10 +245,12 @@ export default function AddNewDocs({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="relative">
-          <div className="w-full max-w-[450px] flex flex-col gap-2 mt-0 pt-0">
+          <div className="w-full max-w-[320px] flex flex-col gap-1 mt-0 pt-0">
             {/* Station Selection */}
-            <div className="w-full flex flex-col gap-2">
-              <Label htmlFor="station_id">Шахобча номи</Label>
+            <div className="w-full flex flex-col h-[50px]">
+              <label htmlFor="station_id" className="font-bold">
+                Шахобча номи:
+              </label>
               <input
                 type="text"
                 name="station_id"
@@ -258,8 +260,8 @@ export default function AddNewDocs({
             </div>
 
             {/* Display selected station and ltd */}
-            <div className="w-full flex flex-col gap-2 my-7">
-              <Label>МЧЖ номи ва филиал рақами</Label>
+            <div className="w-full flex flex-col  my-1">
+              <label className="font-bold">МЧЖ номи ва филиал рақами:</label>
               <h1 className="w-full">
                 {formState.ltd_name || "МЧЖ танланмаган"} АГТКШ №
                 {formState.station_number || "Шахобча танланмаган"}
@@ -347,10 +349,10 @@ export default function AddNewDocs({
             {/* Buttons */}
             <div className="flex justify-between mt-6">
               <Button variant="outline" onClick={handleCloseModal}>
-                Отмена
+                Бекор қилиш
               </Button>
               <Button type="submit" disabled={!isFormValid}>
-                {loading ? <ClipLoader size={16} color="#fff" /> : "Добавить"}
+                {loading ? <ClipLoader size={16} color="#fff" /> : "Қўшиш"}
               </Button>
             </div>
           </div>
