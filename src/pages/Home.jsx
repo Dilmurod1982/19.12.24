@@ -1,9 +1,28 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { useAppStore } from "../lib/zustand";
+import { fetchDataWithTokenRefresh, getDocs } from "../request";
+import { toast } from "sonner";
 
 export default function Home() {
   const user = useAppStore((state) => state.user);
+
+  const setStations = useAppStore((state) => state.setStations);
+
+  const setUser = useAppStore((state) => state.setUser);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "stations"),
+      setStations,
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setStations]);
 
   return (
     <div className="flex flex-col  items-center w-full h-screen mt-10">
