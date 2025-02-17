@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "../components/ui/input";
 import { toast } from "sonner";
+import WithoutDoc from "../components/WithoutDoc";
 
 function Licenses() {
   const [sendingData, setSendingData] = useState(null);
@@ -209,12 +210,15 @@ function Licenses() {
     XLSX.writeFile(workbook, "licenses_and_stations.xlsx");
   };
 
-  const getStationsWithoutLicenses = () => {
-    const stationsWithLicenses = new Set(
+  const getStationsWithoutDoc = () => {
+    const stationsWithDoc = new Set(
       licenses.map((license) => license.station_id)
     );
-    return stations.filter((station) => !stationsWithLicenses.has(station.id));
+
+    return stations.filter((station) => !stationsWithDoc.has(station.id));
   };
+
+  const textDoc = "Лицензия";
 
   return (
     <>
@@ -392,25 +396,24 @@ function Licenses() {
               </thead>
 
               <tbody>
-                {getStationsWithoutLicenses().length > 0 ? (
-                  getStationsWithoutLicenses().map((station, index) => (
-                    <tr key={station.id}>
-                      <th className="text-center">{index + 1}</th>
-                      <td className="text-center">{station.moljal}</td>
-                      <td className="text-center">
-                        {getLtdNameById(station.ltd_id)} АГТКШ №{" "}
-                        {station.station_number}
-                      </td>
-                      <td className="text-center text-red-500">
-                        Лицензия киритилмаган
-                      </td>
-                    </tr>
-                  ))
+                {getStationsWithoutDoc().length > 0 ? (
+                  getStationsWithoutDoc().map(
+                    ({ id, moljal, ltd_id, station_number }) => (
+                      <WithoutDoc
+                        key={id}
+                        id={id}
+                        moljal={moljal}
+                        ltd_name={getLtdNameById(ltd_id)}
+                        station_number={station_number}
+                        textDoc={textDoc}
+                      />
+                    )
+                  )
                 ) : (
                   <tr>
                     <td colSpan="4" className="text-center">
                       <h1 className="my-5 btn-link text-2xl italic">
-                        Барча шахобчаларга лицензия киритилган
+                        Барча шахобчаларга {textDoc} киритилган
                       </h1>
                     </td>
                   </tr>

@@ -61,6 +61,8 @@ import {
   ProdExpertiza,
   Iden,
   Foyda,
+  UserIndefinite,
+  UserIndefiniteDocs,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -90,6 +92,8 @@ import SmazkaDetail from "./components/smazka/SmazkaDetail";
 import GerDetail from "./components/ger/GerDetail";
 import AptekDetail from "./components/aptek/AptekDetail";
 import UserDocDetail from "./components/UserDocDetail";
+import UserIndefiniteDetail from "./components/UserIndefiniteDetail";
+import UserNewIndefiniteDocs from "./pages/UserNewIndefiniteDocs";
 
 function App() {
   const user = useAppStore((state) => state.user);
@@ -148,6 +152,22 @@ function App() {
         {
           path: "/indefinite",
           element: <Indefinite />,
+        },
+        {
+          path: "/userindefinite",
+          element: <UserIndefinite />,
+        },
+        {
+          path: "/userindefinitedocs/:stationId",
+          element: <UserIndefiniteDocs />,
+        },
+        {
+          path: "/userindefinitedetail",
+          element: <UserIndefiniteDetail />,
+        },
+        {
+          path: "/usernewindefinitedocs/:stationId",
+          element: <UserNewIndefiniteDocs />,
         },
         {
           path: "/users",

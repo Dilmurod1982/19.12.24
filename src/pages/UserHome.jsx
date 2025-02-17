@@ -33,6 +33,19 @@ function UserHome() {
   const ger = useAppStore((state) => state.ger);
   const aptek = useAppStore((state) => state.aptek);
 
+  const setStations = useAppStore((state) => state.setStations);
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "stations"),
+      setStations,
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setStations]);
+
   return (
     <div className="flex flex-col gap-3">
       <h1 className="text-center text-2xl font-bold">Фойдаланувчи сахифаси</h1>
@@ -43,7 +56,15 @@ function UserHome() {
               className="btn btn-neutral text-xl w-full text-white"
               to="/userstations"
             >
-              Муддали хужжатлар
+              Муддатли хужжатлар
+            </Link>
+          </li>
+          <li>
+            <Link
+              className="btn btn-neutral text-xl w-full text-white"
+              to="/userindefinite"
+            >
+              Муддатсиз хужжатлар
             </Link>
           </li>
         </ul>

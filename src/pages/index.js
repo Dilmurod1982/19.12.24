@@ -52,3 +52,5 @@ export { default as UserStations } from "./UserStations";
 export { default as UserStationDocs } from "./UserStationDocs";
 export { default as UserNewDocs } from "./UserNewDocs";
 export { default as KolonkaMarka } from "./KolonkaMarka";
+export { default as UserIndefinite } from "./UserIndefinite";
+export { default as UserIndefiniteDocs } from "./UserIndefiniteDocs";
