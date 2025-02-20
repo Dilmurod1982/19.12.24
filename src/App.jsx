@@ -63,6 +63,8 @@ import {
   Foyda,
   UserIndefinite,
   UserIndefiniteDocs,
+  EcologyTwo,
+  Educ,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -94,6 +96,8 @@ import AptekDetail from "./components/aptek/AptekDetail";
 import UserDocDetail from "./components/UserDocDetail";
 import UserIndefiniteDetail from "./components/UserIndefiniteDetail";
 import UserNewIndefiniteDocs from "./pages/UserNewIndefiniteDocs";
+import EcologyTwoDetail from "./components/ecology_two/EcologyTwoDetail";
+import EducDetail from "./components/educ/EducDetail";
 
 function App() {
   const user = useAppStore((state) => state.user);
@@ -112,7 +116,7 @@ function App() {
         {
           index: true,
           element: role ? (
-            role === "admin" ? (
+            role === "admin" || role === "nazorat" ? (
               <Home />
             ) : (
               <Navigate to="/userhome" />
@@ -258,6 +262,14 @@ function App() {
           element: <EcologyDetail />,
         },
         {
+          path: "/ecologytwo",
+          element: <EcologyTwo />,
+        },
+        {
+          path: "/ecologytwodetail",
+          element: <EcologyTwoDetail />,
+        },
+        {
           path: "/ik",
           element: <Ik />,
         },
@@ -336,6 +348,14 @@ function App() {
         {
           path: "/shlangdetail",
           element: <ShlangDetail />,
+        },
+        {
+          path: "/educ",
+          element: <Educ />,
+        },
+        {
+          path: "/educdetail",
+          element: <EducDetail />,
         },
         {
           path: "/ppk",

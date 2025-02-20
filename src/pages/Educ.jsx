@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { useAppStore } from "../lib/zustand";
+import { useAppStore } from "../lib/zustand/index";
 import { fetchDataWithTokenRefresh, getDocs } from "../request";
 import { Button } from "../components/ui/button";
 import { PulseLoader } from "react-spinners";
 import { Link, useNavigate } from "react-router-dom";
-import { AddNewLicense, LicensesList } from "../components";
 import * as XLSX from "xlsx";
 import {
   Select,
@@ -16,12 +15,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "../components/ui/input";
-import { toast } from "sonner";
-import WithoutDoc from "../components/WithoutDoc";
+import EducList from "../components/educ/EducList";
+import AddNewEduc from "../components/educ/AddNewEduc";
 
-function Licenses() {
+function Educ() {
+  // замена
   const [sendingData, setSendingData] = useState(null);
-  const [showAllLicenses, setShowAllLicenses] = useState(true); // Новое состояние для галочки
+  const [showAllDocs, setShowAllDocs] = useState(true);
   const [selectedStation, setSelectedStation] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedExpirationFilter, setSelectedExpirationFilter] =
@@ -33,38 +33,35 @@ function Licenses() {
   const setAddItemModal = useAppStore((state) => state.setAddItemModal);
   const ltd = useAppStore((state) => state.ltd);
   const setLtd = useAppStore((state) => state.setLtd);
-  const licenses = useAppStore((state) => state.licenses);
-  const setLicenses = useAppStore((state) => state.setLicenses);
-  const navigate = useNavigate();
+  const educ = useAppStore((state) => state.educ); //zamena
+  const setEduc = useAppStore((state) => state.setEduc); //zamena
 
   useEffect(() => {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "stations"),
       setStations,
       user,
-      setUser,
-      navigate,
-      toast
-    );
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "ltd"),
-      setLtd,
-      user
-    );
-    fetchDataWithTokenRefresh(
-      () => getDocs(user?.access_token, "licenses"),
-      setLicenses,
-      user
+      setUser
     );
   }, [user, setStations]);
 
-  // useEffect(() => {
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "ltd"),
+      setLtd,
+      user,
+      setUser
+    );
+  }, [user, setLtd]);
 
-  // }, [user, setLtd]);
-
-  // useEffect(() => {
-
-  // }, [user, setLicenses]);
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "educ"), // zamena
+      setEduc, // zamena
+      user,
+      setUser
+    );
+  }, [user, setEduc]); // zamena
 
   const getLtdNameById = (id) => {
     if (!ltd || ltd.length === 0) return "Номаълум";
@@ -86,46 +83,44 @@ function Licenses() {
   };
 
   const parseDate = (dateString) => {
-    // Преобразование даты из "ДД.ММ.ГГГГ" в "ГГГГ-ММ-ДД"
     const [day, month, year] = dateString.split(".");
     return `${year}-${month}-${day}`;
   };
 
-  const filterLicenses = () => {
-    let filtered = [...licenses];
+  const filteredDocs = () => {
+    let filtered = [...educ]; //zamena
 
-    if (!showAllLicenses) {
-      const latestLicenses = filtered.reduce((acc, license) => {
-        const { station_id, expiration } = license;
+    if (!showAllDocs) {
+      const latestDocs = filtered.reduce((acc, doc) => {
+        const { station_id, expiration } = doc;
         const parsedExpiration = new Date(parseDate(expiration));
         if (
           !acc[station_id] ||
           new Date(parseDate(acc[station_id].expiration)) < parsedExpiration
         ) {
-          acc[station_id] = license;
+          acc[station_id] = doc;
         }
         return acc;
       }, {});
-      filtered = Object.values(latestLicenses);
+      filtered = Object.values(latestDocs);
     }
 
     if (selectedStation && selectedStation !== "all") {
       filtered = filtered.filter(
-        (license) =>
-          getStationNameByNumber(license.station_id) === selectedStation
+        (doc) => getStationNameByNumber(doc.station_id) === selectedStation
       );
     }
 
     if (searchTerm) {
-      filtered = filtered.filter((license) =>
-        license.docNumber.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (doc) => doc.docNumber.toLowerCase().includes(searchTerm.toLowerCase()) //zamena
       );
     }
 
     if (selectedExpirationFilter !== "all") {
       const currentDate = new Date();
-      filtered = filtered.filter((license) => {
-        const expirationDate = new Date(parseDate(license.expiration));
+      filtered = filtered.filter((doc) => {
+        const expirationDate = new Date(parseDate(doc.expiration));
         const daysLeft = (expirationDate - currentDate) / (1000 * 60 * 60 * 24);
 
         if (selectedExpirationFilter === "5" && daysLeft <= 5 && daysLeft > 0) {
@@ -156,7 +151,8 @@ function Licenses() {
     return filtered;
   };
 
-  if (!stations || !licenses || !ltd) {
+  if (!stations || !educ || !ltd) {
+    //zamena
     return (
       <div className="flex items-center justify-center h-screen">
         <PulseLoader speedMultiplier={0.5} />
@@ -165,77 +161,45 @@ function Licenses() {
   }
 
   const exportToExcel = () => {
-    // Фильтруем существующие лицензии
-    const filteredLicenses = filterLicenses();
+    const filteredExcel = filteredDocs();
 
-    // Подготовка данных для существующих лицензий
-    const licensesData = filteredLicenses.map((license, index) => ({
+    const data = filteredExcel.map((doc, index) => ({
       "#": index + 1,
-      "Шахобча номи": getStationNameByNumber(license.station_id),
+      "Шахобча номи": getStationNameByNumber(doc.station_id),
       "МЧЖ номи ва рақами": `${getLtdNameById(
-        license.ltd_id
-      )} АГТКШ № ${getStationNumberByNumber(license.station_number)}`,
-      "Лицензия рақами": license.docNumber,
-      "Берилган сана": license.issue,
-      "Амал қилиш санаси": license.expiration,
+        doc.ltd_id
+      )} АГТКШ № ${getStationNumberByNumber(doc.station_number)}`,
+      "Сертификат рақами": doc.docNumber, //zamena
+      "Берилган сана": doc.issue,
+      "Амал қилиш санаси": doc.expiration,
       Холати:
-        new Date(parseDate(license.expiration)) > new Date()
+        new Date(parseDate(doc.expiration)) > new Date()
           ? "Амалда"
           : "Муддати тугаган",
     }));
 
-    // Получаем станции без лицензий
-    const stationsWithoutLicenses = getStationsWithoutDoc();
-
-    // Подготовка данных для станций без лицензий
-    const stationsData = stationsWithoutLicenses.map((station, index) => ({
-      "#": licensesData.length + index + 1, // Продолжаем нумерацию
-      "Шахобча номи": station.moljal,
-      "МЧЖ номи ва рақами": `${getLtdNameById(station.ltd_id)} АГТКШ № ${
-        station.station_number
-      }`,
-      // "Лицензия рақами": "Номаълум",
-      // "Берилган сана": "Номаълум",
-      // "Амал қилиш санаси": "Номаълум",
-      Холати: "Лицензия киритилмаган",
-    }));
-
-    // Объединяем данные
-    const combinedData = [...licensesData, ...stationsData];
-
-    // Создание книги Excel
-    const worksheet = XLSX.utils.json_to_sheet(combinedData);
+    const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Licenses and Stations");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "EDUC"); //zamena
 
-    // Скачивание файла
-    XLSX.writeFile(workbook, "licenses_and_stations.xlsx");
+    XLSX.writeFile(workbook, "educ.xlsx"); //zamena
   };
-
-  const getStationsWithoutDoc = () => {
-    const stationsWithDoc = new Set(
-      licenses.map((license) => license.station_id)
-    );
-
-    return stations.filter((station) => !stationsWithDoc.has(station.id));
-  };
-
-  const textDoc = "Лицензия";
-
   return (
     <>
       <div className="overflow-x-auto">
         <div className="flex flex-col items-center justify-between gap-1">
           <div className="flex justify-between w-full px-4">
-            <h1 className="text-3xl font-bold">Лицензиялар рўйхати</h1>
+            <h1 className="text-3xl font-bold">
+              Ходимларни саноат хавфсизлиги бўйича ўқитиш баённомаси
+            </h1>
             {user.type === "admin" ? (
               <Button
                 onClick={setAddItemModal}
-                disabled={licenses ? false : true}
-                className={licenses ? "cursor-pointer" : "cursor-not-allowed"}
+                disabled={educ ? false : true} //zamena
+                className={educ ? "cursor-pointer" : "cursor-not-allowed"} //zamena
               >
-                Янги лицензия қўшиш
-              </Button>
+                Янги баённома қўшиш
+              </Button> //zamena
             ) : null}
           </div>
           <div></div>
@@ -247,8 +211,8 @@ function Licenses() {
                 <input
                   type="checkbox"
                   className="checkbox"
-                  checked={showAllLicenses}
-                  onChange={(e) => setShowAllLicenses(e.target.checked)}
+                  checked={showAllDocs}
+                  onChange={(e) => setShowAllDocs(e.target.checked)}
                 />
               </div>
               <div className="flex flex-col justify-center items-center">
@@ -302,7 +266,7 @@ function Licenses() {
                   </Select>
                   <Input
                     type="text"
-                    placeholder="Лицензия рақами билан"
+                    placeholder="далолатнома рақами билан" //zamena
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="input input-bordered w-[200px]"
@@ -333,107 +297,59 @@ function Licenses() {
           </div>
         </div>
 
-        <div>
-          <table className="table table-xs">
-            <thead>
-              <tr>
-                <th className="text-center">#</th>
-                <th className="text-center">Шахобча номи</th>
-                <th className="text-center">МЧЖ номи ва рақами</th>
-                <th className="text-center">Лицензия рақами</th>
-                <th className="text-center">Берилган сана</th>
-                <th className="text-center">Амал қилиш санаси</th>
-                <th className="text-center">Файл</th>
-                <th className="text-center">Холати</th>
-                <th className="text-center"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filterLicenses().length > 0 ? (
-                filterLicenses().map(
-                  ({
-                    id,
-                    station_id,
-                    ltd_id,
-                    station_number,
-                    docNumber,
-                    issue,
-                    expiration,
-                    value,
-                  }) => (
-                    <LicensesList
-                      key={id}
-                      id={id}
-                      moljal={getStationNameByNumber(station_id)}
-                      ltd_name={getLtdNameById(ltd_id)}
-                      station_number={getStationNumberByNumber(station_number)}
-                      docNumber={docNumber}
-                      issue={issue}
-                      expiration={expiration}
-                      value={value}
-                    />
-                  )
+        <table className="table table-xs">
+          <thead>
+            <tr>
+              <th className="text-center">#</th>
+              <th className="text-center">Шахобча номи</th>
+              <th className="text-center">МЧЖ номи ва рақами</th>
+              <th className="text-center">Баённома рақами</th>
+              <th className="text-center">Берилган сана</th>
+              <th className="text-center">Амал қилиш санаси</th>
+              <th className="text-center">Файл</th>
+              <th className="text-center">Холати</th>
+              <th className="text-center"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredDocs().length > 0 ? (
+              filteredDocs().map(
+                ({
+                  id,
+                  station_id,
+                  ltd_id,
+                  station_number,
+                  docNumber, //zamena
+                  issue,
+                  expiration,
+                  value,
+                }) => (
+                  <EducList
+                    key={id}
+                    id={id}
+                    moljal={getStationNameByNumber(station_id)}
+                    ltd_name={getLtdNameById(ltd_id)}
+                    station_number={getStationNumberByNumber(station_number)}
+                    docNumber={docNumber} //zamena
+                    issue={issue}
+                    expiration={expiration}
+                    value={value}
+                  />
                 )
-              ) : (
-                <tr>
-                  <td colSpan="7" className="text-center">
-                    <h1 className="my-5 btn-link text-2xl italic">
-                      Лицензиялар мавжуд эмас
-                    </h1>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div>
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">
-              Лицензия киритилмаган шахобчалар
-            </h2>
-            <table className="table table-xs">
-              <thead>
-                <tr>
-                  <th className="text-center">#</th>
-                  <th className="text-center">Шахобча номи</th>
-                  <th className="text-center">МЧЖ номи ва рақами</th>
-                  <th className="text-center">Холати</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {getStationsWithoutDoc().length > 0 ? (
-                  getStationsWithoutDoc().map(
-                    ({ id, moljal, ltd_id, station_number }) => (
-                      <WithoutDoc
-                        key={id}
-                        id={id}
-                        moljal={moljal}
-                        ltd_name={getLtdNameById(ltd_id)}
-                        station_number={station_number}
-                        textDoc={textDoc}
-                      />
-                    )
-                  )
-                ) : (
-                  <tr>
-                    <td colSpan="4" className="text-center">
-                      <h1 className="my-5 btn-link text-2xl italic">
-                        Барча шахобчаларга {textDoc} киритилган
-                      </h1>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              )
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center">
+                  <h1 className="my-5 btn-link text-2xl italic">
+                    Баённомалар мавжуд эмас
+                  </h1>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
-      <AddNewLicense
-        sendingData={sendingData}
-        setSendingData={setSendingData}
-      />
+      <AddNewEduc sendingData={sendingData} setSendingData={setSendingData} />
       <div className="flex w-full h-screen justify-center mt-5">
         <Button>
           <Link to="/docs">Орқага</Link>
@@ -443,4 +359,4 @@ function Licenses() {
   );
 }
 
-export default Licenses;
+export default Educ;

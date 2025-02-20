@@ -97,6 +97,7 @@ export default function AddNewStation({ setSendingData, sendingData }) {
           toast.success("Янги шахобча мувафақиятли қўшилди!");
           setSendingData(null);
           setAddItemModal(false); // Закрытие модального окна
+          setFormState(initialFormState); // Сброс состояния формы
         })
         .catch(({ message }) => {
           if (message === "403") {

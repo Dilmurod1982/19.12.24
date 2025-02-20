@@ -44,6 +44,7 @@ function UserStations() {
   const prodinsurance = useAppStore((state) => state.prodinsurance);
   const lifeinsurance = useAppStore((state) => state.lifeinsurance);
   const ecology = useAppStore((state) => state.ecology);
+  const ecologytwo = useAppStore((state) => state.ecologytwo);
   const ik = useAppStore((state) => state.ik);
   const pilot = useAppStore((state) => state.pilot);
   const shayba = useAppStore((state) => state.shayba);
@@ -54,6 +55,7 @@ function UserStations() {
   const termometr = useAppStore((state) => state.termometr);
   const voltmetr = useAppStore((state) => state.voltmetr);
   const shlang = useAppStore((state) => state.shlang);
+  const educ = useAppStore((state) => state.educ);
   const ppk = useAppStore((state) => state.ppk);
   const elprotec = useAppStore((state) => state.elprotec);
   const mol = useAppStore((state) => state.mol);
@@ -89,6 +91,7 @@ function UserStations() {
   const setProdinsurance = useAppStore((state) => state.setProdinsurance);
   const setLifeinsurance = useAppStore((state) => state.setLifeinsurance);
   const setEcology = useAppStore((state) => state.setEcology);
+  const setEcologytwo = useAppStore((state) => state.setEcologytwo);
   const setIk = useAppStore((state) => state.setIk);
   const setPilot = useAppStore((state) => state.setPilot);
   const setShayba = useAppStore((state) => state.setShayba);
@@ -99,6 +102,7 @@ function UserStations() {
   const setTermometr = useAppStore((state) => state.setTermometr);
   const setVoltmetr = useAppStore((state) => state.setVoltmetr);
   const setShlang = useAppStore((state) => state.setShlang);
+  const setEduc = useAppStore((state) => state.setEduc);
   const setPpk = useAppStore((state) => state.setPpk);
   const setElprotec = useAppStore((state) => state.setElprotec);
   const setMol = useAppStore((state) => state.setMol);
@@ -165,6 +169,15 @@ function UserStations() {
       () => getDocs(user?.access_token, "ecology"),
       // setEco,
       setEcology,
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "ecology_two"),
+      // setEco,
+      setEcologytwo,
       user,
       setUser,
       navigate,
@@ -253,6 +266,14 @@ function UserStations() {
       toast
     );
     fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "educ"),
+      setEduc,
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+    fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "ppk"),
       setPpk,
       user,
@@ -321,6 +342,7 @@ function UserStations() {
               prodinsurance={prodinsurance}
               lifeinsurance={lifeinsurance}
               ecology={ecology}
+              ecologytwo={ecologytwo}
               ik={ik}
               pilot={pilot}
               shayba={shayba}
@@ -332,6 +354,7 @@ function UserStations() {
               voltmetr={voltmetr}
               shlang={shlang}
               ppk={ppk}
+              educ={educ}
               elprotec={elprotec}
               mol={mol}
               smazka={smazka}

@@ -16,6 +16,7 @@ function UserHome() {
   const prodinsurance = useAppStore((state) => state.prodinsurance);
   const lifeinsurance = useAppStore((state) => state.lifeinsurance);
   const ecology = useAppStore((state) => state.ecology);
+  const ecologytwo = useAppStore((state) => state.ecologytwo);
   const ik = useAppStore((state) => state.ik);
   const pilot = useAppStore((state) => state.pilot);
   const shayba = useAppStore((state) => state.shayba);
@@ -26,6 +27,7 @@ function UserHome() {
   const termometr = useAppStore((state) => state.termometr);
   const voltmetr = useAppStore((state) => state.voltmetr);
   const shlang = useAppStore((state) => state.shlang);
+  const educ = useAppStore((state) => state.educ);
   const ppk = useAppStore((state) => state.ppk);
   const elprotec = useAppStore((state) => state.elprotec);
   const mol = useAppStore((state) => state.mol);

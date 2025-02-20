@@ -36,7 +36,6 @@ export default function AddNewItemModal({ setSendingData, sendingData }) {
     e.preventDefault();
     const result = getFormData(e.target);
 
-    console.log(result);
     setSendingData(result);
   }
 

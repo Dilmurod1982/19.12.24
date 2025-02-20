@@ -1,10 +1,12 @@
 import { useAppStore } from "../lib/zustand";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat"; // ✅ Добавьте этот импорт
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import * as XLSX from "xlsx";
+import { fetchDataWithTokenRefresh, getDocs } from "../request";
+import { toast } from "sonner";
 
 dayjs.extend(customParseFormat);
 
@@ -13,6 +15,7 @@ export default function UserStationDocs() {
   const [sendingData, setSendingData] = useState(null);
   const [showAllDocuments, setShowAllDocuments] = useState(false);
   const [selectedDocType, setSelectedDocType] = useState("all");
+  const setStations = useAppStore((state) => state.setStations);
 
   const stations = useAppStore((state) => state.stations);
   const licenses = useAppStore((state) => state.licenses);
@@ -22,6 +25,7 @@ export default function UserStationDocs() {
   const prodinsurance = useAppStore((state) => state.prodinsurance);
   const lifeinsurance = useAppStore((state) => state.lifeinsurance);
   const ecology = useAppStore((state) => state.ecology);
+  const ecologytwo = useAppStore((state) => state.ecologytwo);
   const ik = useAppStore((state) => state.ik);
   const pilot = useAppStore((state) => state.pilot);
   const shayba = useAppStore((state) => state.shayba);
@@ -32,6 +36,7 @@ export default function UserStationDocs() {
   const termometr = useAppStore((state) => state.termometr);
   const voltmetr = useAppStore((state) => state.voltmetr);
   const shlang = useAppStore((state) => state.shlang);
+  const educ = useAppStore((state) => state.educ);
   const ppk = useAppStore((state) => state.ppk);
   const elprotec = useAppStore((state) => state.elprotec);
   const mol = useAppStore((state) => state.mol);
@@ -39,6 +44,19 @@ export default function UserStationDocs() {
   const ger = useAppStore((state) => state.ger);
   const aptek = useAppStore((state) => state.aptek);
   const user = useAppStore((state) => state.user);
+  const setUser = useAppStore((state) => state.setUser);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "stations"),
+      setStations,
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setStations]);
 
   const docTypes = {
     licenses: "Лицензия",
@@ -47,7 +65,8 @@ export default function UserStationDocs() {
     gasanalyzers: "Газ анализатор сертификати",
     prodinsurance: "Ишлаб чиқариш полиси",
     lifeinsurance: "Ходимлар полиси",
-    ecology: "Экология хулосаси",
+    ecology: "Экология хулосаси (Ташлама)",
+    ecologytwo: "Экология хулосаси (Чиқинди)",
     ik: "Ўлчов комплекси (ИК) сертификати",
     pilot: "Автопилот сертификати",
     shayba: "Шайба сертификати",
@@ -58,6 +77,7 @@ export default function UserStationDocs() {
     termometr: "Термометрлар сертификати",
     voltmetr: "Амперметр ва вольтметрлар сертификати",
     shlang: "Газ тўлдириш шланглари синов дал-си",
+    educ: "Ходимларни саноат хавфсизлигига ўқитиш баённомаси",
     ppk: "Сақлагич клапанлар синов далолатномаси",
     elprotec: "Электр ҳимоя воситалари дал-си",
     mol: "Чақмоқ қайтаргич ва кабеллар синов дал-си",
@@ -77,6 +97,7 @@ export default function UserStationDocs() {
     ...prodinsurance.map((doc) => ({ ...doc, document_type: "prodinsurance" })),
     ...lifeinsurance.map((doc) => ({ ...doc, document_type: "lifeinsurance" })),
     ...ecology.map((doc) => ({ ...doc, document_type: "ecology" })),
+    ...ecologytwo.map((doc) => ({ ...doc, document_type: "ecologytwo" })),
     ...ik.map((doc) => ({ ...doc, document_type: "ik" })),
     ...pilot.map((doc) => ({ ...doc, document_type: "pilot" })),
     ...shayba.map((doc) => ({ ...doc, document_type: "shayba" })),
@@ -87,6 +108,7 @@ export default function UserStationDocs() {
     ...termometr.map((doc) => ({ ...doc, document_type: "termometr" })),
     ...voltmetr.map((doc) => ({ ...doc, document_type: "voltmetr" })),
     ...shlang.map((doc) => ({ ...doc, document_type: "shlang" })),
+    ...educ.map((doc) => ({ ...doc, document_type: "educ" })),
     ...ppk.map((doc) => ({ ...doc, document_type: "ppk" })),
     ...elprotec.map((doc) => ({ ...doc, document_type: "elprotec" })),
     ...mol.map((doc) => ({ ...doc, document_type: "mol" })),

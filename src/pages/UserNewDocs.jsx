@@ -100,12 +100,25 @@ export default function UserNewDocs() {
           onClick={() => {
             setSelectedDoc({
               baseName: "ecology",
-              docName: "Экология хулосаси",
+              docName: "Экология хулосаси (Ташлама)",
             });
             setAddItemModal(true);
           }}
         >
-          7. Экология хулосаси
+          7. Экология хулосаси (Ташлама)
+        </button>
+
+        <button
+          className="btn btn-neutral text-xl text-white"
+          onClick={() => {
+            setSelectedDoc({
+              baseName: "ecology_two",
+              docName: "Экология хулосаси (Чиқинди)",
+            });
+            setAddItemModal(true);
+          }}
+        >
+          7. Экология хулосаси (Чиқинди)
         </button>
 
         <button

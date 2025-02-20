@@ -306,6 +306,33 @@ function Docs() {
     );
   const ecologyCounts = countDocuments(filterEcology()); //zamena //zamena
 
+  //Ecologytwo
+
+  const ecologytwo = useAppStore((state) => state.ecologytwo);
+  const setEcologytwo = useAppStore((state) => state.setEcologytwo);
+  const [showAllEcologyTwo, setShowAllEcologyTwo] = useState(false);
+
+  useEffect(() => {
+    fetchDataWithTokenRefresh(
+      () => getDocs(user?.access_token, "ecology_two"), //zamena
+      setEcologytwo, //zamena
+      user,
+      setUser,
+      navigate,
+      toast
+    );
+  }, [user, setEcologytwo]); //zamena
+
+  const filterEcologyTwo = () =>
+    //zamena
+    filterDocuments(
+      ecologytwo, //zamena
+      showAllEcologyTwo, //zamena
+      selectedStation,
+      searchTerm
+    );
+  const ecologyTwoCounts = countDocuments(filterEcologyTwo()); //zamena //zamena
+
   // ik
 
   const ik = useAppStore((state) => state.ik); // zamena zamena
@@ -782,103 +809,109 @@ function Docs() {
 
         <DocumentLink
           to="/ecology" //zamena
-          title="7. Экология хулосалари" //zamena
+          title="7. Экология хулосаси (Ташламалар)" //zamena
           counts={ecologyCounts} //zamena
         />
 
         <DocumentLink
+          to="/ecologytwo" //zamena
+          title="8. Экология хулосаси (Чиқинди)" //zamena
+          counts={ecologyTwoCounts} //zamena
+        />
+
+        <DocumentLink
           to="/ik" //zamena
-          title="8. Ўлчов комплекси сертификатлари" //zamena
+          title="9. Ўлчов комплекси сертификатлари" //zamena
           counts={ikCounts} //zamena
         />
 
         <DocumentLink
           to="/pilot" //zamena
-          title="9. Автопилот сертификатлари" //zamena
+          title="10. Автопилот сертификатлари" //zamena
           counts={pilotCounts} //zamena
         />
 
         <DocumentLink
           to="/shayba" //zamena
-          title="10. Шайба сертификатлари" //zamena
+          title="11. Шайба сертификатлари" //zamena
           counts={shaybaCounts} //zamena
         />
 
         <DocumentLink
           to="/water" //zamena
-          title="11. Сув ҳисоблагич сертификатлари" //zamena
+          title="12. Сув ҳисоблагич сертификатлари" //zamena
           counts={waterCounts} //zamena
         />
 
         <DocumentLink
           to="/electric" //zamena
-          title="12. Электр энергия ҳисоблагич сертификатлари" //zamena
+          title="13. Электр энергия ҳисоблагич сертификатлари" //zamena
           counts={electricCounts} //zamena
         />
 
         <DocumentLink
           to="/kolonka" //zamena
-          title="13. Колонкалар сертификатлари" //zamena
+          title="14. Колонкалар сертификатлари" //zamena
           counts={kolonkaCounts} //zamena
         />
 
         <DocumentLink
           to="/manometr" //zamena
-          title="14. Манометрлар сертификатлари" //zamena
+          title="15. Манометрлар сертификатлари" //zamena
           counts={manometrCounts} //zamena
         />
 
         <DocumentLink
           to="/termometr" //zamena
-          title="15. Термометрлар сертификатлари" //zamena
+          title="16. Термометрлар сертификатлари" //zamena
           counts={termometrCounts} //zamena
         />
 
         <DocumentLink
           to="/voltmetr" //zamena
-          title="16. Амперметр ва вольтметр сертификатлари" //zamena
+          title="17. Амперметр ва вольтметр сертификатлари" //zamena
           counts={voltmetrCounts} //zamena
         />
 
         <DocumentLink
           to="/shlang" //zamena
-          title="17. Газ тўлдириш шланглари далолатномалари" //zamena
+          title="18. Газ тўлдириш шланглари далолатномалари" //zamena
           counts={shlangCounts} //zamena
         />
 
         <DocumentLink
           to="/ppk" //zamena
-          title='18. Сақловчи клапанлар ("ППК") синов дал-лари' //zamena
+          title='19. Сақловчи клапанлар ("ППК") синов дал-лари' //zamena
           counts={ppkCounts} //zamena
         />
 
         <DocumentLink
           to="/elprotec" //zamena
-          title="19. Электр ҳимоя воситалари синов дал-лари" //zamena
+          title="20. Электр ҳимоя воситалари синов дал-лари" //zamena
           counts={elprotecCounts} //zamena
         />
 
         <DocumentLink
           to="/mol" //zamena
-          title="20. Чақмоқ қайтаргич синов далолатномалари" //zamena
+          title="21. Чақмоқ қайтаргич синов далолатномалари" //zamena
           counts={molCounts} //zamena
         />
 
         <DocumentLink
           to="/smazka" //zamena
-          title="21. Технологияларни мойлаш далолатномалари" //zamena
+          title="22. Технологияларни мойлаш далолатномалари" //zamena
           counts={smazkaCounts} //zamena
         />
 
         <DocumentLink
           to="/ger" //zamena
-          title="22. Технологияларни кўпикда текшириш дал-лари" //zamena
+          title="23. Технологияларни кўпикда текшириш дал-лари" //zamena
           counts={gerCounts} //zamena
         />
 
         <DocumentLink
           to="/aptek" //zamena
-          title="23. Аптечкани  текшириш далолатномалари" //zamena
+          title="24. Аптечкани  текшириш далолатномалари" //zamena
           counts={aptekCounts} //zamena
         />
       </ul>
