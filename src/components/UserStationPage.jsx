@@ -122,13 +122,28 @@ export default function UserStationPage({
   ];
 
   // Фильтруем документы по station_id
+  // const stationDocuments = allDocuments
+  //   .filter((doc) => Number(doc.station_id) === Number(station.id))
+  //   .reduce((acc, doc) => {
+  //     const key = `${doc.station_id}_${doc.document_type}`;
+  //     if (
+  //       !acc[key] ||
+  //       dayjs(doc.expiration).isAfter(dayjs(acc[key].expiration))
+  //     ) {
+  //       acc[key] = doc;
+  //     }
+  //     return acc;
+  //   }, {});
+
   const stationDocuments = allDocuments
     .filter((doc) => Number(doc.station_id) === Number(station.id))
     .reduce((acc, doc) => {
       const key = `${doc.station_id}_${doc.document_type}`;
       if (
         !acc[key] ||
-        dayjs(doc.expiration).isAfter(dayjs(acc[key].expiration))
+        dayjs(doc.expiration, "DD.MM.YYYY").isAfter(
+          dayjs(acc[key].expiration, "DD.MM.YYYY")
+        )
       ) {
         acc[key] = doc;
       }
