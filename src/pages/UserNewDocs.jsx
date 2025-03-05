@@ -252,6 +252,19 @@ export default function UserNewDocs() {
         </button>
 
         <button
+          className="btn btn-neutral text-[18px] text-white"
+          onClick={() => {
+            setSelectedDoc({
+              baseName: "educ",
+              docName: "Ходимларни саноат хавфсизлигига ўқитиш баённомаси",
+            });
+            setAddItemModal(true);
+          }}
+        >
+          18. Ходимларни саноат хавфсизлигига ўқитиш баённомаси
+        </button>
+
+        <button
           className="btn btn-neutral text-xl text-white"
           onClick={() => {
             setSelectedDoc({
@@ -261,7 +274,7 @@ export default function UserNewDocs() {
             setAddItemModal(true);
           }}
         >
-          18. ППКларни синов далолатномаси
+          19. ППКларни синов далолатномаси
         </button>
 
         <button
@@ -274,11 +287,11 @@ export default function UserNewDocs() {
             setAddItemModal(true);
           }}
         >
-          19. Электр ҳимоя воситалари ҳимоя далолатномаси
+          20. Электр ҳимоя воситалари ҳимоя далолатномаси
         </button>
 
         <button
-          className="btn btn-neutral text-xl text-white"
+          className="btn btn-neutral text-[18px] text-white"
           onClick={() => {
             setSelectedDoc({
               baseName: "mol",
@@ -287,11 +300,11 @@ export default function UserNewDocs() {
             setAddItemModal(true);
           }}
         >
-          20. Чақмоқ қайтаргич синов далолатномаси
+          21. Чақмоқ қайтаргич синов далолатномаси
         </button>
 
         <button
-          className="btn btn-neutral text-xl text-white"
+          className="btn btn-neutral text-[18px] text-white"
           onClick={() => {
             setSelectedDoc({
               baseName: "smazka",
@@ -300,11 +313,11 @@ export default function UserNewDocs() {
             setAddItemModal(true);
           }}
         >
-          21. Технологияларни мойлаш далолатномаси
+          22. Технологияларни мойлаш далолатномаси
         </button>
 
         <button
-          className="btn btn-neutral text-[20px] text-white"
+          className="btn btn-neutral text-[18px] text-white"
           onClick={() => {
             setSelectedDoc({
               baseName: "ger",
@@ -313,7 +326,7 @@ export default function UserNewDocs() {
             setAddItemModal(true);
           }}
         >
-          22. Технологияларни утечкага текшириш далолатномаси
+          23. Технологияларни утечкага текшириш далолатномаси
         </button>
 
         <button
@@ -326,7 +339,7 @@ export default function UserNewDocs() {
             setAddItemModal(true);
           }}
         >
-          23. Аптечкани текшириш далолатномаси
+          24. Аптечкани текшириш далолатномаси
         </button>
       </div>
       <div className="flex justify-around items-center">
