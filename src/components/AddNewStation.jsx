@@ -400,7 +400,8 @@ export default function AddNewStation({ setSendingData, sendingData }) {
                   <option value="" disabled>
                     Газ корхонасини танланг
                   </option>
-                  {Array.isArray(cities) &&
+                  {cities &&
+                    Array.isArray(cities) &&
                     cities.map((city) => (
                       <option key={city.id} value={city.id}>
                         {city.city_name} газ
@@ -419,11 +420,12 @@ export default function AddNewStation({ setSendingData, sendingData }) {
                     <option value="" disabled>
                       Фойдаланувчини танланг
                     </option>
-                    {userOptions.map((user) => (
-                      <option key={user.id} value={user.id}>
-                        {user.username}
-                      </option>
-                    ))}
+                    {userOptions &&
+                      userOptions.map((user) => (
+                        <option key={user.id} value={user.id}>
+                          {user.username}
+                        </option>
+                      ))}
                   </select>
                   <button
                     type="button"

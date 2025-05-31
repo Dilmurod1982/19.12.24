@@ -75,7 +75,9 @@ export default function Navbar() {
       </ul>
       <div className="flex-none">
         <div className="dropdown dropdown-end">
-          <h1>{user.username}</h1>
+          <h1>
+            {user.surname} {user.lastname}
+          </h1>
           <div
             tabIndex={0}
             className="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-52 shadow"

@@ -65,6 +65,13 @@ import {
   UserIndefiniteDocs,
   EcologyTwo,
   Educ,
+  UserProfile,
+  BookerHome,
+  Reports,
+  Partners,
+  PartnersList,
+  OperatorHome,
+  DailyReports,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -118,25 +125,33 @@ function App() {
           element: role ? (
             role === "admin" || role === "nazorat" ? (
               <Home />
-            ) : (
+            ) : role === "user" ? (
               <Navigate to="/userhome" />
-            )
+            ) : role === "booker" ? (
+              <Navigate to="/bookerhome" />
+            ) : role === "operator" ? (
+              <Navigate to="/operatorhome" />
+            ) : null
           ) : null,
         },
         {
           path: "/userhome",
-          element: role ? (
-            role === "user" ? (
-              <UserHome />
-            ) : (
-              <Navigate to="/" />
-            )
-          ) : null,
+          element: role === "user" ? <UserHome /> : <Navigate to="/" />,
+        },
+        {
+          path: "/bookerhome",
+          element: role === "booker" ? <BookerHome /> : <Navigate to="/" />,
+        },
+        {
+          path: "/operatorhome",
+          element: role === "operator" ? <OperatorHome /> : <Navigate to="/" />,
         },
         {
           path: "/userstations",
           element: role ? (
             role === "user" ? (
+              <UserStations />
+            ) : role === "booker" ? (
               <UserStations />
             ) : (
               <Navigate to="/" />
@@ -161,6 +176,7 @@ function App() {
           path: "/userindefinite",
           element: <UserIndefinite />,
         },
+
         {
           path: "/userindefinitedocs/:stationId",
           element: <UserIndefiniteDocs />,
@@ -173,6 +189,12 @@ function App() {
           path: "/usernewindefinitedocs/:stationId",
           element: <UserNewIndefiniteDocs />,
         },
+
+        {
+          path: "/userprofile/:id",
+          element: <UserProfile />,
+        },
+
         {
           path: "/users",
           element: <Users />,
@@ -476,6 +498,28 @@ function App() {
         {
           path: "/foyda",
           element: <Foyda />,
+        },
+        {
+          path: "/reports",
+          element: <Reports />,
+        },
+        {
+          path: "/partners",
+          element: <Partners />,
+        },
+        {
+          path: "/partnerslist",
+          element: role ? (
+            role === "booker" ? (
+              <PartnersList />
+            ) : (
+              <Navigate to="/" />
+            )
+          ) : null,
+        },
+        {
+          path: "/dailyreports",
+          element: <DailyReports />,
         },
       ],
     },

@@ -47,6 +47,8 @@ export default function UserStationDocs() {
   const setUser = useAppStore((state) => state.setUser);
   const navigate = useNavigate();
 
+  console.log(user.type);
+
   useEffect(() => {
     fetchDataWithTokenRefresh(
       () => getDocs(user?.access_token, "stations"),
@@ -318,14 +320,16 @@ export default function UserStationDocs() {
             Excel
           </Button>
         </div>
-        <div className="hidden lg:flex ">
-          <Link
-            to={`/usernewdocs/${stationId}`}
-            class="h-8 inline-block rounded-lg bg-success px-6 pb-2 pt-2 text-xs font-medium uppercase leading-normal text-white shadow-success-3 transition duration-150 ease-in-out hover:bg-success-accent-300 hover:shadow-success-2 focus:bg-success-accent-300 focus:shadow-success-2 focus:outline-none focus:ring-0 active:bg-success-600 active:shadow-success-2 motion-reduce:transition-none dark:shadow-black/30 dark:hover:shadow-dark-strong dark:focus:shadow-dark-strong dark:active:shadow-dark-strong"
-          >
-            Янги хужжат қўшиш
-          </Link>
-        </div>
+        {user.type === "user" && (
+          <div className="hidden lg:flex ">
+            <Link
+              to={`/usernewdocs/${stationId}`}
+              class="h-8 inline-block rounded-lg bg-success px-6 pb-2 pt-2 text-xs font-medium uppercase leading-normal text-white shadow-success-3 transition duration-150 ease-in-out hover:bg-success-accent-300 hover:shadow-success-2 focus:bg-success-accent-300 focus:shadow-success-2 focus:outline-none focus:ring-0 active:bg-success-600 active:shadow-success-2 motion-reduce:transition-none dark:shadow-black/30 dark:hover:shadow-dark-strong dark:focus:shadow-dark-strong dark:active:shadow-dark-strong"
+            >
+              Янги хужжат қўшиш
+            </Link>
+          </div>
+        )}
       </div>
 
       <table className="table table-xs">
@@ -446,11 +450,13 @@ export default function UserStationDocs() {
         </tbody>
       </table>
 
-      <div className="flex w-full justify-center mt-5 lg:hidden">
-        <Link to={`/usernewdocs/${stationId}`} className="btn btn-neutral">
-          Янги хужжат қўшиш
-        </Link>
-      </div>
+      {user.type === "user" && (
+        <div className="flex w-full justify-center mt-5 lg:hidden">
+          <Link to={`/usernewdocs/${stationId}`} className="btn btn-neutral">
+            Янги хужжат қўшиш
+          </Link>
+        </div>
+      )}
 
       <div className="flex justify-center items-center py-5">
         <Link to="/userstations">

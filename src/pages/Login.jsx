@@ -3,14 +3,16 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { getFormData } from "../my-utils/index";
-import { login } from "../request/index";
+import { login, getUserInfo } from "../request/index";
 import { ClockLoader, FadeLoader } from "react-spinners";
 import { toast } from "sonner";
 import { useAppStore } from "../lib/zustand";
 
 export default function Login() {
   const setUser = useAppStore((state) => state.setUser);
+  const user = useAppStore((state) => state.user);
   const [loading, setLoading] = useState(false);
+
   function handleSubmit(e) {
     e.preventDefault();
     const result = getFormData(e.target);
@@ -18,16 +20,15 @@ export default function Login() {
     login(result)
       .then((res) => {
         setUser(res);
-        toast.success(`Хуш келибсиз жаноб ${res.username}`);
+        toast.success(`Хуш келибсиз, жаноб ${res.surname} ${res.fname}!`);
         setLoading(false);
       })
       .catch(({ message }) => {
         toast.error(message);
-      })
-      .finally(() => {
         setLoading(false);
       });
   }
+
   return (
     <>
       {loading ? (
@@ -44,6 +45,7 @@ export default function Login() {
                 name="username"
                 type="text"
                 placeholder="Логинингизни киритинг"
+                required
               />
             </div>
             <div>
@@ -53,6 +55,7 @@ export default function Login() {
                 name="password"
                 type="password"
                 placeholder="Паролингизни киритинг"
+                required
               />
             </div>
             <div>

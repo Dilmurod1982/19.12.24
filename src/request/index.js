@@ -43,17 +43,191 @@ export async function login(data) {
   else throw new Error("Нимадур хатолик бўлди");
 }
 
-export async function getUsers(token) {
+export async function getUserInfo(token) {
   const res = await fetch(BASE_URL + "/users", {
+    method: "GET",
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
   });
-  if (res.status === 403) throw new Error(403);
-  if (res.status === 200 || res.status === 201) return await res.json();
-  else throw new Error("Нимадур хатолик бўлди");
+
+  if (res.status === 200) return await res.json();
+  if (res.status === 403) throw new Error("Доступ запрещен");
+  throw new Error("Ошибка при получении информации о пользователе");
 }
+
+// export async function getUsers(token) {
+//   try {
+//     const [usersRes, usersaRes] = await Promise.all([
+//       fetch(BASE_URL + "/users", {
+//         headers: { Authorization: `Bearer ${token}` },
+//       }),
+//       fetch(BASE_URL + "/usersa", {
+//         headers: { Authorization: `Bearer ${token}` },
+//       }),
+//     ]);
+
+//     if (usersRes.status === 403 || usersaRes.status === 403) {
+//       throw new Error("403");
+//     }
+
+//     const users = await usersRes.json();
+//     const usersa = await usersaRes.json();
+
+//     return users.map((user) => ({
+//       ...user,
+//       ...usersa.find((ua) => ua.userId == user.id),
+//     }));
+//   } catch (error) {
+//     throw error;
+//   }
+// }
+
+// export async function getUsers(token) {
+//   try {
+//     // Получаем данные из первой таблицы
+//     const usersRes = await fetch(BASE_URL + "/users", {
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+
+//     // Получаем данные из второй таблицы
+//     const usersaRes = await fetch(BASE_URL + "/usersa", {
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+
+//     if (usersRes.status === 403 || usersaRes.status === 403)
+//       throw new Error(403);
+
+//     const users = await usersRes.json();
+//     const usersa = await usersaRes.json();
+
+//     // Объединяем данные
+//     const combinedData = users.data.map((user) => {
+//       const userDetails =
+//         usersa.data.find((detail) => detail.usersId === user.id) || {};
+//       console.log(userDetails);
+//       return {
+//         id: user.id,
+//         username: user.username,
+//         type: user.type,
+//         ...userDetails,
+//       };
+//     });
+
+//     return { data: combinedData };
+//   } catch (error) {
+//     throw error;
+//   }
+// }
+
+export async function getUsers(token) {
+  try {
+    const [usersRes] = await Promise.all([
+      fetch(BASE_URL + "/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ]);
+
+    if (usersRes.status === 403) throw new Error("403");
+
+    const { data: users = [] } = await usersRes.json(); // Деструктурируем data
+
+    return users.map((user) => ({
+      ...user,
+    }));
+  } catch (error) {
+    throw error;
+  }
+  // 10.05.25
+}
+
+export async function getDailyReports(token) {
+  try {
+    const [usersRes] = await Promise.all([
+      fetch(BASE_URL + "/dailyreports", {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ]);
+
+    if (usersRes.status === 403) throw new Error("403");
+
+    const { data: users = [] } = await usersRes.json(); // Деструктурируем data
+
+    return users.map((user) => ({
+      ...user,
+    }));
+  } catch (error) {
+    throw error;
+  }
+}
+
+// export async function getUsers(token) {
+//   const res = await fetch(BASE_URL + "/users", {
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${token}`,
+//     },
+//   });
+//   if (res.status === 403) throw new Error(403);
+//   if (res.status === 200 || res.status === 201) return await res.json();
+//   else throw new Error("Нимадур хатолик бўлди");
+// }
+
+// export async function getUsers(token) {
+//   try {
+//     // Делаем параллельные запросы к users и usersa
+//     const [usersRes, usersaRes] = await Promise.all([
+//       fetch(BASE_URL + "/users", {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "application/json",
+//         },
+//       }),
+//       fetch(BASE_URL + "/usersa", {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "application/json",
+//         },
+//       }),
+//     ]);
+
+//     // Проверяем ошибки авторизации
+//     if (usersRes.status === 403 || usersaRes.status === 403) {
+//       throw new Error("403");
+//     }
+
+//     // Получаем данные
+//     const users = await usersRes.json();
+//     const usersa = await usersaRes.json();
+
+//     // Объединяем данные по ID пользователя
+//     return users.map((user) => ({
+//       ...user,
+//       ...usersa.find((ua) => ua.userId == user.id), // предполагаем что в usersa есть поле userId
+//     }));
+//   } catch (error) {
+//     throw error;
+//   }
+// }
+
+// export async function getUsers(token) {
+//   const res = await fetch(BASE_URL + "/users", {
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${token}`,
+//     },
+//   });
+//   if (res.status === 403) throw new Error(403);
+//   if (res.status === 200 || res.status === 201) return await res.json();
+//   else throw new Error("Нимадур хатолик бўлди");
+// }
 
 export async function getLtd(token) {
   const res = await fetch(BASE_URL + "/ltd", {
@@ -65,6 +239,57 @@ export async function getLtd(token) {
   if (res.status === 403) throw new Error(403);
   if (res.status === 200 || res.status === 201) return await res.json();
   else throw new Error("Нимадур хатолик бўлди");
+}
+// export async function getPartners(token) {
+//   const res = await fetch(BASE_URL + "/partners", {
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${token}`,
+//     },
+//   });
+//   if (res.status === 403) throw new Error(403);
+//   if (res.status === 200 || res.status === 201) return await res.json();
+//   else throw new Error("Нимадур хатолик бўлди");
+// }
+
+export async function getPartners(token) {
+  try {
+    const [usersRes] = await Promise.all([
+      fetch(BASE_URL + "/partners", {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ]);
+
+    if (usersRes.status === 403) throw new Error("403");
+
+    const { data: users = [] } = await usersRes.json(); // Деструктурируем data
+
+    return users.map((user) => ({
+      ...user,
+    }));
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getPartnerDailyReports(token) {
+  try {
+    const [usersRes] = await Promise.all([
+      fetch(BASE_URL + "/partnersdailyreports", {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ]);
+
+    if (usersRes.status === 403) throw new Error("403");
+
+    const { data: users = [] } = await usersRes.json(); // Деструктурируем data
+
+    return users.map((user) => ({
+      ...user,
+    }));
+  } catch (error) {
+    throw error;
+  }
 }
 
 export async function getKolonkamarka(token) {
@@ -174,6 +399,18 @@ export async function getHumidityes(token) {
   else throw new Error("Нимадур хатолик бўлди");
 }
 
+export async function getKolonka(token) {
+  const res = await fetch(BASE_URL + "/kolonka", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (res.status === 403) throw new Error(403);
+  if (res.status === 200 || res.status === 201) return await res.json();
+  else throw new Error("Нимадур хатолик бўлди");
+}
+
 export async function getDocs(token, base) {
   const res = await fetch(BASE_URL + `/${base}`, {
     headers: {
@@ -187,22 +424,67 @@ export async function getDocs(token, base) {
 }
 
 export async function registerUser(token, data) {
-  const res = await fetch(BASE_URL + "/auth/register", {
+  const userRes = await fetch(BASE_URL + "/users", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
   });
-  if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
-  if (res.status === 400 || res.status === 401)
-    throw new Error("Хатолик 400 401");
-  if (res.status === 403 || res.status === 402)
-    throw new Error("Хатолик 403 402");
-  else throw new Error("Нимадур хатолик бўлди");
-  console.log(res.status, res, await res.json());
+
+  if (!userRes.ok) throw new Error("Фойдаланувчи яратишда хатолик юз берди");
+
+  return "Пользователь успешно создан";
+  // 10.05.25
 }
+
+// export async function registerUser(token, data) {
+//   const res = await fetch(BASE_URL + "/auth/register", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${token}`,
+//     },
+//     body: JSON.stringify(data),
+//   });
+//   if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
+//   if (res.status === 400 || res.status === 401)
+//     throw new Error("Хатолик 400 401");
+//   if (res.status === 403 || res.status === 402)
+//     throw new Error("Хатолик 403 402");
+//   else throw new Error("Нимадур хатолик бўлди");
+//   console.log(res.status, res, await res.json());
+// }
+
+// export async function registerUser(token, data) {
+//   const userData = {
+//     username: data.username,
+//     password: data.password,
+//     surname: data.surname,
+//     fname: data.fname,
+//     lastname: data.lastname,
+//     startDate: data.startDate,
+//     endDate: data.endDate,
+//     type: "user", // Добавляем тип пользователя по умолчанию
+//   };
+
+//   const res = await fetch(BASE_URL + "/auth/register", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${token}`,
+//     },
+//     body: JSON.stringify(userData), // Отправляем полные данные
+//   });
+
+//   if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
+//   if (res.status === 400 || res.status === 401)
+//     throw new Error("Хатолик 400 401");
+//   if (res.status === 403 || res.status === 402)
+//     throw new Error("Хатолик 403 402");
+//   throw new Error("Нимадур хатолик бўлди");
+// }
 
 export async function registerKolonkamarka(token, data) {
   const res = await fetch(BASE_URL + "/kolonkamarka", {
@@ -258,6 +540,60 @@ export async function registerCity(token, data) {
 }
 export async function registerltd(token, data) {
   const res = await fetch(BASE_URL + "/ltd", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
+  if (res.status === 400 || res.status === 401)
+    throw new Error("Хатолик 400 401");
+  if (res.status === 403 || res.status === 402)
+    throw new Error("Хатолик 403 402");
+  else throw new Error("Нимадур хатолик бўлди");
+  console.log(res.status, res, await res.json());
+}
+
+export async function registerPartner(token, data) {
+  const res = await fetch(BASE_URL + "/partners", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
+  if (res.status === 400 || res.status === 401)
+    throw new Error("Хатолик 400 401");
+  if (res.status === 403 || res.status === 402)
+    throw new Error("Хатолик 403 402");
+  else throw new Error("Нимадур хатолик бўлди");
+  console.log(res.status, res, await res.json());
+}
+
+export async function createPartnerDailyReport(token, data) {
+  const res = await fetch(BASE_URL + "/partnersdailyreports", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
+  if (res.status === 400 || res.status === 401)
+    throw new Error("Хатолик 400 401");
+  if (res.status === 403 || res.status === 402)
+    throw new Error("Хатолик 403 402");
+  else throw new Error("Нимадур хатолик бўлди");
+  console.log(res.status, res, await res.json());
+}
+
+export async function registerDailyReport(token, data) {
+  const res = await fetch(BASE_URL + "/dailyreports", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -482,3 +818,68 @@ export async function fetchDataWithTokenRefresh(
 //     }
 //   }
 // }
+
+export async function updateStation(token, stationId, data) {
+  const res = await fetch(`${BASE_URL}/stations/${stationId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "Ошибка при обновлении станции");
+  }
+
+  return await res.json();
+}
+
+export async function getSingleUser(id, token) {
+  const res = await fetch(`${BASE_URL}/users/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 403) throw new Error("403");
+  return await res.json();
+}
+
+export async function updateUser(id, updates, token) {
+  const res = await fetch(`${BASE_URL}/users/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(updates),
+  });
+  if (res.status === 403) throw new Error("403");
+  return await res.json();
+}
+
+export async function assignStation(stationId, userId, token) {
+  const res = await fetch(`${BASE_URL}/stations/${stationId}/assign`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ operatorId: userId }),
+  });
+  if (res.status === 403) throw new Error("403");
+  return await res.json();
+}
+
+export async function unassignStation(stationId, userId, token) {
+  const res = await fetch(`${BASE_URL}/stations/${stationId}/unassign`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ operatorId: userId }),
+  });
+  if (res.status === 403) throw new Error("403");
+  return await res.json();
+}

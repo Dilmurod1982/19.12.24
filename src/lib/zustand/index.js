@@ -6,7 +6,11 @@ export const useAppStore = create((set) => ({
   stations: [],
   kolonkamarka: [],
   ltd: null,
+  partners: [],
+  dailyreports: [],
   addItemModal: false,
+  sendingData: null,
+  addItemModalOperators: false,
   regions: [],
   cities: [],
   licenses: [],
@@ -63,6 +67,8 @@ export const useAppStore = create((set) => ({
   setStations: (stations) => set((state) => ({ stations })),
   setKolonkamarka: (kolonkamarka) => set((state) => ({ kolonkamarka })),
   setLtd: (ltd) => set((state) => ({ ltd })),
+  setPartners: (partners) => set((state) => ({ partners })),
+  setDailyreports: (dailyreports) => set((state) => ({ dailyreports })),
   setRegions: (regions) => set((state) => ({ regions })),
   setCities: (cities) => set((state) => ({ cities })),
   setLicenses: (licenses) => set((state) => ({ licenses })),
@@ -106,4 +112,7 @@ export const useAppStore = create((set) => ({
   setFoyda: (foyda) => set((state) => ({ foyda })),
   setAddItemModal: () =>
     set((state) => ({ addItemModal: !state.addItemModal })),
+  setSendingData: (sendingData) => set({ sendingData }),
+  setAddItemModalOperators: () =>
+    set((state) => ({ addItemModalOperators: !state.addItemModalOperators })),
 }));

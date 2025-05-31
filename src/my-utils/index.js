@@ -4,7 +4,33 @@ export function getFormData(form) {
   for (const [key, value] of data.entries()) {
     obj[key] = value;
   }
-  console.log(obj);
+
+  return obj;
+}
+
+// export function getFormDataUser(form) {
+//   const data = new FormData(form);
+//   const obj = {};
+
+//   // Собираем все стандартные поля
+//   for (const [key, value] of data.entries()) {
+//     obj[key] = value;
+//   }
+
+//   // Добавляем специальные поля, если они не попали в FormData
+//   if (!obj.type && form.querySelector('[name="type"]')) {
+//     obj.type = form.querySelector('[name="type"]').value;
+//   }
+
+//   // Логирование для отладки
+//   console.log("Form data prepared:", obj);
+
+//   return obj;
+// }
+
+export function getFormDataUser(form) {
+  const data = new FormData(form);
+  const obj = Object.fromEntries(data.entries());
   return obj;
 }
 
