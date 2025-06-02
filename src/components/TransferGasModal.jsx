@@ -151,11 +151,20 @@ export default function TransferGasModal({
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-2 text-left">№</th>
-                    <th className="px-4 py-2 text-left">Ташкилот номи</th>
-                    <th className="px-4 py-2 text-left">Қарздорлиги</th>
-                    <th className="px-4 py-2 text-left">Нарх (1 м³)</th>
-                    <th className="px-4 py-2 text-left">Сотилган газ (м³)</th>
-                    <th className="px-4 py-2 text-left">Суммаси</th>
+                    <th className="px-4 py-2 text-center">Ташкилот номи</th>
+                    <th className="px-4 py-2 text-center">
+                      Қарздорлиги <br />
+                      (сўм)
+                    </th>
+                    <th className="px-4 py-2 text-center w-[110px]">
+                      Нарх <br />
+                      (1 м³)
+                    </th>
+                    <th className="px-4 py-2 text-center w-[120px]">
+                      Сотилган <br />
+                      газ (м³)
+                    </th>
+                    <th className="px-4 py-2 text-center">Суммаси</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -186,14 +195,15 @@ export default function TransferGasModal({
                       </td>
                       <td className="px-4 py-2">
                         <Input
-                          type="number"
+                          type="text"
                           inputMode="numeric"
+                          pattern="[0-9]*"
                           value={entry.gasAmount}
-                          onChange={(e) =>
-                            handleGasChange(index, e.target.value)
-                          }
-                          min="0"
-                          step="0.01"
+                          onChange={(e) => {
+                            if (/^\d*$/.test(e.target.value)) {
+                              handleGasChange(index, e.target.value);
+                            }
+                          }}
                         />
                       </td>
                       <td className="px-4 py-2">

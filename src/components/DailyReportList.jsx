@@ -71,7 +71,7 @@ function DailyReportList({
             onClick={() => setIsModalOpen(true)}
             className="btn btn-outline"
           >
-            Подробно
+            Батафсил
           </button>
         </td>
       </tr>
