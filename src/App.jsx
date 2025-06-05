@@ -72,6 +72,10 @@ import {
   PartnersList,
   OperatorHome,
   DailyReports,
+  JurInfo,
+  Payment,
+  ConfirmPayment,
+  PaymentReport,
 } from "./pages";
 import { useAppStore } from "./lib/zustand/index";
 import LicenseDetail from "./components/LicenseDetail";
@@ -520,6 +524,41 @@ function App() {
         {
           path: "/dailyreports",
           element: <DailyReports />,
+        },
+        {
+          path: "/jurinfo",
+          element: <JurInfo />,
+        },
+        {
+          path: "/payment",
+          element: role ? (
+            role === "booker" ? (
+              <Payment />
+            ) : (
+              <Navigate to="/" />
+            )
+          ) : null,
+        },
+
+        {
+          path: "/confirmpayment",
+          element: role ? (
+            role === "booker" ? (
+              <ConfirmPayment />
+            ) : (
+              <Navigate to="/" />
+            )
+          ) : null,
+        },
+        {
+          path: "/paymentreport",
+          element: role ? (
+            role === "booker" ? (
+              <PaymentReport />
+            ) : (
+              <Navigate to="/" />
+            )
+          ) : null,
         },
       ],
     },

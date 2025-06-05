@@ -63,3 +63,7 @@ export { default as Partners } from "./Partners";
 export { default as PartnersList } from "./PartnersList";
 export { default as OperatorHome } from "./OperatorHome";
 export { default as DailyReports } from "./DailyReports";
+export { default as JurInfo } from "./JurInfo";
+export { default as Payment } from "./Payment";
+export { default as ConfirmPayment } from "./ConfirmPayment";
+export { default as PaymentReport } from "./PaymentReport";

@@ -44,11 +44,18 @@ export default function OperatorHome() {
           ? filteredStations[0].moljal
           : "нет станций"}
       </p>
-      <p>
-        <Link to="/dailyreports" className="btn btn-neutral text-2xl">
-          Кунлик ҳисоботлар
-        </Link>
-      </p>
+      <div className="flex flex-col gap-3 items-center">
+        <p>
+          <Link to="/dailyreports" className="btn btn-neutral text-2xl">
+            Кунлик ҳисоботлар
+          </Link>
+        </p>
+        <p>
+          <Link to="/jurinfo" className="btn btn-neutral text-2xl">
+            Шартномалар қарздорлиги
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

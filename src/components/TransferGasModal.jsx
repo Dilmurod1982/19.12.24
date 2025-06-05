@@ -66,14 +66,16 @@ export default function TransferGasModal({
 
           const lastReport = partnerReports?.[0];
           const lastPrice = lastReport?.price || 5200;
+          const hasPreviousReport = partnerReports?.length > 0;
 
           return {
             partnerId: partner.id,
             partnerName: partner.partner_name,
             price: lastPrice,
-            gasAmount: 0, // Всегда начинаем с 0
+            gasAmount: 0,
             amount: 0,
             initialBalance: lastReport?.final_balance || 0,
+            canEditInitialBalance: !hasPreviousReport, // Allow editing if no previous reports
           };
         });
 
@@ -111,6 +113,15 @@ export default function TransferGasModal({
     updateTotals(newEntries);
   };
 
+  const handleInitialBalanceChange = (index, value) => {
+    const newValue = parseFloat(value) || 0;
+    if (isNaN(newValue)) return;
+
+    const newEntries = [...gasEntries];
+    newEntries[index].initialBalance = newValue;
+    setGasEntries(newEntries);
+  };
+
   const updateTotals = (entries) => {
     const gasTotal = entries.reduce((sum, entry) => sum + entry.gasAmount, 0);
     const amountTotal = entries.reduce((sum, entry) => sum + entry.amount, 0);
@@ -146,25 +157,27 @@ export default function TransferGasModal({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[60vh] overflow-y-auto relative">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-2 text-left">№</th>
-                    <th className="px-4 py-2 text-center">Ташкилот номи</th>
-                    <th className="px-4 py-2 text-center">
+                    <th className="px-2 py-2 text-left w-10">№</th>
+                    <th className="px-2 py-2 text-left min-w-[150px]">
+                      Ташкилот номи
+                    </th>
+                    <th className="px-2 py-2 text-center w-[120px]">
                       Қарздорлиги <br />
                       (сўм)
                     </th>
-                    <th className="px-4 py-2 text-center w-[110px]">
+                    <th className="px-2 py-2 text-center w-[110px]">
                       Нарх <br />
                       (1 м³)
                     </th>
-                    <th className="px-4 py-2 text-center w-[120px]">
+                    <th className="px-2 py-2 text-center w-[120px]">
                       Сотилган <br />
                       газ (м³)
                     </th>
-                    <th className="px-4 py-2 text-center">Суммаси</th>
+                    <th className="px-2 py-2 text-center w-[120px]">Суммаси</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -173,13 +186,27 @@ export default function TransferGasModal({
                       <td className="px-4 py-2">{index + 1}</td>
                       <td className="px-4 py-2">{entry.partnerName}</td>
                       <td className="px-4 py-2">
-                        <div
-                          className={`p-2 rounded ${
-                            entry.initialBalance > 0 ? "bg-red-100" : ""
-                          }`}
-                        >
-                          {entry.initialBalance.toLocaleString("ru-RU")}
-                        </div>
+                        {entry.canEditInitialBalance ? (
+                          <Input
+                            type="number"
+                            inputMode="numeric"
+                            value={entry.initialBalance}
+                            onChange={(e) =>
+                              handleInitialBalanceChange(index, e.target.value)
+                            }
+                            className={`p-2 ${
+                              entry.initialBalance > 0 ? "bg-red-100" : ""
+                            }`}
+                          />
+                        ) : (
+                          <div
+                            className={`p-2 rounded ${
+                              entry.initialBalance > 0 ? "bg-red-100" : ""
+                            }`}
+                          >
+                            {entry.initialBalance.toLocaleString("ru-RU")}
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-2">
                         <Input

@@ -1,34 +1,24 @@
 import React from "react";
-import { useAppStore } from "../lib/zustand";
 import { Link } from "react-router-dom";
 
-export default function BookerHome() {
-  const user = useAppStore((state) => state.user);
+export default function Payment() {
   return (
     <div className="flex justify-center items-center">
       <ul className="flex flex-col gap-5">
-        <li className="w-full">
+        <li>
           <Link
-            to="/userstations"
+            to="/paymentreport"
             className="btn btn-outline  text-2xl font-bold w-full"
           >
-            Шахобчалар
+            Тўловлар рўйхати
           </Link>
         </li>
         <li>
           <Link
-            to="/reports"
+            to="/confirmpayment"
             className="btn btn-outline  text-2xl font-bold w-full"
           >
-            Ҳисоботлар
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/payment"
-            className="btn btn-outline  text-2xl font-bold w-full"
-          >
-            Тўловлар
+            Тасдиқланишни кутаётган тўловлар
           </Link>
         </li>
       </ul>

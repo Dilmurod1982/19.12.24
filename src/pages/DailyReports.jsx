@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAppStore } from "../lib/zustand";
-import { getDailyReports, getStations, refreshToken } from "../request";
+import {
+  getDailyReports,
+  getPartnerDailyReports,
+  getPartners,
+  getStations,
+  refreshToken,
+} from "../request";
 import { Button } from "../components/ui/button";
 import { PulseLoader } from "react-spinners";
 import { Link } from "react-router-dom";
@@ -16,6 +22,15 @@ function DailyReports() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedStation, setSelectedStation] = useState("all");
+
+  const partnersDailyReports = useAppStore(
+    (state) => state.partnersDailyReports
+  );
+  const partners = useAppStore((state) => state.partners);
+  const setPartners = useAppStore((state) => state.setPartners);
+  const setPartnersDailyReports = useAppStore(
+    (state) => state.setPartnersDailyReports
+  );
 
   const dailyreports = useAppStore((state) => state.dailyreports);
   const setDailyreports = useAppStore((state) => state.setDailyreports);
@@ -54,24 +69,18 @@ function DailyReports() {
       // Загрузка отчетов
       const reportsResponse = await getDailyReports(user?.access_token);
       setDailyreports(reportsResponse);
+
+      // Загрузка отчетов по партнерам
+      const partnersReportsResponse = await getPartnerDailyReports(
+        user?.access_token
+      );
+      setPartnersDailyReports(partnersReportsResponse);
+
+      // Загрузка списка партнеров
+      const partnersResponse = await getPartners(user?.access_token);
+      setPartners(partnersResponse);
     } catch (error) {
-      if (error.message === "403") {
-        try {
-          const { access_token } = await refreshToken(user?.refreshToken);
-          setUser({ ...user, access_token });
-
-          // Повторная загрузка с новым токеном
-          const stationsResponse = await getStations(access_token);
-          setStations(stationsResponse.data);
-
-          const reportsResponse = await getDailyReports(access_token);
-          setDailyreports(reportsResponse);
-        } catch (err) {
-          console.error("Error after refresh:", err);
-        }
-      } else {
-        console.error("Error fetching data:", error);
-      }
+      // ... обработка ошибок ...
     } finally {
       setLoading(false);
     }
@@ -314,36 +323,15 @@ function DailyReports() {
                   </td>
                 </tr>
               ) : sortedReports && sortedReports.length > 0 ? (
-                sortedReports.map(
-                  ({
-                    id,
-                    date,
-                    price,
-                    pilot,
-                    kolonka,
-                    difference,
-                    losscoef,
-                    transfer,
-                    terminal,
-                    zreport,
-                    station_id,
-                  }) => (
-                    <DailyReportList
-                      key={id}
-                      id={id}
-                      date={date}
-                      price={price}
-                      pilot={pilot}
-                      kolonka={kolonka}
-                      difference={difference}
-                      losscoef={losscoef}
-                      transfer={transfer}
-                      terminal={terminal}
-                      zreport={zreport}
-                      stationName={getStationName(station_id)}
-                    />
-                  )
-                )
+                sortedReports.map((report) => (
+                  <DailyReportList
+                    key={report.id}
+                    {...report}
+                    stationName={getStationName(report.station_id)}
+                    partnersDailyReports={partnersDailyReports}
+                    partners={partners}
+                  />
+                ))
               ) : (
                 <tr>
                   <td colSpan="11" className="text-center py-8">

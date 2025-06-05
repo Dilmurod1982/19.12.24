@@ -303,10 +303,16 @@ export default function AddNewDailyReport({
       transfersum: transferData.totalAmount,
       terminal: formValues.terminal,
       station_id: filteredStations[0]?.id,
-      ...counterReadings.reduce((acc, reading, index) => {
-        acc[`shlang${index + 1}`] = reading;
-        return acc;
-      }, {}),
+      shlang1: counterReadings[0] || "0",
+      shlang2: counterReadings[1] || "0",
+      shlang3: counterReadings[2] || "0",
+      shlang4: counterReadings[3] || "0",
+      shlang5: counterReadings[4] || "0",
+      shlang6: counterReadings[5] || "0",
+      shlang7: counterReadings[6] || "0",
+      shlang8: counterReadings[7] || "0",
+      shlang9: counterReadings[8] || "0",
+      shlang10: counterReadings[9] || "0",
     };
 
     if (calculationResults) {
@@ -465,99 +471,81 @@ export default function AddNewDailyReport({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Шланг №
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Олдингиси
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Жорий
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Фарқи
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {Array.from({ length: 10 }).map((_, index) => {
-                  const prev = parseFloat(previousCounterReadings[index]) || 0;
-                  const curr = parseFloat(counterReadings[index]) || 0;
-                  const difference = curr - prev;
-                  const isInvalid = invalidReadings[index];
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 10 }).map((_, index) => {
+              const prev = parseFloat(previousCounterReadings[index]) || 0;
+              const curr = parseFloat(counterReadings[index]) || 0;
+              const difference = curr - prev;
+              const isInvalid = invalidReadings[index];
 
-                  return (
-                    <tr key={`shlang-${index}`}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {index + 1}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {hasPreviousReport ? (
-                          previousCounterReadings[index] || "Нет данных"
-                        ) : (
-                          <Input
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            value={previousCounterReadings[index] || ""}
-                            onChange={(e) => {
-                              const newReadings = [...previousCounterReadings];
-                              newReadings[index] = e.target.value;
-                              setPreviousCounterReadings(newReadings);
-                            }}
-                            className="w-32"
-                            disabled={hasPreviousReport || loading}
-                          />
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex flex-col">
-                          <Input
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            value={counterReadings[index] || ""}
-                            onChange={(e) =>
-                              handleCounterChange(index, e.target.value)
-                            }
-                            onKeyDown={(e) => {
-                              if (
-                                !/[0-9]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(
-                                  e.key
-                                )
-                              ) {
-                                e.preventDefault();
-                              }
-                            }}
-                            className={`w-32 ${
-                              isInvalid ? "border-red-500" : ""
-                            }`}
-                            disabled={loading}
-                          />
-                          {isInvalid && (
-                            <span className="text-xs text-red-500 mt-1">
-                              Жорий кўрсаткич олдинги кўрсаткичга тенг ёки кўп
-                              бўлиши керак
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td
-                        className={`px-6 py-4 whitespace-nowrap ${
-                          isInvalid ? "text-red-500" : ""
+              return (
+                <div key={`shlang-${index}`} className="space-y-2">
+                  <Label htmlFor={`shlang-${index}`}>Шланг №{index + 1}</Label>
+
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <Label className="text-xs">Олдингиси</Label>
+                      <Input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={previousCounterReadings[index] || ""}
+                        onChange={(e) => {
+                          const newReadings = [...previousCounterReadings];
+                          newReadings[index] = e.target.value;
+                          setPreviousCounterReadings(newReadings);
+                        }}
+                        className="w-full"
+                        disabled={hasPreviousReport || loading}
+                      />
+                    </div>
+
+                    <div className="flex-1">
+                      <Label className="text-xs">Жорий</Label>
+                      <Input
+                        type="text"
+                        inputMode="decimal"
+                        value={counterReadings[index] || ""}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/,/g, "."); // Заменяем запятые на точки
+                          if (/^\d*\.?\d{0,2}$/.test(value) || value === "") {
+                            handleCounterChange(index, value);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (
+                            !/[0-9]|,|\.|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(
+                              e.key
+                            )
+                          ) {
+                            e.preventDefault();
+                          }
+                        }}
+                        className={`w-full ${
+                          isInvalid ? "border-red-500" : ""
                         }`}
-                      >
-                        {difference.toFixed(2)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    className={`text-sm ${
+                      isInvalid ? "text-red-500" : "text-gray-600"
+                    }`}
+                  >
+                    Фарқи: {difference.toFixed(2)}
+                  </div>
+
+                  {isInvalid && (
+                    <span className="text-xs text-red-500">
+                      Жорий кўрсаткич олдинги кўрсаткичга тенг ёки кўп бўлиши
+                      керак
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           <div className="flex justify-between mt-4">
@@ -629,15 +617,14 @@ export default function AddNewDailyReport({
                 </Label>
                 <Input
                   type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
+                  inputMode="decimal"
                   id="price"
                   name="price"
                   className="h-9 text-sm !appearance-none ![-moz-appearance:textfield]"
                   required
                   value={formValues.price}
                   onChange={(e) => {
-                    if (/^\d*$/.test(e.target.value)) {
+                    if (/^\d*[,.]?\d{0,2}$/.test(e.target.value)) {
                       handleInputChange(e);
                     }
                   }}
