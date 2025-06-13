@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "../components/ui/input";
+import { useTokenValidation } from "../hooks/useTokenValidation";
 
 function GasAnalyzers() {
   const [sendingData, setSendingData] = useState(null);
@@ -39,6 +40,10 @@ function GasAnalyzers() {
   const gasanalyzers = useAppStore((state) => state.gasanalyzers);
   const setGasanalyzers = useAppStore((state) => state.setGasanalyzers);
   const base = "gasanalyzers";
+
+  const setSmazka = useAppStore((state) => state.setSmazka);
+
+  useTokenValidation(() => getDocs(user?.access_token, "smazka"), setSmazka);
 
   useEffect(() => {
     fetchDataWithTokenRefresh(

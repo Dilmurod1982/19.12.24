@@ -17,6 +17,7 @@ import {
 import { Input } from "../components/ui/input";
 import EcologyList from "../components/Ecology/EcologyList";
 import AddNewEcology from "../components/Ecology/AddNewEcology";
+import { useTokenValidation } from "../hooks/useTokenValidation";
 
 function Ecology() {
   const [sendingData, setSendingData] = useState(null);
@@ -34,6 +35,10 @@ function Ecology() {
   const setLtd = useAppStore((state) => state.setLtd);
   const ecology = useAppStore((state) => state.ecology);
   const setEcology = useAppStore((state) => state.setEcology);
+
+  const setSmazka = useAppStore((state) => state.setSmazka);
+
+  useTokenValidation(() => getDocs(user?.access_token, "smazka"), setSmazka);
 
   useEffect(() => {
     fetchDataWithTokenRefresh(

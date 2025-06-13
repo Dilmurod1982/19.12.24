@@ -51,22 +51,27 @@ export default function TransferGasModal({
         );
 
         setPartners(stationPartners.sort((a, b) => a.id - b.id));
-        setPartnerReports(
-          reportsResponse?.filter((r) => r.station_id === stationId) || []
-        );
+        // Фильтруем отчеты только для текущей станции
+        const stationReports =
+          reportsResponse?.filter((r) => r.station_id === stationId) || [];
+        setPartnerReports(stationReports);
 
         const initialEntries = stationPartners.map((partner) => {
-          const partnerReports = reportsResponse
-            ?.filter(
-              (r) =>
-                r.station_id === stationId &&
-                r.partner_id === partner.id.toString()
-            )
-            ?.sort((a, b) => new Date(b.date) - new Date(a.date));
+          // Находим все отчеты для этого партнера на этой станции
+          const partnerReports = stationReports
+            .filter((r) => r.partner_id.toString() === partner.id.toString()) // Исправлено сравнение ID
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-          const lastReport = partnerReports?.[0];
+          const lastReport = partnerReports[0];
           const lastPrice = lastReport?.price || 5200;
-          const hasPreviousReport = partnerReports?.length > 0;
+          const hasPreviousReport = partnerReports.length > 0;
+
+          // console.log({
+          //   partnerId: partner.id,
+          //   hasReports: hasPreviousReport,
+          //   reportsCount: partnerReports.length,
+          //   lastReport: lastReport,
+          // }); // Добавим подробное логирование
 
           return {
             partnerId: partner.id,
@@ -75,7 +80,7 @@ export default function TransferGasModal({
             gasAmount: 0,
             amount: 0,
             initialBalance: lastReport?.final_balance || 0,
-            canEditInitialBalance: !hasPreviousReport, // Allow editing if no previous reports
+            canEditInitialBalance: !hasPreviousReport,
           };
         });
 
@@ -134,7 +139,7 @@ export default function TransferGasModal({
       totalGas,
       totalAmount,
       details: gasEntries.map((entry) => ({
-        partnerId: entry.partnerId,
+        partnerId: entry.partnerId, // Already a number (no conversion needed)
         gasAmount: entry.gasAmount,
         price: entry.price,
         initialBalance: entry.initialBalance,

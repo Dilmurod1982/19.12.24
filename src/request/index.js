@@ -603,13 +603,13 @@ export async function registerPayment(token, data) {
     },
     body: JSON.stringify(data),
   });
-  if (res.status === 200 || res.status === 201) return "Malumot qoshildi";
-  if (res.status === 400 || res.status === 401)
-    throw new Error("Хатолик 400 401");
-  if (res.status === 403 || res.status === 402)
-    throw new Error("Хатолик 403 402");
-  else throw new Error("Нимадур хатолик бўлди");
-  console.log(res.status, res, await res.json());
+
+  if (res.ok) {
+    return await res.json();
+  }
+
+  const errorData = await res.json().catch(() => ({}));
+  throw new Error(errorData.message || "Произошла ошибка при создании платежа");
 }
 
 export async function createPartnerDailyReport(token, data) {

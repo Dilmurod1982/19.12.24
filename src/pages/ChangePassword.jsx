@@ -12,6 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Toast } from "../components/ui/toast"; // Используем для уведомлений
+import { useTokenValidation } from "../hooks/useTokenValidation";
+import { getDocs } from "../request";
 
 function ChangePassword() {
   const user = useAppStore((state) => state.user);
@@ -19,6 +21,10 @@ function ChangePassword() {
 
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const setSmazka = useAppStore((state) => state.setSmazka);
+
+  useTokenValidation(() => getDocs(user?.access_token, "smazka"), setSmazka);
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();

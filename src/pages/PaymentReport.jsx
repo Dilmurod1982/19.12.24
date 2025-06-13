@@ -4,22 +4,24 @@ import { DownloadOutlined, PlusOutlined } from "@ant-design/icons";
 import * as XLSX from "xlsx";
 import dayjs from "dayjs";
 import {
+  getDocs,
   getPartners,
   getPayment,
   getStations,
   registerPayment,
 } from "../request";
 import { useAppStore } from "../lib/zustand";
+import { BASE_URL } from "../my-utils";
+import { useTokenValidation } from "../hooks/useTokenValidation";
 
 const { Option } = Select;
 
 const PaymentReport = () => {
-  const payment = useAppStore((state) => state.payment);
-  const setPayment = useAppStore((state) => state.setPayment);
+  const [dailyReports, setDailyReports] = useState([]);
   const [filteredPayments, setFilteredPayments] = useState([]);
-  const partners = useAppStore((state) => state.partners);
+  const partners = useAppStore((state) => state.partners) || [];
   const setPartners = useAppStore((state) => state.setPartners);
-  const stations = useAppStore((state) => state.stations);
+  const stations = useAppStore((state) => state.stations) || { data: [] };
   const setStations = useAppStore((state) => state.setStations);
   const user = useAppStore((state) => state.user);
   const [loading, setLoading] = useState(false);
@@ -28,31 +30,55 @@ const PaymentReport = () => {
   const [filterMonth, setFilterMonth] = useState(null);
   const [filterStation, setFilterStation] = useState(null);
   const [filterPartner, setFilterPartner] = useState(null);
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
+    useState(false);
+  const [userStations, setUserStations] = useState([]);
+
+  const setSmazka = useAppStore((state) => state.setSmazka);
+
+  useTokenValidation(() => getDocs(user?.access_token, "smazka"), setSmazka);
 
   useEffect(() => {
     applyFilters();
-  }, [payment, filterYear, filterMonth, filterStation, filterPartner]);
+  }, [dailyReports, filterYear, filterMonth, filterStation, filterPartner]);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (stations?.data && user?.id) {
+      // Фильтруем станции, доступные текущему пользователю
+      const filtered = stations.data.filter(
+        (station) =>
+          station.operators && station.operators.includes(user.id.toString())
+      );
+      setUserStations(filtered || []);
+    }
+  }, [stations, user]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       const token = user?.access_token;
 
-      const [paymentsData, partnersData, stationsData] = await Promise.all([
-        getPayment(token),
+      const [partnersData, stationsData] = await Promise.all([
         getPartners(token),
-        getStations(token), // Убедитесь, что этот запрос возвращает массив
+        getStations(token),
       ]);
 
-      setPayment(paymentsData);
-      setPartners(partnersData);
-      setStations(stationsData); // Проверьте, что stationsData - это массив
+      // Загружаем daily reports вместо payments
+      const reportsResponse = await fetch(`${BASE_URL}/partnersdailyreports`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const reportsData = await reportsResponse.json();
+      setDailyReports(reportsData.data || reportsData);
+      setPartners(partnersData || []);
+      setStations(stationsData || { data: [] });
     } catch (error) {
-      message.error("Ошибка при загрузке данных");
+      message.error("Маълумотлар юкланишида хатолик");
       console.error(error);
     } finally {
       setLoading(false);
@@ -60,17 +86,40 @@ const PaymentReport = () => {
   };
 
   const applyFilters = () => {
-    let filtered = [...payment]; // Используем payment из хранилища
+    if (!Array.isArray(dailyReports)) {
+      setFilteredPayments([]);
+      return;
+    }
+
+    const allPayments = (
+      Array.isArray(dailyReports) ? dailyReports : []
+    ).reduce((acc, report) => {
+      if (report?.payment && Array.isArray(report.payment)) {
+        return [
+          ...acc,
+          ...report.payment.map((p) => ({
+            ...p,
+            date: report.date,
+            partner_id: report.partner_id,
+            station_id: report.station_id,
+            reportId: report.id,
+          })),
+        ];
+      }
+      return acc;
+    }, []);
+
+    let filtered = [...allPayments];
 
     if (filterYear) {
       filtered = filtered.filter(
-        (p) => new Date(p.date).getFullYear() === filterYear
+        (p) => p.date && new Date(p.date).getFullYear() === filterYear
       );
     }
 
     if (filterMonth) {
       filtered = filtered.filter(
-        (p) => new Date(p.date).getMonth() + 1 === filterMonth
+        (p) => p.date && new Date(p.date).getMonth() + 1 === filterMonth
       );
     }
 
@@ -88,55 +137,55 @@ const PaymentReport = () => {
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(
       filteredPayments.map((p) => ({
-        "ID оплаты": p.id,
+        ID: p.id,
         Партнер:
           partners.find((partner) => partner.id == p.partner_id)
-            ?.partner_name || "Неизвестно",
-        "Дата оплаты": p.date,
-        "Номер квитанции": p.paymentNumber,
+            ?.partner_name || "Номаълум",
+        "Тўлов санаси": p.date,
+        "Тўлов рақами": p.paymentNumber,
         Сумма: p.paymentSum,
         Статус: getStatusText(p.approval),
       }))
     );
 
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Оплаты");
-    XLSX.writeFile(wb, "Отчет_по_оплатам.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "Туловлар");
+    XLSX.writeFile(wb, "Хисобот туловлар.xlsx");
   };
 
   const getStatusText = (status) => {
     switch (status) {
       case "0":
-        return "Создан";
+        return "Яратилган";
       case "1":
-        return "Утвержден";
+        return "Тасдиқланган";
       case "2":
-        return "Отклонен";
+        return "Бекор қилинган";
       default:
-        return "Неизвестно";
+        return "Номаълум";
     }
   };
 
   const columns = [
     {
-      title: "ID оплаты",
+      title: "ID",
       dataIndex: "id",
       key: "id",
     },
     {
-      title: "Партнер",
+      title: "Хамкор",
       key: "partner",
       render: (_, record) =>
         partners.find((p) => p.id == record.partner_id)?.partner_name ||
-        "Неизвестно",
+        "Номаълум",
     },
     {
-      title: "Дата оплаты",
+      title: "Тўлов санаси",
       dataIndex: "date",
       key: "date",
     },
     {
-      title: "Номер квитанции",
+      title: "Тўлов рақами",
       dataIndex: "paymentNumber",
       key: "paymentNumber",
     },
@@ -146,7 +195,7 @@ const PaymentReport = () => {
       key: "paymentSum",
     },
     {
-      title: "Статус",
+      title: "Холати",
       key: "status",
       render: (_, record) => getStatusText(record.approval),
     },
@@ -173,20 +222,123 @@ const PaymentReport = () => {
 
   const handleSavePayment = async (values, approvalStatus = "0") => {
     try {
+      const token = user?.access_token;
       const paymentData = {
-        ...values,
+        paymentNumber: values.paymentNumber,
+        paymentSum: values.paymentSum,
         approval: approvalStatus,
         user_id: user?.id,
+        create_time: dayjs().format("YYYY-MM-DD HH:mm:ss"),
       };
 
-      await registerPayment(user?.access_token, paymentData);
+      if (Number(values.paymentSum) <= 0) {
+        throw new Error("Сумма платежа должна быть положительной");
+      }
+
+      // 1. Пытаемся найти существующий отчет
+      const response = await fetch(
+        `${BASE_URL}/partnersdailyreports?date=${values.date}&partner_id=${values.partner_id}&station_id=${values.station_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Ошибка при получении отчетов");
+
+      const responseData = await response.json();
+      console.log("Полный ответ сервера:", responseData);
+
+      // Извлекаем отчет из массива data
+      let reportToUpdate = responseData.data?.[0];
+
+      // 2. Если отчета нет - создаем новый
+      if (!reportToUpdate) {
+        const newReportResponse = await fetch(
+          `${BASE_URL}/partnersdailyreports`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              date: values.date,
+              partner_id: values.partner_id,
+              station_id: values.station_id,
+              initial_balace: "0",
+              total_sum: "0",
+              final_balance: "0",
+              payment: [],
+            }),
+          }
+        );
+
+        if (!newReportResponse.ok) {
+          throw new Error("Ошибка при создании нового отчета");
+        }
+
+        const newReportData = await newReportResponse.json();
+        reportToUpdate = newReportData.data?.[0] || newReportData;
+      }
+
+      console.log("Отчет для обновления:", reportToUpdate);
+
+      if (!reportToUpdate?.id) {
+        throw new Error("ID отчета не найден в ответе сервера");
+      }
+
+      // 3. Проверка уникальности платежа
+      const existingPayments = reportToUpdate.payment || [];
+      if (
+        existingPayments.some((p) => p.paymentNumber === values.paymentNumber)
+      ) {
+        throw new Error("Платеж с таким номером уже существует");
+      }
+
+      // 4. Обновляем отчет
+      const updatedPayment = [...existingPayments, paymentData];
+      const totalPayment = updatedPayment.reduce(
+        (sum, p) => sum + Number(p.paymentSum),
+        0
+      );
+
+      const initialBalance = Number(reportToUpdate.initial_balace) || 0;
+      const totalSum = Number(reportToUpdate.total_sum) || 0;
+      const updatedFinalBalance = initialBalance + totalSum - totalPayment;
+
+      const updateData = {
+        payment: updatedPayment,
+        final_balance: updatedFinalBalance.toString(),
+      };
+
+      const updateResponse = await fetch(
+        `${BASE_URL}/partnersdailyreports/${reportToUpdate.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updateData),
+        }
+      );
+
+      if (!updateResponse.ok) {
+        const errorText = await updateResponse.text();
+        throw new Error(
+          `Ошибка обновления отчета: ${updateResponse.status} - ${errorText}`
+        );
+      }
+
       message.success("Оплата успешно добавлена");
       setIsModalVisible(false);
       setIsConfirmationModalVisible(false);
-      fetchData(); // Обновляем данные после сохранения
+      fetchData();
     } catch (error) {
-      message.error("Ошибка при добавлении оплаты");
-      console.error(error);
+      console.error("Полная ошибка:", error);
+      message.error(`Ошибка: ${error.message}`);
     }
   };
 
@@ -196,7 +348,7 @@ const PaymentReport = () => {
         style={{ marginBottom: 16, display: "flex", gap: 8, flexWrap: "wrap" }}
       >
         <Select
-          placeholder="Год"
+          placeholder="Йил"
           style={{ width: 120 }}
           onChange={setFilterYear}
           allowClear
@@ -209,7 +361,7 @@ const PaymentReport = () => {
         </Select>
 
         <Select
-          placeholder="Месяц"
+          placeholder="Ой"
           style={{ width: 120 }}
           onChange={setFilterMonth}
           allowClear
@@ -222,9 +374,12 @@ const PaymentReport = () => {
         </Select>
 
         <Select
-          placeholder="Станция"
+          placeholder="Шахобча"
           style={{ width: 200 }}
-          onChange={setFilterStation}
+          onChange={(value) => {
+            setFilterStation(value);
+            setFilterPartner(null); // Сбрасываем выбор партнера при смене станции
+          }}
           allowClear
           showSearch
           optionFilterProp="children"
@@ -232,16 +387,15 @@ const PaymentReport = () => {
             option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
           }
         >
-          {Array.isArray(stations) &&
-            stations.map((station) => (
-              <Option key={station.id} value={station.id}>
-                {station.moljal}
-              </Option>
-            ))}
+          {userStations.map((station) => (
+            <Option key={station.id} value={station.id}>
+              {station.moljal}
+            </Option>
+          ))}
         </Select>
 
         <Select
-          placeholder="Партнер"
+          placeholder="Хамкор"
           style={{ width: 200 }}
           onChange={setFilterPartner}
           allowClear
@@ -250,12 +404,23 @@ const PaymentReport = () => {
           filterOption={(input, option) =>
             option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
           }
+          disabled={!filterStation} // Делаем неактивным, если не выбрана станция
         >
-          {partners.map((partner) => (
-            <Option key={partner.id} value={partner.id}>
-              {partner.partner_name}
-            </Option>
-          ))}
+          {filterStation &&
+            partners
+              .filter((partner) => {
+                const station = userStations.find((s) => s.id == filterStation);
+                return (
+                  station &&
+                  station.partners &&
+                  station.partners.includes(partner.id.toString())
+                );
+              })
+              .map((partner) => (
+                <Option key={partner.id} value={partner.id}>
+                  {partner.partner_name}
+                </Option>
+              ))}
         </Select>
 
         <Button
@@ -287,8 +452,10 @@ const PaymentReport = () => {
         onCancel={() => setIsModalVisible(false)}
         onSave={handleSavePayment}
         partners={partners}
-        stations={stations} // Добавляем эту строку
-        user={user} // Также убедимся, что передаем user
+        stations={{ data: userStations }} // Передаем только станции пользователя
+        user={user}
+        isConfirmationModalVisible={isConfirmationModalVisible}
+        setIsConfirmationModalVisible={setIsConfirmationModalVisible}
       />
     </div>
   );
@@ -301,6 +468,8 @@ const AddNewPayment = ({
   partners,
   stations = [],
   user,
+  isConfirmationModalVisible,
+  setIsConfirmationModalVisible,
 }) => {
   const [form, setForm] = useState({
     partner_id: null,
@@ -311,8 +480,29 @@ const AddNewPayment = ({
   });
   const [searchPartner, setSearchPartner] = useState("");
   const [searchStation, setSearchStation] = useState("");
-  const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
-    useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [availablePartners, setAvailablePartners] = useState([]);
+
+  // Фильтруем партнеров при изменении выбранной станции
+  useEffect(() => {
+    if (form.station_id) {
+      const selectedStation = stations.data.find(
+        (s) => s.id == form.station_id
+      );
+      if (selectedStation && selectedStation.partners) {
+        const filtered = partners.filter((partner) =>
+          selectedStation.partners.includes(partner.id.toString())
+        );
+        setAvailablePartners(filtered);
+      } else {
+        setAvailablePartners([]);
+      }
+    } else {
+      setAvailablePartners([]);
+    }
+    // Сбрасываем выбранного партнера при смене станции
+    setForm((prev) => ({ ...prev, partner_id: null }));
+  }, [form.station_id, partners, stations]);
 
   const handleSubmit = () => {
     if (
@@ -333,23 +523,28 @@ const AddNewPayment = ({
     }
   };
 
-  const handleConfirmation = (approvalStatus) => {
-    onSave({ ...form, approval: approvalStatus }, approvalStatus);
+  const handleConfirmation = async (approvalStatus) => {
+    setConfirmLoading(true);
+    try {
+      await onSave({ ...form, approval: approvalStatus }, approvalStatus);
+      setIsConfirmationModalVisible(false);
+    } catch (error) {
+      message.error("Ошибка при сохранении оплаты");
+    } finally {
+      setConfirmLoading(false);
+    }
   };
 
-  // Добавляем проверку на массив
-  const filteredPartners = Array.isArray(partners)
-    ? partners.filter((partner) =>
-        partner.partner_name.toLowerCase().includes(searchPartner.toLowerCase())
-      )
-    : [];
+  const filteredStations =
+    stations && Array.isArray(stations.data)
+      ? stations.data.filter((station) =>
+          station.moljal?.toLowerCase().includes(searchStation.toLowerCase())
+        )
+      : [];
 
-  // Добавляем проверку на массив
-  const filteredStations = Array.isArray(stations?.data)
-    ? stations.data.filter((station) =>
-        station.moljal?.toLowerCase().includes(searchStation.toLowerCase())
-      )
-    : [];
+  const filteredPartners = availablePartners.filter((partner) =>
+    partner.partner_name.toLowerCase().includes(searchPartner.toLowerCase())
+  );
 
   return (
     <>
@@ -368,25 +563,6 @@ const AddNewPayment = ({
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div>
-            <div>Партнер</div>
-            <Select
-              showSearch
-              placeholder="Выберите партнера"
-              style={{ width: "100%" }}
-              value={form.partner_id}
-              onChange={(value) => setForm({ ...form, partner_id: value })}
-              onSearch={setSearchPartner}
-              filterOption={false}
-            >
-              {filteredPartners.map((partner) => (
-                <Option key={partner.id} value={partner.id}>
-                  {partner.partner_name}
-                </Option>
-              ))}
-            </Select>
-          </div>
-
-          <div>
             <div>Станция</div>
             <Select
               showSearch
@@ -400,6 +576,30 @@ const AddNewPayment = ({
               {filteredStations.map((station) => (
                 <Option key={station.id} value={station.id}>
                   {station.moljal}
+                </Option>
+              ))}
+            </Select>
+          </div>
+
+          <div>
+            <div>Партнер</div>
+            <Select
+              showSearch
+              placeholder={
+                form.station_id
+                  ? "Выберите партнера"
+                  : "Сначала выберите станцию"
+              }
+              style={{ width: "100%" }}
+              value={form.partner_id}
+              onChange={(value) => setForm({ ...form, partner_id: value })}
+              onSearch={setSearchPartner}
+              filterOption={false}
+              disabled={!form.station_id}
+            >
+              {filteredPartners.map((partner) => (
+                <Option key={partner.id} value={partner.id}>
+                  {partner.partner_name}
                 </Option>
               ))}
             </Select>
@@ -442,23 +642,34 @@ const AddNewPayment = ({
         <Modal
           title="Подтверждение оплаты"
           visible={isConfirmationModalVisible}
-          onCancel={() => setIsConfirmationModalVisible(false)}
+          onCancel={() =>
+            !confirmLoading && setIsConfirmationModalVisible(false)
+          }
           footer={[
             <Button
               key="back"
-              onClick={() => setIsConfirmationModalVisible(false)}
+              onClick={() =>
+                !confirmLoading && setIsConfirmationModalVisible(false)
+              }
+              disabled={confirmLoading}
             >
               Отмена
             </Button>,
-            <Button key="save" onClick={() => handleConfirmation("0")}>
+            <Button
+              key="save"
+              onClick={() => handleConfirmation("0")}
+              disabled={confirmLoading}
+            >
               Сохранить
             </Button>,
             <Button
               key="approve"
               type="primary"
               onClick={() => handleConfirmation("1")}
+              loading={confirmLoading}
+              disabled={confirmLoading}
             >
-              Утвердить
+              {confirmLoading ? "Обработка..." : "Утвердить"}
             </Button>,
           ]}
         >

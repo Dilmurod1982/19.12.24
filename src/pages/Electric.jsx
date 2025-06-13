@@ -17,6 +17,7 @@ import {
 import { Input } from "../components/ui/input";
 import ElectricList from "../components/electric/ElectricList";
 import AddNewElectric from "../components/electric/AddNewElectric";
+import { useTokenValidation } from "../hooks/useTokenValidation";
 
 function Electric() {
   // замена
@@ -35,6 +36,10 @@ function Electric() {
   const setLtd = useAppStore((state) => state.setLtd);
   const electric = useAppStore((state) => state.electric); //zamena
   const setElectric = useAppStore((state) => state.setElectric); //zamena
+
+  const setSmazka = useAppStore((state) => state.setSmazka);
+
+  useTokenValidation(() => getDocs(user?.access_token, "smazka"), setSmazka);
 
   useEffect(() => {
     fetchDataWithTokenRefresh(

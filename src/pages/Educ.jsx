@@ -17,6 +17,7 @@ import {
 import { Input } from "../components/ui/input";
 import EducList from "../components/educ/EducList";
 import AddNewEduc from "../components/educ/AddNewEduc";
+import { useTokenValidation } from "../hooks/useTokenValidation";
 
 function Educ() {
   // замена
@@ -35,6 +36,10 @@ function Educ() {
   const setLtd = useAppStore((state) => state.setLtd);
   const educ = useAppStore((state) => state.educ); //zamena
   const setEduc = useAppStore((state) => state.setEduc); //zamena
+
+  const setSmazka = useAppStore((state) => state.setSmazka);
+
+  useTokenValidation(() => getDocs(user?.access_token, "smazka"), setSmazka);
 
   useEffect(() => {
     fetchDataWithTokenRefresh(

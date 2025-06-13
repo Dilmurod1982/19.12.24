@@ -1,9 +1,10 @@
+import { Button } from "antd";
 import React from "react";
 import { Link } from "react-router-dom";
 
 export default function Payment() {
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex flex-col justify-center items-center">
       <ul className="flex flex-col gap-5">
         <li>
           <Link
@@ -22,6 +23,11 @@ export default function Payment() {
           </Link>
         </li>
       </ul>
+      <div className="flex w-full h-screen justify-center mt-5">
+        <Button>
+          <Link to="/bookerhome">Орқага</Link>
+        </Button>
+      </div>
     </div>
   );
 }

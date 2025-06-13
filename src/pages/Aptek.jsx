@@ -17,6 +17,7 @@ import {
 import { Input } from "../components/ui/input";
 import AptekList from "../components/aptek/AptekList";
 import AddNewAptek from "../components/aptek/AddNewAptek";
+import { useTokenValidation } from "../hooks/useTokenValidation";
 
 function Aptek() {
   // замена
@@ -35,6 +36,10 @@ function Aptek() {
   const setLtd = useAppStore((state) => state.setLtd);
   const aptek = useAppStore((state) => state.aptek); //zamena
   const setAptek = useAppStore((state) => state.setAptek); //zamena
+
+  const setSmazka = useAppStore((state) => state.setSmazka);
+
+  useTokenValidation(() => getDocs(user?.access_token, "smazka"), setSmazka);
 
   useEffect(() => {
     fetchDataWithTokenRefresh(

@@ -20,6 +20,7 @@ import {
   createPartnerDailyReport,
   getPartnerDailyReports,
   getDailyReports,
+  getPartners,
 } from "../request";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +36,7 @@ export default function AddNewDailyReport({
   const [calculationResults, setCalculationResults] = useState(null);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [formDataToSubmit, setFormDataToSubmit] = useState(null);
+  const [partners, setPartners] = useState([]);
 
   const [countersModalOpen, setCountersModalOpen] = useState(false);
   const [counterReadings, setCounterReadings] = useState(Array(10).fill(""));
@@ -74,6 +76,25 @@ export default function AddNewDailyReport({
   const setDailyreports = useAppStore((state) => state.setDailyreports);
 
   const resultsRef = useRef(null);
+
+  useEffect(() => {
+    if (!user?.access_token) return;
+
+    const loadData = async () => {
+      try {
+        const [stationsData, partnersData] = await Promise.all([
+          getDocs(user.access_token, "stations"),
+          getPartners(user.access_token),
+        ]);
+        setStations(stationsData);
+        setPartners(partnersData);
+      } catch (error) {
+        console.error("Ошибка загрузки данных:", error);
+      }
+    };
+
+    loadData();
+  }, [user]);
 
   // Проверяем, есть ли отрицательные разницы
   const hasNegativeDifferences = useMemo(() => {
@@ -325,6 +346,131 @@ export default function AddNewDailyReport({
     setConfirmationOpen(true);
   };
 
+  const checkServerAvailability = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/kolonkamarka`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${user.access_token}`,
+        },
+      });
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const validateFormData = (data) => {
+    const requiredFields = ["date", "price", "pilot", "kolonka", "terminal"];
+    const missingFields = requiredFields.filter((field) => !data[field]);
+
+    if (missingFields.length > 0) {
+      throw new Error(
+        `Не заполнены обязательные поля: ${missingFields.join(", ")}`
+      );
+    }
+
+    if (isNaN(parseFloat(data.price))) {
+      throw new Error("Некорректное значение цены");
+    }
+
+    // Дополнительные проверки...
+  };
+
+  // const handleConfirmSubmit = async () => {
+  //   if (!formDataToSubmit) {
+  //     toast.error("Нет данных для сохранения");
+  //     return;
+  //   }
+
+  //   setConfirmationOpen(false);
+  //   setLoading(true);
+
+  //   try {
+  //     // 1. Сначала сохраняем основной отчет
+  //     const reportResponse = await registerDailyReport(
+  //       user.access_token,
+  //       formDataToSubmit
+  //     );
+
+  //     // 2. Получаем предыдущие отчеты партнеров
+  //     let previousReports = [];
+  //     try {
+  //       previousReports = await getPartnerDailyReports(user.access_token);
+  //     } catch (error) {
+  //       if (error.message === "403") {
+  //         const { access_token } = await refreshToken(user.refresh_token);
+  //         setUser({ ...user, access_token });
+  //         previousReports = await getPartnerDailyReports(access_token);
+  //       } else {
+  //         throw error;
+  //       }
+  //     }
+
+  //     // 3. Сохраняем отчеты по партнерам последовательно
+  //     if (transferData.details.length > 0) {
+  //       for (const entry of transferData.details) {
+  //         const partnerPreviousReports =
+  //           previousReports
+  //             ?.filter((r) => r.partner_id === entry.partnerId.toString())
+  //             ?.sort((a, b) => new Date(b.date) - new Date(a.date)) || [];
+
+  //         const lastReport = partnerPreviousReports[0];
+
+  //         const initialBalance = lastReport
+  //           ? parseFloat(lastReport.final_balance)
+  //           : entry.initialBalance || 0;
+
+  //         const totalSum = entry.gasAmount * entry.price;
+  //         const payment = [];
+  //         const finalBalance = initialBalance + totalSum - payment;
+
+  //         const reportData = {
+  //           date: formValues.date,
+  //           station_id: filteredStations[0]?.id,
+  //           partner_id: entry.partnerId,
+  //           initial_balace: initialBalance,
+  //           gas: entry.gasAmount,
+  //           price: entry.price,
+  //           total_sum: totalSum,
+  //           payment: payment,
+  //           final_balance: finalBalance,
+  //           user_id: user.id,
+  //           daily_report_id: reportResponse.id, // Используем ID основного отчета
+  //           create_report: new Date().toISOString(),
+  //         };
+
+  //         await createPartnerDailyReport(user.access_token, reportData);
+  //       }
+  //     }
+
+  //     toast.success("Ҳисобот мувафақиятли яратилди!");
+  //     // Обновляем список отчетов
+  //     const updatedReports = await getDailyReports(user.access_token);
+  //     setDailyreports(updatedReports);
+
+  //     resetForm();
+  //     setAddItemModal(false);
+  //   } catch (error) {
+  //     console.error("Ошибка сохранения отчета:", error);
+  //     toast.error(error.message || "Ҳисобот сақлашда ҳатолик!");
+
+  //     if (error.message === "403") {
+  //       try {
+  //         const { access_token } = await refreshToken(user.refresh_token);
+  //         setUser({ ...user, access_token });
+  //         toast.success("Токен янгиланди. Қайта уриниб кўринг.");
+  //       } catch (refreshError) {
+  //         toast.error("Авторизация хатоси");
+  //         setUser(null);
+  //         navigate("/login");
+  //       }
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleConfirmSubmit = async () => {
     if (!formDataToSubmit) {
       toast.error("Нет данных для сохранения");
@@ -335,7 +481,12 @@ export default function AddNewDailyReport({
     setLoading(true);
 
     try {
-      // 1. Сначала получаем предыдущие отчеты партнеров
+      // 1. Проверка соединения
+      if (!navigator.onLine) {
+        throw new Error("Нет подключения к интернету");
+      }
+
+      // 2. Получаем предыдущие отчеты партнеров
       let previousReports = [];
       try {
         previousReports = await getPartnerDailyReports(user.access_token);
@@ -349,73 +500,95 @@ export default function AddNewDailyReport({
         }
       }
 
-      // 2. Сохраняем основной отчет
+      // 3. Локальная валидация
+      validateFormData(formDataToSubmit);
+
+      // 4. Если нет данных о передаче газа, создаем нулевые записи для всех партнеров
+      const defaultPrice = 5200;
+      const partnerDetails =
+        transferData.details.length > 0
+          ? transferData.details
+          : filteredStations[0]?.partners?.map((partnerId) => {
+              const partner = partners.find(
+                (p) => p.id.toString() === partnerId.toString()
+              );
+              const partnerReports =
+                previousReports?.filter(
+                  (r) =>
+                    r.partner_id.toString() === partnerId.toString() &&
+                    r.station_id.toString() ===
+                      filteredStations[0]?.id.toString()
+                ) || [];
+              const lastReport = partnerReports[0];
+
+              return {
+                partnerId: Number(partnerId),
+                gasAmount: 0,
+                price: defaultPrice,
+                initialBalance: lastReport?.final_balance || 0,
+              };
+            }) || [];
+
+      // 5. Сохраняем основной отчет
       const reportResponse = await registerDailyReport(
         user.access_token,
         formDataToSubmit
       );
 
-      // 3. Сохраняем отчеты по партнерам
-      if (transferData.details.length > 0) {
-        await Promise.all(
-          transferData.details.map(async (entry) => {
-            const partnerPreviousReports =
-              previousReports
-                ?.filter((r) => r.partner_id === entry.partnerId.toString())
-                ?.sort((a, b) => new Date(b.date) - new Date(a.date)) || [];
+      // 6. Сохраняем отчеты партнеров
+      const failedPartnerReports = [];
 
-            const lastReport = partnerPreviousReports[0];
+      for (const [index, entry] of partnerDetails.entries()) {
+        try {
+          const reportData = {
+            date: formValues.date,
+            station_id: filteredStations[0]?.id,
+            partner_id: entry.partnerId,
+            initial_balace: entry.initialBalance,
+            gas: entry.gasAmount,
+            price: entry.price,
+            total_sum: entry.gasAmount * entry.price,
+            payment: 0,
+            final_balance: entry.initialBalance + entry.gasAmount * entry.price,
+            user_id: user.id,
+            daily_report_id: reportResponse.id,
+            create_report: new Date().toISOString(),
+          };
+          await createPartnerDailyReport(user.access_token, reportData);
+        } catch (error) {
+          console.error(
+            `Ошибка сохранения отчета партнера ${entry.partnerId}:`,
+            error
+          );
+          failedPartnerReports.push(entry);
+        }
+      }
 
-            const initialBalance = lastReport
-              ? parseFloat(lastReport.final_balance)
-              : entry.initialBalance || 0;
-
-            const totalSum = entry.gasAmount * entry.price;
-            const payment = 0;
-            const finalBalance = initialBalance + totalSum - payment;
-
-            const reportData = {
-              date: formValues.date,
-              station_id: filteredStations[0]?.id,
-              partner_id: entry.partnerId.toString(),
-              initial_balace: initialBalance,
-              gas: entry.gasAmount,
-              price: entry.price,
-              total_sum: totalSum,
-              payment: payment,
-              final_balance: finalBalance,
-              user_id: user.id,
-              daily_report_id: reportResponse.id,
-              create_report: new Date().toISOString(),
-            };
-
-            return createPartnerDailyReport(user.access_token, reportData);
-          })
+      if (failedPartnerReports.length > 0) {
+        throw new Error(
+          `Не удалось сохранить ${failedPartnerReports.length} отчетов партнеров`
         );
       }
 
-      toast.success("Ҳисобот мувафақиятли яратилди!");
+      // ОЧИСТКА ФОРМЫ ПОСЛЕ УСПЕШНОГО СОХРАНЕНИЯ
+      resetForm();
+      setCounterReadings(Array(10).fill(""));
+      setTransferData({
+        totalGas: 0,
+        totalAmount: 0,
+        details: [],
+      });
+
+      setAddItemModal(false);
+      setConfirmationOpen(false);
+      toast.success("Отчет успешно создан!");
+
       // Обновляем список отчетов
       const updatedReports = await getDailyReports(user.access_token);
       setDailyreports(updatedReports);
-
-      resetForm();
-      setAddItemModal(false);
     } catch (error) {
-      console.error("Ошибка сохранения отчета:", error);
-      toast.error(error.message || "Ҳисобот сақлашда ҳатолик!");
-
-      if (error.message === "403") {
-        try {
-          const { access_token } = await refreshToken(user.refresh_token);
-          setUser({ ...user, access_token });
-          toast.success("Токен янгиланди. Қайта уриниб кўринг.");
-        } catch (refreshError) {
-          toast.error("Авторизация хатоси");
-          setUser(null);
-          navigate("/login");
-        }
-      }
+      console.error("Ошибка сохранения:", error);
+      toast.error(error.message || "Ошибка при сохранении");
     } finally {
       setLoading(false);
     }

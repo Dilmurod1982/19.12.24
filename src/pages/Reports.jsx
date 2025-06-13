@@ -1,3 +1,4 @@
+import { Button } from "antd";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -14,6 +15,11 @@ export default function Reports() {
           </Link>
         </li>
       </ul>
+      <div className="flex w-full h-screen justify-center mt-5">
+        <Button>
+          <Link to="/bookerhome">Орқага</Link>
+        </Button>
+      </div>
     </div>
   );
 }

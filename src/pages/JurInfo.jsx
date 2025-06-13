@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useAppStore } from "../lib/zustand";
-import { getPartnerDailyReports, getPartners, getStations } from "../request";
+import {
+  getDocs,
+  getPartnerDailyReports,
+  getPartners,
+  getStations,
+} from "../request";
+import { useTokenValidation } from "../hooks/useTokenValidation";
+import { Link } from "react-router-dom";
+import PartnerReportDetail from "../components/PartnerReportDetail";
 
 export default function JurInfo() {
   const user = useAppStore((state) => state.user);
@@ -15,9 +23,21 @@ export default function JurInfo() {
     (state) => state.setPartnersDailyReports
   );
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPartner, setSelectedPartner] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedStation, setSelectedStation] = useState("all");
+
+  const setSmazka = useAppStore((state) => state.setSmazka);
+
+  useTokenValidation(() => getDocs(user?.access_token, "smazka"), setSmazka);
+
+  const openPartnerDetails = (partner) => {
+    setSelectedPartner(partner);
+    setIsModalOpen(true);
+  };
 
   useEffect(() => {
     loadData();
@@ -65,43 +85,91 @@ export default function JurInfo() {
     { value: 12, name: "Декабрь" },
   ];
 
-  // Получаем данные за выбранный месяц и год
-  const getMonthlyData = () => {
-    if (!partnersDailyReports || !partners) return [];
+  // Фильтруем станции, доступные текущему пользователю
+  const getUserStations = () => {
+    if (!stations || !user) return [];
+    return stations.filter((station) =>
+      station.operators?.includes(user.id.toString())
+    );
+  };
 
-    return partners.map((partner) => {
-      // Фильтруем отчеты по партнеру и выбранному месяцу/году
+  const userStations = getUserStations();
+
+  // Получаем данные за выбранный месяц и год с фильтрацией по станции
+  const getMonthlyData = () => {
+    if (!partnersDailyReports || !partners || !userStations) return [];
+
+    // Находим выбранную станцию
+    const currentStation = userStations.find((station) =>
+      selectedStation !== "all" ? station.id === Number(selectedStation) : false
+    );
+
+    // Фильтруем партнеров по выбранной станции
+    const filteredPartners =
+      selectedStation === "all"
+        ? partners
+        : partners.filter((partner) =>
+            currentStation?.partners?.includes(partner.id.toString())
+          );
+
+    return filteredPartners.map((partner) => {
       const partnerReports = partnersDailyReports.filter((report) => {
         const reportDate = new Date(report.date);
         return (
-          report.partner_id === partner.id.toString() &&
+          report.partner_id === partner.id &&
           reportDate.getFullYear() === selectedYear &&
-          reportDate.getMonth() + 1 === selectedMonth
+          reportDate.getMonth() + 1 === selectedMonth &&
+          (selectedStation === "all" ||
+            report.station_id === Number(selectedStation))
         );
       });
 
-      // Начальное сальдо (берем первый день месяца)
       const initialBalanceReport = partnerReports.find((report) => {
         const reportDate = new Date(report.date);
         return reportDate.getDate() === 1;
       });
-      const initialBalance = initialBalanceReport?.initial_balance || 0;
+      const initialBalance = initialBalanceReport?.initial_balace || 0;
 
-      // Суммируем показатели за месяц
       const totalGas = partnerReports.reduce(
-        (sum, report) => sum + (report.gas || 0),
+        (sum, report) => sum + (Number(report.gas) || 0),
         0
       );
       const totalSum = partnerReports.reduce(
-        (sum, report) => sum + (report.total_sum || 0),
-        0
-      );
-      const totalPayment = partnerReports.reduce(
-        (sum, report) => sum + (report.payment || 0),
+        (sum, report) => sum + (Number(report.total_sum) || 0),
         0
       );
 
-      // Конечное сальдо (берем последний отчет)
+      const totalPayment = partnerReports.reduce((sum, report) => {
+        if (!report.payment) return sum;
+
+        if (Array.isArray(report.payment)) {
+          return (
+            sum +
+            report.payment.reduce((paymentSum, payment) => {
+              return paymentSum + (Number(payment.paymentSum) || 0);
+            }, 0)
+          );
+        } else if (typeof report.payment === "string") {
+          try {
+            const parsedPayment = JSON.parse(report.payment);
+            if (Array.isArray(parsedPayment)) {
+              return (
+                sum +
+                parsedPayment.reduce((paymentSum, payment) => {
+                  return paymentSum + (Number(payment.paymentSum) || 0);
+                }, 0)
+              );
+            }
+          } catch (e) {
+            console.error("Error parsing payment:", e);
+          }
+        } else if (typeof report.payment === "number") {
+          return sum + report.payment;
+        }
+
+        return sum;
+      }, 0);
+
       const lastReport = partnerReports[partnerReports.length - 1];
       const finalBalance = lastReport?.final_balance || initialBalance;
 
@@ -113,7 +181,7 @@ export default function JurInfo() {
         totalSum,
         totalPayment,
         finalBalance,
-        hasPositiveBalance: finalBalance > 0, // Добавляем флаг для положительного сальдо
+        hasPositiveBalance: finalBalance > 0,
       };
     });
   };
@@ -124,8 +192,8 @@ export default function JurInfo() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-6">Отчет по юридическим лицам</h1>
 
-      {/* Фильтры по году и месяцу */}
-      <div className="flex gap-4 mb-6">
+      {/* Фильтры по году, месяцу и станции */}
+      <div className="flex gap-4 mb-6 flex-wrap">
         <div>
           <label
             htmlFor="year"
@@ -167,6 +235,28 @@ export default function JurInfo() {
             ))}
           </select>
         </div>
+
+        <div>
+          <label
+            htmlFor="station"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Станция
+          </label>
+          <select
+            id="station"
+            value={selectedStation}
+            onChange={(e) => setSelectedStation(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">Все станции</option>
+            {userStations?.map((station) => (
+              <option key={station.id} value={station.id}>
+                {station.moljal} (№{station.station_number})
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Таблица с данными */}
@@ -178,7 +268,7 @@ export default function JurInfo() {
         <div className="overflow-x-auto">
           <div className="min-w-full divide-y divide-gray-200">
             {/* Заголовки таблицы */}
-            <div className="grid grid-cols-7 bg-gray-50 py-3 px-4 font-medium text-gray-500 uppercase tracking-wider">
+            <div className="grid grid-cols-8 bg-gray-50 py-3 px-4 font-medium text-gray-500 uppercase tracking-wider">
               <div className="col-span-1 text-center">ID</div>
               <div className="col-span-1 text-center">Номи</div>
               <div className="col-span-1 text-center">Ой бошига сальдо</div>
@@ -186,39 +276,64 @@ export default function JurInfo() {
               <div className="col-span-1 text-center">Қиймати</div>
               <div className="col-span-1 text-center">Тўланди</div>
               <div className="col-span-1 text-center">Ой охирига сальдо</div>
+              <div className="col-span-1 text-center"></div>
             </div>
 
             {/* Тело таблицы */}
             <div className="divide-y divide-gray-200">
-              {monthlyData.map((item) => (
-                <div
-                  key={item.id}
-                  className={`grid grid-cols-7 py-3 px-4 ${
-                    item.hasPositiveBalance ? "bg-red-100" : "hover:bg-gray-50"
-                  }`}
-                >
-                  <div className="col-span-1 text-center">{item.id}</div>
-                  <div className="col-span-1">{item.name}</div>
-                  <div className="col-span-1 text-center">
-                    {item.initialBalance.toLocaleString()}
+              {monthlyData.length > 0 ? (
+                monthlyData.map((item) => (
+                  <div
+                    key={item.id}
+                    className={`grid grid-cols-8 py-3 px-4 ${
+                      item.hasPositiveBalance
+                        ? "bg-red-100"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className="col-span-1 text-center">{item.id}</div>
+                    <div className="col-span-1">{item.name}</div>
+                    <div className="col-span-1 text-center">
+                      {item.initialBalance.toLocaleString()}
+                    </div>
+                    <div className="col-span-1 text-center">
+                      {item.totalGas.toLocaleString()}
+                    </div>
+                    <div className="col-span-1 text-center">
+                      {item.totalSum.toLocaleString()}
+                    </div>
+                    <div className="col-span-1 text-center">
+                      {item.totalPayment.toLocaleString()}
+                    </div>
+                    <div className="col-span-1 text-center">
+                      {item.finalBalance.toLocaleString()}
+                    </div>
+                    <div className="col-span-1 text-center">
+                      <button
+                        className="btn btn-outline"
+                        onClick={() => openPartnerDetails(item)}
+                      >
+                        Подробно
+                      </button>
+                    </div>
                   </div>
-                  <div className="col-span-1 text-center">
-                    {item.totalGas.toLocaleString()}
-                  </div>
-                  <div className="col-span-1 text-center">
-                    {item.totalSum.toLocaleString()}
-                  </div>
-                  <div className="col-span-1 text-center">
-                    {item.totalPayment.toLocaleString()}
-                  </div>
-                  <div className="col-span-1 text-center">
-                    {item.finalBalance.toLocaleString()}
-                  </div>
+                ))
+              ) : (
+                <div className="py-4 text-center text-gray-500 col-span-8">
+                  Нет данных для отображения
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
+      )}
+      {isModalOpen && selectedPartner && (
+        <PartnerReportDetail
+          partners={partners}
+          partner={selectedPartner}
+          onClose={() => setIsModalOpen(false)}
+          user={user}
+        />
       )}
     </div>
   );

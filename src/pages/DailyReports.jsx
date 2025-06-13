@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAppStore } from "../lib/zustand";
 import {
   getDailyReports,
+  getDocs,
   getPartnerDailyReports,
   getPartners,
   getStations,
@@ -15,6 +16,7 @@ import AddNewDailyReport from "../components/AddNewDailyReport";
 import * as XLSX from "xlsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { useTokenValidation } from "../hooks/useTokenValidation";
 
 function DailyReports() {
   const [sendingData, setSendingData] = useState(null);
@@ -40,10 +42,17 @@ function DailyReports() {
   const stations = useAppStore((state) => state.stations);
   const setStations = useAppStore((state) => state.setStations);
 
+  const setSmazka = useAppStore((state) => state.setSmazka);
+
+  useTokenValidation(() => getDocs(user?.access_token, "smazka"), setSmazka);
+
   // Получаем станции оператора
-  const filteredStations = stations?.filter((station) =>
-    station.operators.includes(user?.id.toString())
-  );
+  const filteredStations =
+    Array.isArray(stations) && stations.length > 0
+      ? stations.filter((station) =>
+          station.operators.includes(user?.id.toString())
+        )
+      : [];
 
   const [filStat] = filteredStations;
 
@@ -227,16 +236,20 @@ function DailyReports() {
     <>
       <div className="overflow-x-auto">
         <div className="flex justify-between mx-5 mb-8">
-          <h1 className="text-3xl font-bold">
-            {filStat.moljal} заправкасини кунлик ҳисоботи
-          </h1>
+          {loading ? (
+            <PulseLoader size={10} />
+          ) : (
+            <h1 className="text-3xl font-bold">
+              {filStat?.moljal} заправкасини кунлик ҳисоботи
+            </h1>
+          )}
 
           <div className="flex gap-2">
             <Button
               onClick={setAddItemModal}
-              disabled={!filteredStations?.length}
+              disabled={!filteredStations?.length || loading}
               className={
-                filteredStations?.length
+                filteredStations?.length && !loading
                   ? "cursor-pointer"
                   : "cursor-not-allowed"
               }
