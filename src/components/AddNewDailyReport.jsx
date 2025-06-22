@@ -810,16 +810,38 @@ export default function AddNewDailyReport({
                 </Label>
                 <Input
                   type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
+                  inputMode="decimal"
                   id="pilot"
                   name="pilot"
                   className="h-9 text-sm"
                   required
                   value={formValues.pilot}
                   onChange={(e) => {
-                    if (/^\d*$/.test(e.target.value)) {
-                      handleInputChange(e);
+                    // Разрешаем цифры, точку или запятую с максимум 2 знаками после запятой
+                    const value = e.target.value.replace(/,/g, "."); // Заменяем запятые на точки
+
+                    // Проверяем формат: цифры, необязательная точка и до 2 цифр после
+                    if (/^\d*\.?\d{0,2}$/.test(value) || value === "") {
+                      // Создаем искусственное событие с обновленным значением
+                      const newEvent = {
+                        ...e,
+                        target: {
+                          ...e.target,
+                          name: "pilot",
+                          value: value,
+                        },
+                      };
+                      handleInputChange(newEvent);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    // Разрешаем: цифры, точку, запятую, Backspace, Delete, стрелки, Tab
+                    if (
+                      !/[0-9.,]|Backspace|Delete|ArrowLeft|ArrowRight|Tab/.test(
+                        e.key
+                      )
+                    ) {
+                      e.preventDefault();
                     }
                   }}
                   disabled={loading}
@@ -958,7 +980,7 @@ export default function AddNewDailyReport({
                 type="button"
                 disabled={loading}
               >
-                Отмена
+                Бекор қилиш
               </Button>
               <Button
                 className="h-9 flex-1"
@@ -968,7 +990,7 @@ export default function AddNewDailyReport({
                 {loading ? (
                   <ClipLoader color="#ffffff" size={15} />
                 ) : (
-                  "Сохранить отчет"
+                  "Хисоботни сақлаш "
                 )}
               </Button>
             </div>

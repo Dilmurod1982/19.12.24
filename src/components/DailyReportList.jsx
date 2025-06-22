@@ -57,9 +57,9 @@ function DailyReportList({
       });
   }, [user, setStations, setUser]);
 
-  const filteredStations = stations?.filter((station) =>
-    station.operators.includes(user?.id.toString())
-  );
+  const filteredStations = Array.isArray(stations) 
+  ? stations.filter((station) => station.operators.includes(user?.id.toString()))
+  : [];
 
   const station_id = filteredStations[0];
 

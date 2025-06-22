@@ -46,6 +46,7 @@ export default function Login() {
                 type="text"
                 placeholder="Логинингизни киритинг"
                 required
+                autoComplete="username"
               />
             </div>
             <div>
@@ -56,6 +57,7 @@ export default function Login() {
                 type="password"
                 placeholder="Паролингизни киритинг"
                 required
+                autoComplete="current-password"
               />
             </div>
             <div>

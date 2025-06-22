@@ -228,7 +228,8 @@ function DailyReports() {
 
   // Получение названия станции по ID
   const getStationName = (id) => {
-    const station = stations?.find((s) => s.id === id);
+    if (!Array.isArray(stations)) return "Номаълум шахобча";
+    const station = stations.find((s) => s.id === id);
     return station ? station.name : "Номаълум шахобча";
   };
 
