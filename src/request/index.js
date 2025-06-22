@@ -1068,3 +1068,28 @@ export const registerPayment = async (token, paymentData) => {
     throw error;
   }
 };
+
+export const updatePartnerDailyReport = async (token, reportId, reportData) => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/partnersdailyreports/${reportId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(reportData),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Ошибка HTTP: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Ошибка при обновлении отчета:", error);
+    throw error;
+  }
+};

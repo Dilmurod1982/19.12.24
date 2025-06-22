@@ -1,6 +1,5 @@
-// PartnerReportDetail.js
 import React, { useState, useEffect } from "react";
-import { getPartnerDailyReports } from "../request";
+import { getPartnerDailyReports, updatePartnerDailyReport } from "../request";
 
 export default function PartnerReportDetail({
   partners,
@@ -12,6 +11,7 @@ export default function PartnerReportDetail({
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [dailyReports, setDailyReports] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [recalculating, setRecalculating] = useState(false);
 
   const filteredPartners =
     partners && Array.isArray(partners)
@@ -55,6 +55,8 @@ export default function PartnerReportDetail({
           reportDate.getMonth() + 1 === selectedMonth
         );
       });
+      // Сортируем отчеты по дате
+      filteredReports.sort((a, b) => new Date(a.date) - new Date(b.date));
       setDailyReports(filteredReports);
     } catch (error) {
       console.error("Ошибка при загрузке ежедневных отчетов:", error);
@@ -72,9 +74,7 @@ export default function PartnerReportDetail({
       try {
         const parsed = JSON.parse(payment);
         if (Array.isArray(parsed)) {
-          return parsed.reduce(
-            (sum, p) => sum + (Number(p.paymentSum) || 0, 0)
-          );
+          return parsed.reduce((sum, p) => sum + Number(p.paymentSum) || 0, 0);
         }
       } catch (e) {
         console.error("Ошибка парсинга payment:", e);
@@ -84,6 +84,63 @@ export default function PartnerReportDetail({
     }
 
     return 0;
+  };
+
+  // Функция для перерасчета отчетов
+  const handleRecalculate = async () => {
+    if (!dailyReports.length) return;
+
+    setRecalculating(true);
+    try {
+      // Создаем копию отчетов, отсортированных по дате
+      const sortedReports = [...dailyReports].sort(
+        (a, b) => new Date(a.date) - new Date(b.date)
+      );
+
+      // Массив для хранения обновленных отчетов
+      const updatedReports = [];
+      let previousBalance = 0;
+
+      // Перерасчет для каждого отчета
+      for (let i = 0; i < sortedReports.length; i++) {
+        const report = sortedReports[i];
+
+        // Для первого отчета используем его начальное сальдо
+        // Для последующих - конечное сальдо предыдущего отчета
+        const initialBalance =
+          i === 0 ? Number(report.initial_balace) : previousBalance;
+
+        const totalPayments = calculateTotalPayment(report.payment);
+        const finalBalance =
+          initialBalance + Number(report.total_sum) - totalPayments;
+
+        // Создаем обновленный отчет
+        const updatedReport = {
+          ...report,
+          initial_balace: initialBalance.toString(),
+          final_balance: finalBalance.toString(),
+        };
+
+        updatedReports.push(updatedReport);
+        previousBalance = finalBalance;
+      }
+
+      // Отправляем обновленные отчеты на сервер
+      const updatePromises = updatedReports.map((report) =>
+        updatePartnerDailyReport(user?.access_token, report.id, report)
+      );
+
+      await Promise.all(updatePromises);
+
+      // Обновляем локальное состояние
+      setDailyReports(updatedReports);
+      alert("Перерасчет успешно выполнен!");
+    } catch (error) {
+      console.error("Ошибка при перерасчете:", error);
+      alert("Произошла ошибка при перерасчете");
+    } finally {
+      setRecalculating(false);
+    }
   };
 
   return (
@@ -96,6 +153,17 @@ export default function PartnerReportDetail({
               Детали отчета: {filteredPartners[0].partner_name}
             </h2>
             <div className="flex gap-2">
+              <button
+                onClick={handleRecalculate}
+                disabled={recalculating || dailyReports.length === 0}
+                className={`px-4 py-2 ${
+                  recalculating || dailyReports.length === 0
+                    ? "bg-gray-400"
+                    : "bg-green-500 hover:bg-green-600"
+                } text-white rounded-md transition-colors print:hidden`}
+              >
+                {recalculating ? "Перерасчет..." : "Перерасчет"}
+              </button>
               <button
                 onClick={() => window.print()}
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors print:hidden"
@@ -179,7 +247,8 @@ export default function PartnerReportDetail({
           {/* Заголовок периода для печати */}
           <div className="hidden print:block mb-4">
             <h3 className="text-lg font-semibold">
-              Отчет за {months.find(m => m.value === selectedMonth)?.name} {selectedYear} года
+              Отчет за {months.find((m) => m.value === selectedMonth)?.name}{" "}
+              {selectedYear} года
             </h3>
           </div>
 
@@ -221,7 +290,10 @@ export default function PartnerReportDetail({
                     dailyReports.map((report, index) => {
                       const reportDate = new Date(report.date);
                       return (
-                        <tr key={report.id} className="print:border-b print:border-gray-200">
+                        <tr
+                          key={report.id}
+                          className="print:border-b print:border-gray-200"
+                        >
                           <td className="px-6 py-4 whitespace-nowrap">
                             {index + 1}
                           </td>
