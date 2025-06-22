@@ -935,7 +935,7 @@ export async function unassignStation(stationId, userId, token) {
 // };
 
 export const registerPayment = async (token, paymentData) => {
-  console.log("1. paymentData:", paymentData);
+  // console.log("1. paymentData:", paymentData);
   try {
     // 1. Сначала получаем все отчеты
     const reportsResponse = await fetch(`${BASE_URL}/partnersdailyreports`, {
@@ -949,10 +949,10 @@ export const registerPayment = async (token, paymentData) => {
       throw new Error(`Ошибка HTTP: ${reportsResponse.status}`);
     }
     const responseData = await reportsResponse.json();
-    console.log("2. responseData:", responseData);
+    // console.log("2. responseData:", responseData);
 
     const allReports = responseData.data || [];
-    console.log("3. allReports:", allReports);
+    // console.log("3. allReports:", allReports);
 
     if (!Array.isArray(allReports)) {
       throw new Error("Некорректный формат данных от сервера");
@@ -965,7 +965,7 @@ export const registerPayment = async (token, paymentData) => {
         report.station_id == paymentData.station_id &&
         report.partner_id == paymentData.partner_id
     );
-    console.log("4. targetReport:", targetReport);
+    // console.log("4. targetReport:", targetReport);
 
     if (!targetReport) {
       throw new Error("Отчет не найден для указанной даты, станции и партнера");
@@ -1007,7 +1007,7 @@ export const registerPayment = async (token, paymentData) => {
       )
       .sort((a, b) => new Date(a.date) - new Date(b.date)); // Сортируем по дате
 
-    console.log("5. subsequentReports:", subsequentReports);
+    // console.log("5. subsequentReports:", subsequentReports);
 
     // 6. Создаем массив для обновления всех отчетов
     const reportsToUpdate = [updatedReport];
@@ -1037,7 +1037,7 @@ export const registerPayment = async (token, paymentData) => {
       previousBalance = newFinalBalance;
     }
 
-    console.log("6. reportsToUpdate:", reportsToUpdate);
+    // console.log("6. reportsToUpdate:", reportsToUpdate);
 
     // 8. Отправляем все обновленные отчеты на сервер
     const updatePromises = reportsToUpdate.map((report) =>
