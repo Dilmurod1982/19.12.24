@@ -9,6 +9,7 @@ import {
 import { useTokenValidation } from "../hooks/useTokenValidation";
 import { Link } from "react-router-dom";
 import PartnerReportDetail from "../components/PartnerReportDetail";
+import * as XLSX from "xlsx";
 
 export default function JurInfo() {
   const user = useAppStore((state) => state.user);
@@ -94,6 +95,40 @@ export default function JurInfo() {
   };
 
   const userStations = getUserStations();
+
+  // Форматирование числа с группировкой
+  const formatNumber = (num) => {
+    return new Intl.NumberFormat("ru-RU").format(num);
+  };
+
+  // Экспорт в Excel
+  const exportToExcel = () => {
+    const dataForExport = monthlyData.map((item) => ({
+      ID: item.id,
+      Номи: item.name,
+      "Ой бошига сальдо": item.initialBalance,
+      "Тўлдирилди, м3": item.totalGas,
+      Қиймати: item.totalSum,
+      Тўланди: item.totalPayment,
+      "Ой охирига сальдо": item.finalBalance,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataForExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Юридик шахслар");
+
+    // Генерируем название файла
+    const stationName =
+      selectedStation === "all"
+        ? "Барча станциялар"
+        : userStations.find((s) => s.id === Number(selectedStation))?.moljal ||
+          "Станция";
+    const fileName = `Юридик шахслар_${stationName}_${
+      months[selectedMonth - 1].name
+    }_${selectedYear}.xlsx`;
+
+    XLSX.writeFile(workbook, fileName);
+  };
 
   // Получаем данные за выбранный месяц и год с фильтрацией по станции
   const getMonthlyData = () => {
@@ -193,7 +228,7 @@ export default function JurInfo() {
       <h1 className="text-2xl font-bold mb-6">Отчет по юридическим лицам</h1>
 
       {/* Фильтры по году, месяцу и станции */}
-      <div className="flex gap-4 mb-6 flex-wrap">
+      <div className="flex gap-4 mb-6 flex-wrap items-end">
         <div>
           <label
             htmlFor="year"
@@ -257,6 +292,28 @@ export default function JurInfo() {
             ))}
           </select>
         </div>
+
+        {/* Кнопка экспорта в Excel */}
+        <button
+          onClick={exportToExcel}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          Excelга юклаб олиш
+        </button>
       </div>
 
       {/* Таблица с данными */}
@@ -294,19 +351,19 @@ export default function JurInfo() {
                     <div className="col-span-1 text-center">{item.id}</div>
                     <div className="col-span-1">{item.name}</div>
                     <div className="col-span-1 text-center">
-                      {item.initialBalance.toLocaleString()}
+                      {formatNumber(item.initialBalance)}
                     </div>
                     <div className="col-span-1 text-center">
-                      {item.totalGas.toLocaleString()}
+                      {formatNumber(item.totalGas)}
                     </div>
                     <div className="col-span-1 text-center">
-                      {item.totalSum.toLocaleString()}
+                      {formatNumber(item.totalSum)}
                     </div>
                     <div className="col-span-1 text-center">
-                      {item.totalPayment.toLocaleString()}
+                      {formatNumber(item.totalPayment)}
                     </div>
                     <div className="col-span-1 text-center">
-                      {item.finalBalance.toLocaleString()}
+                      {formatNumber(item.finalBalance)}
                     </div>
                     <div className="col-span-1 text-center">
                       <button
