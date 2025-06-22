@@ -951,7 +951,6 @@ export const registerPayment = async (token, paymentData) => {
     const responseData = await reportsResponse.json();
     console.log("2. responseData:", responseData);
 
-    // Исправлено: получаем отчеты из свойства data
     const allReports = responseData.data || [];
     console.log("3. allReports:", allReports);
 
@@ -963,7 +962,7 @@ export const registerPayment = async (token, paymentData) => {
     const targetReport = allReports.find(
       (report) =>
         report.date === paymentData.paymentDate &&
-        report.station_id == paymentData.station_id && // Используем == вместо === для чисел в строке
+        report.station_id == paymentData.station_id &&
         report.partner_id == paymentData.partner_id
     );
     console.log("4. targetReport:", targetReport);
@@ -981,47 +980,89 @@ export const registerPayment = async (token, paymentData) => {
       create_time: new Date().toISOString(),
     };
 
-    // 4. Обновляем массив платежей и балансы
+    // 4. Обновляем массив платежей и балансы текущего отчета
     const updatedPayments = [...(targetReport.payment || []), newPayment];
-
-    // Рассчитываем сумму всех платежей
     const totalPayments = updatedPayments.reduce(
       (sum, payment) => sum + parseInt(payment.paymentSum || 0, 10),
       0
     );
-
-    // Обновляем финальный баланс
     const updatedFinalBalance =
       parseInt(targetReport.initial_balace || 0, 10) +
       parseInt(targetReport.total_sum || 0, 10) -
       totalPayments;
 
-    // 5. Отправляем обновленный отчет на сервер
     const updatedReport = {
       ...targetReport,
       payment: updatedPayments,
       final_balance: updatedFinalBalance.toString(),
     };
 
-    const updateResponse = await fetch(
-      `${BASE_URL}/partnersdailyreports/${targetReport.id}`,
-      {
+    // 5. Находим все последующие отчеты для этого партнера и станции
+    const subsequentReports = allReports
+      .filter(
+        (report) =>
+          report.station_id == paymentData.station_id &&
+          report.partner_id == paymentData.partner_id &&
+          new Date(report.date) > new Date(paymentData.paymentDate)
+      )
+      .sort((a, b) => new Date(a.date) - new Date(b.date)); // Сортируем по дате
+
+    console.log("5. subsequentReports:", subsequentReports);
+
+    // 6. Создаем массив для обновления всех отчетов
+    const reportsToUpdate = [updatedReport];
+    let previousBalance = updatedFinalBalance;
+
+    // 7. Пересчитываем балансы для последующих отчетов
+    for (const report of subsequentReports) {
+      const reportPayments = report.payment || [];
+      const totalReportPayments = reportPayments.reduce(
+        (sum, payment) => sum + parseInt(payment.paymentSum || 0, 10),
+        0
+      );
+
+      const newInitialBalance = previousBalance;
+      const newFinalBalance =
+        newInitialBalance +
+        parseInt(report.total_sum || 0, 10) -
+        totalReportPayments;
+
+      const updatedReport = {
+        ...report,
+        initial_balace: newInitialBalance.toString(),
+        final_balance: newFinalBalance.toString(),
+      };
+
+      reportsToUpdate.push(updatedReport);
+      previousBalance = newFinalBalance;
+    }
+
+    console.log("6. reportsToUpdate:", reportsToUpdate);
+
+    // 8. Отправляем все обновленные отчеты на сервер
+    const updatePromises = reportsToUpdate.map((report) =>
+      fetch(`${BASE_URL}/partnersdailyreports/${report.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(updatedReport),
-      }
+        body: JSON.stringify(report),
+      })
     );
 
-    const result = await updateResponse.json();
+    const updateResponses = await Promise.all(updatePromises);
 
-    if (!updateResponse.ok) {
-      throw new Error(result.message || "Ошибка при обновлении отчета");
+    // Проверяем все ответы
+    for (const response of updateResponses) {
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Ошибка при обновлении отчетов");
+      }
     }
 
-    return result;
+    const results = await Promise.all(updateResponses.map((r) => r.json()));
+    return results[0]; // Возвращаем результат первого обновления (основного платежа)
   } catch (error) {
     console.error("Error in registerPayment:", error);
     throw error;
