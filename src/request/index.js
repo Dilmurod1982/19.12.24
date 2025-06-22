@@ -594,23 +594,23 @@ export async function registerPartner(token, data) {
   console.log(res.status, res, await res.json());
 }
 
-export async function registerPayment(token, data) {
-  const res = await fetch(BASE_URL + "/payment", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  });
+// export async function registerPayment(token, data) {
+//   const res = await fetch(BASE_URL + "/payment", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${token}`,
+//     },
+//     body: JSON.stringify(data),
+//   });
 
-  if (res.ok) {
-    return await res.json();
-  }
+//   if (res.ok) {
+//     return await res.json();
+//   }
 
-  const errorData = await res.json().catch(() => ({}));
-  throw new Error(errorData.message || "Произошла ошибка при создании платежа");
-}
+//   const errorData = await res.json().catch(() => ({}));
+//   throw new Error(errorData.message || "Произошла ошибка при создании платежа");
+// }
 
 export async function createPartnerDailyReport(token, data) {
   const res = await fetch(BASE_URL + "/partnersdailyreports", {
@@ -921,3 +921,109 @@ export async function unassignStation(stationId, userId, token) {
   if (res.status === 403) throw new Error("403");
   return await res.json();
 }
+
+// export const registerPayment = async (token, paymentData) => {
+//   const response = await fetch(`${BASE_URL}/partnersdailyreports/payment`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${token}`,
+//     },
+//     body: JSON.stringify(paymentData),
+//   });
+//   return await response.json();
+// };
+
+export const registerPayment = async (token, paymentData) => {
+  console.log("1. paymentData:", paymentData);
+  try {
+    // 1. Сначала получаем все отчеты
+    const reportsResponse = await fetch(`${BASE_URL}/partnersdailyreports`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!reportsResponse.ok) {
+      throw new Error(`Ошибка HTTP: ${reportsResponse.status}`);
+    }
+    const responseData = await reportsResponse.json();
+    console.log("2. responseData:", responseData);
+
+    // Исправлено: получаем отчеты из свойства data
+    const allReports = responseData.data || [];
+    console.log("3. allReports:", allReports);
+
+    if (!Array.isArray(allReports)) {
+      throw new Error("Некорректный формат данных от сервера");
+    }
+
+    // 2. Находим нужный отчет по дате, станции и партнеру
+    const targetReport = allReports.find(
+      (report) =>
+        report.date === paymentData.paymentDate &&
+        report.station_id == paymentData.station_id && // Используем == вместо === для чисел в строке
+        report.partner_id == paymentData.partner_id
+    );
+    console.log("4. targetReport:", targetReport);
+
+    if (!targetReport) {
+      throw new Error("Отчет не найден для указанной даты, станции и партнера");
+    }
+
+    // 3. Создаем новый платеж
+    const newPayment = {
+      paymentNumber: paymentData.paymentNumber,
+      paymentSum: paymentData.paymentSum,
+      approval: paymentData.approval || 0,
+      user_id: paymentData.user_id,
+      create_time: new Date().toISOString(),
+    };
+
+    // 4. Обновляем массив платежей и балансы
+    const updatedPayments = [...(targetReport.payment || []), newPayment];
+
+    // Рассчитываем сумму всех платежей
+    const totalPayments = updatedPayments.reduce(
+      (sum, payment) => sum + parseInt(payment.paymentSum || 0, 10),
+      0
+    );
+
+    // Обновляем финальный баланс
+    const updatedFinalBalance =
+      parseInt(targetReport.initial_balace || 0, 10) +
+      parseInt(targetReport.total_sum || 0, 10) -
+      totalPayments;
+
+    // 5. Отправляем обновленный отчет на сервер
+    const updatedReport = {
+      ...targetReport,
+      payment: updatedPayments,
+      final_balance: updatedFinalBalance.toString(),
+    };
+
+    const updateResponse = await fetch(
+      `${BASE_URL}/partnersdailyreports/${targetReport.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedReport),
+      }
+    );
+
+    const result = await updateResponse.json();
+
+    if (!updateResponse.ok) {
+      throw new Error(result.message || "Ошибка при обновлении отчета");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error in registerPayment:", error);
+    throw error;
+  }
+};
