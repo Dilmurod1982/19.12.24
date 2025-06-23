@@ -127,7 +127,7 @@ function App() {
         {
           index: true,
           element: role ? (
-            role === "admin" || role === "nazorat" ? (
+            role === "admin" || role === "nazorat"  || role === "nazoratBooker" ? (
               <Home />
             ) : role === "user" ? (
               <Navigate to="/userhome" />

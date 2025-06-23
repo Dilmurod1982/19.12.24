@@ -37,11 +37,13 @@ export default function Home() {
             </Button>
           </>
         )}
-        <Button className="w-full">
-          <Link className="text-2xl" to="/stations">
-            Шахобчалар
-          </Link>
-        </Button>
+        {(user.type === "admin" || user.type === "nazorat") && (
+          <Button className="w-full">
+            <Link className="text-2xl" to="/stations">
+              Шахобчалар
+            </Link>
+          </Button>
+        )}
         <Button className="w-full">
           <Link className="text-2xl" to="/docs">
             Муддатли хужжатлар
@@ -52,6 +54,13 @@ export default function Home() {
             Муддатсиз хужжатлар
           </Link>
         </Button>
+        {(user.type === "admin" || user.type === "nazoratBooker") && (
+          <Button className="w-full">
+            <Link className="text-2xl" to="/dailyreports">
+              Кунлик ҳисоботлар
+            </Link>
+          </Button>
+        )}
       </div>
     </div>
   );

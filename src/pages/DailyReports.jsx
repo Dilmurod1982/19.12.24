@@ -24,6 +24,7 @@ function DailyReports() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedStation, setSelectedStation] = useState("all");
+  const [reportsLoaded, setReportsLoaded] = useState(false);
 
   const partnersDailyReports = useAppStore(
     (state) => state.partnersDailyReports
@@ -57,47 +58,50 @@ function DailyReports() {
   const [filStat] = filteredStations;
 
   // Фильтрация отчетов по выбранному месяцу, году и станции
-  const filteredReports = dailyreports?.filter((report) => {
-    const reportDate = new Date(report.date);
-    const matchesMonth = reportDate.getMonth() + 1 === selectedMonth;
-    const matchesYear = reportDate.getFullYear() === selectedYear;
-    const matchesStation =
-      selectedStation === "all" ||
-      report.station_id === parseInt(selectedStation);
+  const filteredReports = reportsLoaded
+    ? dailyreports?.filter((report) => {
+        const reportDate = new Date(report.date);
+        const matchesMonth = reportDate.getMonth() + 1 === selectedMonth;
+        const matchesYear = reportDate.getFullYear() === selectedYear;
+        const matchesStation =
+          selectedStation === "all" ||
+          report.station_id === parseInt(selectedStation);
 
-    return matchesMonth && matchesYear && matchesStation;
-  });
+        return matchesMonth && matchesYear && matchesStation;
+      })
+    : [];
 
   const loadData = async () => {
     setLoading(true);
     try {
-      // Загрузка станций
-      const stationsResponse = await getStations(user?.access_token);
-      setStations(stationsResponse.data);
-
-      // Загрузка отчетов
+      // Загрузка отчетов только при нажатии кнопки
       const reportsResponse = await getDailyReports(user?.access_token);
       setDailyreports(reportsResponse);
-
-      // Загрузка отчетов по партнерам
-      const partnersReportsResponse = await getPartnerDailyReports(
-        user?.access_token
-      );
-      setPartnersDailyReports(partnersReportsResponse);
-
-      // Загрузка списка партнеров
-      const partnersResponse = await getPartners(user?.access_token);
-      setPartners(partnersResponse);
+      setReportsLoaded(true);
     } catch (error) {
-      // ... обработка ошибок ...
+      console.error("Ошибка при загрузке отчетов:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  const loadInitialData = async () => {
+    try {
+      // Загрузка станций при монтировании компонента
+      const stationsResponse = await getStations(user?.access_token);
+      setStations(stationsResponse.data);
+
+      // Загрузка списка партнеров при монтировании компонента
+      const partnersResponse = await getPartners(user?.access_token);
+      setPartners(partnersResponse);
+    } catch (error) {
+      console.error("Ошибка при загрузке начальных данных:", error);
+    }
+  };
+
   useEffect(() => {
-    loadData();
-  }, [user, sendingData]);
+    loadInitialData();
+  }, [user]);
 
   // Сортировка отчетов по дате
   const sortedReports = filteredReports
@@ -131,9 +135,7 @@ function DailyReports() {
   const exportToExcel = () => {
     if (!sortedReports || sortedReports.length === 0) return;
 
-    // Создаем массив данных для Excel
     const excelData = [
-      // Шапка документа
       [],
       [
         `${
@@ -145,8 +147,7 @@ function DailyReports() {
         }" ойи " ҳисоботи`,
       ],
       [`Ҳисобот тузилган вақт ${new Date().toLocaleString()}`],
-      [], // Пустая строка для разделения
-      // Заголовки таблицы
+      [],
       [
         "#",
         "Сана",
@@ -160,7 +161,6 @@ function DailyReports() {
         "Z-отчет",
         "Станция",
       ],
-      // Данные
       ...sortedReports.map((report, index) => [
         index + 1,
         new Date(report.date).toLocaleDateString(),
@@ -176,18 +176,15 @@ function DailyReports() {
       ]),
     ];
 
-    // Создаем новую книгу Excel
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.aoa_to_sheet(excelData);
 
-    // Устанавливаем стили для шапки
     if (!worksheet["!merges"]) worksheet["!merges"] = [];
     worksheet["!merges"].push(
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }, // Объединение ячеек для заголовка
-      { s: { r: 2, c: 0 }, e: { r: 2, c: 10 } } // Объединение ячеек для даты формирования
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } },
+      { s: { r: 2, c: 0 }, e: { r: 2, c: 10 } }
     );
 
-    // Устанавливаем границы для всей таблицы
     const range = XLSX.utils.decode_range(worksheet["!ref"]);
     for (let R = range.s.r; R <= range.e.r; ++R) {
       for (let C = range.s.c; C <= range.e.c; ++C) {
@@ -196,7 +193,6 @@ function DailyReports() {
 
         if (!worksheet[cell_ref]) continue;
 
-        // Устанавливаем стиль границы
         worksheet[cell_ref].s = worksheet[cell_ref].s || {};
         worksheet[cell_ref].s.border = {
           top: { style: "thin", color: { rgb: "000000" } },
@@ -205,28 +201,24 @@ function DailyReports() {
           right: { style: "thin", color: { rgb: "000000" } },
         };
 
-        // Жирный шрифт для заголовков
         if (R === 4) {
           worksheet[cell_ref].s.font = { bold: true };
         }
       }
     }
 
-    // Добавляем лист в книгу
     XLSX.utils.book_append_sheet(
       workbook,
       worksheet,
       `${months[selectedMonth - 1].label}_${selectedYear}`
     );
 
-    // Сохраняем файл
     XLSX.writeFile(
       workbook,
       `${months[selectedMonth - 1].label}_${selectedYear} кунлик ҳисоботи.xlsx`
     );
   };
 
-  // Получение названия станции по ID
   const getStationName = (id) => {
     if (!Array.isArray(stations)) return "Номаълум шахобча";
     const station = stations.find((s) => s.id === id);
@@ -236,29 +228,31 @@ function DailyReports() {
   return (
     <>
       <div className="overflow-x-auto">
-        <div className="flex justify-between mx-5 mb-8">
-          {loading ? (
-            <PulseLoader size={10} />
-          ) : (
-            <h1 className="text-3xl font-bold">
-              {filStat?.moljal} заправкасини кунлик ҳисоботи
-            </h1>
-          )}
+        {user.type === "operator" && (
+          <div className="flex justify-between mx-5 mb-8">
+            {loading ? (
+              <PulseLoader size={10} />
+            ) : (
+              <h1 className="text-3xl font-bold">
+                {filStat?.moljal} заправкасини кунлик ҳисоботи
+              </h1>
+            )}
 
-          <div className="flex gap-2">
-            <Button
-              onClick={setAddItemModal}
-              disabled={!filteredStations?.length || loading}
-              className={
-                filteredStations?.length && !loading
-                  ? "cursor-pointer"
-                  : "cursor-not-allowed"
-              }
-            >
-              Кунлик ҳисоботни яратиш
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={setAddItemModal}
+                disabled={!filteredStations?.length || loading}
+                className={
+                  filteredStations?.length && !loading
+                    ? "cursor-pointer"
+                    : "cursor-not-allowed"
+                }
+              >
+                Кунлик ҳисоботни яратиш
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Фильтры */}
         <div className="flex gap-4 mb-4 mx-5">
@@ -292,22 +286,27 @@ function DailyReports() {
               value={selectedStation}
               onChange={(e) => setSelectedStation(e.target.value)}
             >
-              <option value="all">Все станции</option>
-              {stations?.map((station) => (
-                <option key={station.id} value={station.id}>
-                  {station.name}
-                </option>
-              ))}
+              <option value="all">Барча шахобчалар</option>
+              {Array.isArray(stations) &&
+                stations.map((station) => (
+                  <option key={station.id} value={station.id}>
+                    {station.moljal}
+                  </option>
+                ))}
             </select>
           )}
 
-          <button onClick={exportToExcel} disabled={!sortedReports?.length}>
+          <Button onClick={loadData} disabled={loading}>
+            {loading ? <PulseLoader size={8} color="#fff" /> : "Юклаш"}
+          </Button>
+
+          <button
+            onClick={exportToExcel}
+            disabled={!sortedReports?.length}
+            className="btn btn-outline"
+          >
             <FontAwesomeIcon icon={faFileExcel} /> Excel
           </button>
-
-          {/* <Button onClick={loadData} disabled={loading}>
-            {loading ? <PulseLoader size={8} color="#fff" /> : "Обновить"}
-          </Button> */}
         </div>
 
         <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
@@ -336,7 +335,7 @@ function DailyReports() {
                     </div>
                   </td>
                 </tr>
-              ) : sortedReports && sortedReports.length > 0 ? (
+              ) : reportsLoaded && sortedReports && sortedReports.length > 0 ? (
                 sortedReports.map((report) => (
                   <DailyReportList
                     key={report.id}
@@ -346,7 +345,7 @@ function DailyReports() {
                     partners={partners}
                   />
                 ))
-              ) : (
+              ) : reportsLoaded ? (
                 <tr>
                   <td colSpan="11" className="text-center py-8">
                     {selectedStation === "all"
@@ -358,6 +357,12 @@ function DailyReports() {
                         } ${selectedYear} йил учун "${getStationName(
                           parseInt(selectedStation)
                         )}" станцияси учун`}
+                  </td>
+                </tr>
+              ) : (
+                <tr>
+                  <td colSpan="11" className="text-center py-8">
+                    Выберите месяц, год и станцию, затем нажмите "Загрузить"
                   </td>
                 </tr>
               )}

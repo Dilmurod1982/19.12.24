@@ -211,39 +211,38 @@ function UserProfile() {
         (stationId) => !selectedStations.includes(stationId)
       );
 
-      // Обновляем все станции
-      await Promise.all([
-        ...toAdd.map(async (stationId) => {
-          const station = stations.find((s) => s.id === stationId);
-          const updatedOperators = [
-            ...(station.operators || []),
-            id.toString(),
-          ];
-          // Используем PATCH для обновления операторов станции
-          await fetch(`${BASE_URL}/stations/${stationId}`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${user?.access_token}`,
-            },
-            body: JSON.stringify({ operators: updatedOperators }),
-          });
-        }),
-        ...toRemove.map(async (stationId) => {
-          const station = stations.find((s) => s.id === stationId);
-          const updatedOperators =
-            station.operators?.filter((opId) => opId !== id.toString()) || [];
-          // Используем PATCH для обновления операторов станции
-          await fetch(`${BASE_URL}/stations/${stationId}`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${user?.access_token}`,
-            },
-            body: JSON.stringify({ operators: updatedOperators }),
-          });
-        }),
-      ]);
+      // Сначала удаляем станции
+      for (const stationId of toRemove) {
+        const station = stations.find((s) => s.id === stationId);
+        const updatedOperators =
+          station.operators?.filter((opId) => opId !== id.toString()) || [];
+
+        await fetch(`${BASE_URL}/stations/${stationId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user?.access_token}`,
+          },
+          body: JSON.stringify({ operators: updatedOperators }),
+        });
+        await new Promise((resolve) => setTimeout(resolve, 300)); // Задержка между запросами
+      }
+
+      // Затем добавляем новые станции
+      for (const stationId of toAdd) {
+        const station = stations.find((s) => s.id === stationId);
+        const updatedOperators = [...(station.operators || []), id.toString()];
+
+        await fetch(`${BASE_URL}/stations/${stationId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user?.access_token}`,
+          },
+          body: JSON.stringify({ operators: updatedOperators }),
+        });
+        await new Promise((resolve) => setTimeout(resolve, 300)); // Задержка между запросами
+      }
 
       // Обновляем данные
       await fetchStations();
@@ -253,6 +252,10 @@ function UserProfile() {
         const { access_token } = await refreshToken(user?.refreshToken);
         setUser({ ...user, access_token });
         await saveStationsChanges(); // Повторяем с новым токеном
+      } else if (error.message.includes("429")) {
+        alert(
+          "Слишком много запросов. Пожалуйста, подождите и попробуйте снова."
+        );
       } else {
         console.error("Ошибка при сохранении станций:", error);
       }

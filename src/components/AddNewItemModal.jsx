@@ -365,6 +365,7 @@ export default function AddNewItemModal({ setSendingData, sendingData }) {
                   <SelectContent>
                     <SelectItem value="admin">Админ</SelectItem>
                     <SelectItem value="nazorat">Контроль</SelectItem>
+                    <SelectItem value="nazoratBooker">БухКонтроль</SelectItem>
                     <SelectItem value="user">Руководитель</SelectItem>
                     <SelectItem value="booker">Бухгалтер</SelectItem>
                     <SelectItem value="operator">Оператор</SelectItem>
