@@ -75,11 +75,6 @@ export default function AddNewDailyReport({
   const setStations = useAppStore((state) => state.setStations);
   const setDailyreports = useAppStore((state) => state.setDailyreports);
 
-  const [pendingReports, setPendingReports] = useState({
-    mainReport: null,
-    partnerReports: [],
-  });
-
   const resultsRef = useRef(null);
 
   useEffect(() => {

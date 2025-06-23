@@ -57,9 +57,11 @@ function DailyReportList({
       });
   }, [user, setStations, setUser]);
 
-  const filteredStations = Array.isArray(stations) 
-  ? stations.filter((station) => station.operators.includes(user?.id.toString()))
-  : [];
+  const filteredStations = Array.isArray(stations)
+    ? stations.filter((station) =>
+        station.operators.includes(user?.id.toString())
+      )
+    : [];
 
   const station_id = filteredStations[0];
 
@@ -84,6 +86,8 @@ function DailyReportList({
   // Получаем отчеты по партнерам для этого daily report
   const partnersReports = partnersDailyReports
     ?.filter((report) => {
+      if (!station_id) return false; // Добавляем проверку
+
       const reportDate = new Date(report.date).toISOString().split("T")[0];
       const currentDate = new Date(date).toISOString().split("T")[0];
       return reportDate === currentDate && report.station_id === station_id.id;

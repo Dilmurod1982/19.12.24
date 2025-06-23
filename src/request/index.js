@@ -922,17 +922,7 @@ export async function unassignStation(stationId, userId, token) {
   return await res.json();
 }
 
-// export const registerPayment = async (token, paymentData) => {
-//   const response = await fetch(`${BASE_URL}/partnersdailyreports/payment`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${token}`,
-//     },
-//     body: JSON.stringify(paymentData),
-//   });
-//   return await response.json();
-// };
+
 
 export const registerPayment = async (token, paymentData) => {
   // console.log("1. paymentData:", paymentData);
